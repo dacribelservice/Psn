@@ -8,9 +8,10 @@ import Link from "next/link";
 interface ProfileMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  role?: "admin" | "user";
 }
 
-export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
+export const ProfileMenu = ({ isOpen, onClose, role = "user" }: ProfileMenuProps) => {
   const { language, setLanguage, t } = useLanguage();
 
   const menuItems = [
@@ -30,7 +31,7 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[60] bg-black/10 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-[60] bg-black/5 backdrop-blur-sm"
           />
 
           <motion.div
@@ -48,9 +49,12 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpvdosY8hXR9RcE-AlZ6LYfaccSRjHhhfArF6dJqIfH3op9RoqWHH6MvnDylbgMGnM9UyUjd-R1tXBQWsA0wx69orgeUqgk9IUjg1tjr1774Yzgn6S5zXzkTRhrlIF9KkBpaezh61xMqIkHQTssjjpqu9_4bQE4FzFkBHoqPKFz_CfORnjqqaddZ9i0aJZY-Lx9e-Vba1A0VowKb2Tkb94Pyqw4bXPhvlWSvF2oletob-NnR06Y1Fc1mKNQGFocI-2IfJz20MT8LK0"
                 />
               </div>
+              <span className="text-[10px] font-bold text-primary/60 mb-0.5 lowercase">
+                {role === "admin" ? "admin@dacribel.com" : "cliente@ejemplo.com"}
+              </span>
               <h2 className="text-sm font-black tracking-tight leading-none text-on-surface">Ereogan Aysel</h2>
               <div className="mt-1 px-1 py-0.5 bg-primary/20 border border-primary/30 text-primary rounded text-[8px] font-black uppercase tracking-tighter">
-                {t("admin")}
+                {role === "admin" ? t("admin") : t("user")}
               </div>
             </div>
 
@@ -83,33 +87,37 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
               </button>
             </nav>
 
-            <div className="px-4 py-3 bg-black/30 border-t border-white/5">
-              <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/30 mb-2 block">{t("language")}</span>
-              <div className="relative flex w-full h-8 bg-[#0a0b14] rounded-full p-0.5 border border-white/5 shadow-inner">
+            <div className="px-4 py-4 bg-black/30 border-t border-white/5">
+              <span className="text-[8px] font-black uppercase tracking-[0.25em] text-white/30 mb-3 block text-center">{t("language")}</span>
+              <div className="relative flex w-full h-10 bg-[#0a0b14] rounded-xl p-1 border border-white/5 shadow-2lx">
                 <motion.div
-                  className="absolute h-7 bg-primary rounded-full z-0"
+                  className="absolute h-8 bg-primary/10 rounded-lg z-0 border border-primary/20"
                   animate={{
-                    x: language === "en" ? 0 : "100%",
+                    x: language === "en" ? 0 : "calc(100% - 2px)",
                     width: "50%",
                   }}
-                  transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-                  style={{ left: 2 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 200 }}
+                  style={{ left: 1 }}
                 />
+                
                 <button
                   onClick={() => setLanguage("en")}
-                  className={`relative flex-1 flex items-center justify-center z-10 h-full font-black text-[9px] uppercase tracking-tighter transition-colors ${
-                    language === "en" ? "text-background" : "text-white/30"
+                  className={`relative flex-1 flex items-center justify-center gap-2 z-10 h-full font-black text-[10px] uppercase tracking-tight transition-all duration-300 ${
+                    language === "en" ? "text-primary drop-shadow-[0_0_8px_rgba(242,185,47,0.4)]" : "text-white/30 hover:text-white/50"
                   }`}
                 >
-                  EN
+                  <img src="https://flagcdn.com/w40/us.png" alt="English" className="w-4 h-3 object-cover rounded-[2px] shadow-sm" />
+                  <span>EN</span>
                 </button>
+
                 <button
                   onClick={() => setLanguage("es")}
-                  className={`relative flex-1 flex items-center justify-center z-10 h-full font-black text-[9px] uppercase tracking-tighter transition-colors ${
-                    language === "es" ? "text-background" : "text-white/30"
+                  className={`relative flex-1 flex items-center justify-center gap-2 z-10 h-full font-black text-[10px] uppercase tracking-tight transition-all duration-300 ${
+                    language === "es" ? "text-primary drop-shadow-[0_0_8px_rgba(242,185,47,0.4)]" : "text-white/30 hover:text-white/50"
                   }`}
                 >
-                  ES
+                  <img src="https://flagcdn.com/w40/es.png" alt="Español" className="w-4 h-3 object-cover rounded-[2px] shadow-sm" />
+                  <span>ES</span>
                 </button>
               </div>
             </div>

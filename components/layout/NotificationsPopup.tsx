@@ -22,7 +22,7 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[60] bg-black/5 lg:bg-transparent"
+            className="fixed inset-0 z-[60] bg-black/5"
           />
 
           {/* Compact Inventory Notification Modal */}
