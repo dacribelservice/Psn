@@ -36,7 +36,12 @@ const translations = {
     logout: 'Cerrar Sesión',
     language: 'Idioma',
     english: 'Inglés',
-    spanish: 'Español'
+    spanish: 'Español',
+    system_status: 'Estado del Sistema',
+    inventory: 'Inventario',
+    low_stock: 'Pocas existencias',
+    review_all: 'Revisar todo',
+    units: 'Unidades'
   },
   en: {
     store: 'Store',
@@ -60,7 +65,12 @@ const translations = {
     logout: 'Logout',
     language: 'Language',
     english: 'English',
-    spanish: 'Spanish'
+    spanish: 'Spanish',
+    system_status: 'System Status',
+    inventory: 'Inventory',
+    low_stock: 'Low Stock',
+    review_all: 'Review All',
+    units: 'Units'
   }
 };
 

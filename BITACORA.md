@@ -1,6 +1,11 @@
 # 🛡️ BITÁCORA DE PROYECTO: DACRIBEL - Ethereal Vault
 
-Este documento es la hoja de ruta oficial y el registro de progreso para la aplicación **Dacribel**, una plataforma automatizada de venta de Gift Cards (PSN, Nintendo, Xbox) con pagos en criptomonedas (USDT BEP20).
+> [!IMPORTANT]
+> ### 🚨 REGLAS DE ORO DEL DESARROLLO (ACTUALIZADO 27/03/2026)
+> 1. **PUERTO OBLIGATORIO**: La aplicación siempre debe correr en el puerto **3003**.
+> 2. **DISEÑOS DEL CLIENTE**: El cliente ya tiene todas las pantallas y flujos. **SIEMPRE PREGUNTAR** por el código o diseño antes de proponer o generar uno nuevo.
+> 3. **CONFIRMACIÓN PREVIA**: **SIEMPRE PREGUNTAR** y obtener aprobación antes de realizar cualquier cambio o tocar el código del proyecto.
+> 4. **MODULARIDAD**: Mantener la estructura de carpetas definida y no mezclar lógica de negocio con componentes visuales.
 
 ---
 
@@ -46,11 +51,12 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 - [x] Fase 1. a) Inicialización de proyecto Next.js + Tailwind CSS.
 - [x] Fase 1. b) Creación de estructura de carpetas modular (app, components, lib, services, types, i18n).
 - [x] Fase 1. c) Configuración de Supabase (Database Schema & Auth).
-- [ ] Fase 1. d) Definición de sistema de colores y tokens (Ethereal Vault).
+- [x] Fase 1. d) Definición de sistema de colores y tokens (Ethereal Vault).
 - [x] Fase 1. e) Configuración básica de i18n (Internacionalización ES/EN).
+- [x] Fase 1. f) Enrutamiento y Estructura de Páginas Adicionales.
 
 ### 🟡 FASE 2: UI & Layout Premium
-- [ ] Fase 2. a) Implementación de Layout Global (Sidebar & Header).
+- [x] Fase 2. a) Implementación de Layout Global (Sidebar & Header).
 - [x] Fase 2. b) Desarrollo de Menú de Perfil (Profile Menu con micro-animaciones).
 - [ ] Fase 2. c) Creación de componentes base (Buttons, Modals, Cards, Glassmorphism).
 - [ ] Fase 2. d) Implementación de pestañas principales (Home / History).
@@ -78,24 +84,3 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 - [ ] Fase 6. b) Editor de Términos y Condiciones / Contacto para el Admin.
 - [ ] Fase 6. c) Gestión de Afiliados integrada.
 - [ ] Fase 6. d) Logs de seguridad y monitoreo de pagos.
-
----
-
-## 🛠️ ESPECIFICACIONES DE DISEÑO (ETHEREAL VAULT)
-- **Tema**: Dark Mode Obligatorio.
-- **Paleta de Colores**:
-  - `Primary`: #f7be34 (Gold)
-  - `Surface`: #11131b (Deep Black)
-  - `Secondary`: #c3c4e2 (Soft Violet)
-- **Layout**: Diseño tipo bóveda (glassmorphism), bordes redondeados (xl/2xl), tipografía Inter.
-
-## 🔗 INTEGRACIONES CLAVE
-- **Blockchain**: BNB Smart Chain (BEP20).
-- **Notificaciones**: Entrega en pantalla + Email automático.
-
----
-
-## 📝 NOTAS DE CAMBIO (CHANGELOG)
-- **2026-03-27**: Inicialización de la bitácora y definición del Roadmap integral.
-- **2026-03-27**: Inicialización de proyecto Next.js y estructura modular.
-- **2026-03-27**: Conexión establecida con Supabase y creación de esquema de tablas.
