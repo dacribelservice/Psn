@@ -16,117 +16,99 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop for mobile */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm lg:hidden"
+            className="fixed inset-0 z-[60] bg-black/10 backdrop-blur-sm lg:hidden"
           />
 
-          {/* Menu Card */}
+          {/* Menu Card - Ultra Compact Version */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed top-20 right-6 z-[70] w-full max-w-[340px] bg-[#30334a] text-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col font-headline"
+            initial={{ opacity: 0, scale: 0.95, y: -10, x: 10, originX: 1, originY: 0 }}
+            animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10, x: 10 }}
+            transition={{ type: "spring", damping: 25, stiffness: 350 }}
+            className="fixed top-14 right-4 z-[70] w-[230px] bg-[#1a1c2e]/95 backdrop-blur-2xl text-white rounded-[1.25rem] shadow-[0_15px_40px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col font-headline border border-white/5"
           >
-            {/* Header Section: Profile */}
-            <div className="px-6 pt-8 pb-4 flex flex-col items-start gap-1">
-              <div className="w-16 h-16 rounded-full overflow-hidden mb-3 bg-[#191b23] border-2 border-primary/20">
+            {/* ULTRA COMPACT Header Section */}
+            <div className="px-4 pt-5 pb-2 flex flex-col items-start gap-0.5">
+              <div className="w-10 h-10 rounded-full overflow-hidden mb-1.5 bg-[#0a0b14] ring-1 ring-primary/40">
                 <img
-                  alt="User Profile Picture"
+                  alt="User Profile"
                   className="w-full h-full object-cover"
                   src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpvdosY8hXR9RcE-AlZ6LYfaccSRjHhhfArF6dJqIfH3op9RoqWHH6MvnDylbgMGnM9UyUjd-R1tXBQWsA0wx69orgeUqgk9IUjg1tjr1774Yzgn6S5zXzkTRhrlIF9KkBpaezh61xMqIkHQTssjjpqu9_4bQE4FzFkBHoqPKFz_CfORnjqqaddZ9i0aJZY-Lx9e-Vba1A0VowKb2Tkb94Pyqw4bXPhvlWSvF2oletob-NnR06Y1Fc1mKNQGFocI-2IfJz20MT8LK0"
                 />
               </div>
-              <h2 className="text-xl font-black tracking-tight leading-tight">Ereogan Aysel</h2>
-              <p className="text-sm font-medium text-white/70">cangel2800@gmail.com</p>
-              <div className="mt-2 px-2 py-0.5 bg-primary text-on-primary rounded text-[10px] font-bold uppercase tracking-wider">
+              <h2 className="text-sm font-black tracking-tight leading-none text-on-surface">Ereogan Aysel</h2>
+              <div className="mt-1 px-1 py-0.5 bg-primary/20 border border-primary/30 text-primary rounded text-[8px] font-black uppercase tracking-tighter">
                 {t("admin")}
               </div>
             </div>
 
-            {/* Menu Items List */}
-            <nav className="flex flex-col px-2 py-4">
-              <a href="#" className="flex items-center gap-4 py-3 px-4 rounded-xl text-white font-semibold hover:bg-[#191b23] transition-all active:scale-95 group">
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">person</span>
-                <span className="text-sm">{t("my_profile")}</span>
-              </a>
-              <a href="#" className="flex items-center gap-4 py-3 px-4 rounded-xl text-white font-semibold hover:bg-[#191b23] transition-all active:scale-95 group">
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">admin_panel_settings</span>
-                <span className="text-sm">{t("admin")}</span>
-              </a>
-              <a href="#" className="flex items-center gap-4 py-3 px-4 rounded-xl text-white font-semibold hover:bg-[#191b23] transition-all active:scale-95 group">
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">payments</span>
-                <span className="text-sm">{t("affiliate_program")}</span>
-              </a>
-              <a href="https://t.me/Dacribel" target="_blank" className="flex items-center gap-4 py-3 px-4 rounded-xl text-white font-semibold hover:bg-[#191b23] transition-all active:scale-95 group">
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">send</span>
-                <span className="text-sm">Telegram: @Dacribel</span>
-              </a>
-              <a href="#" className="flex items-center gap-4 py-3 px-4 rounded-xl text-white font-semibold hover:bg-[#191b23] transition-all active:scale-95 group">
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">description</span>
-                <span className="text-sm">{t("terms_conditions")}</span>
-              </a>
-              <a href="#" className="flex items-center gap-4 py-3 px-4 rounded-xl text-white font-semibold hover:bg-[#191b23] transition-all active:scale-95 group">
-                <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform">info</span>
-                <span className="text-sm">{t("about_us")}</span>
-              </a>
+            {/* ULTRA COMPACT Menu Items List */}
+            <nav className="flex flex-col px-1 py-2">
+              {[
+                { label: t("my_profile"), icon: "person" },
+                { label: t("admin"), icon: "admin_panel_settings" },
+                { label: "Telegram: @Dacribel", icon: "send", url: "https://t.me/Dacribel" },
+                { label: t("terms_conditions"), icon: "description" },
+                { label: t("about_us"), icon: "info" },
+              ].map((item, idx) => (
+                <a
+                  key={idx}
+                  href={item.url || "#"}
+                  className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-white/80 font-bold hover:bg-white/5 hover:text-white transition-all active:scale-95 group"
+                >
+                  <span className="material-symbols-outlined text-primary text-[18px]">
+                    {item.icon}
+                  </span>
+                  <span className="text-[11px] tracking-tight">{item.label}</span>
+                </a>
+              ))}
               
-              <div className="h-[1px] bg-[#191b23] my-2 mx-4 opacity-50" />
+              <div className="h-[1px] bg-white/5 my-1.5 mx-3" />
               
-              <a href="#" className="flex items-center gap-4 py-3 px-4 rounded-xl text-red-400 font-bold hover:bg-[#191b23] transition-all active:scale-95 group">
-                <span className="material-symbols-outlined text-red-500 group-hover:scale-110 transition-transform">delete_forever</span>
-                <span className="text-sm">{t("delete_account")}</span>
+              <a href="#" className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-red-400 font-bold hover:bg-red-500/10 transition-all active:scale-95 group">
+                <span className="material-symbols-outlined text-red-500 text-[18px]">delete_forever</span>
+                <span className="text-[11px] tracking-tight">{t("delete_account")}</span>
               </a>
-              <a href="#" className="flex items-center gap-4 py-3 px-4 rounded-xl text-white font-bold hover:bg-[#191b23] transition-all active:scale-95 group">
-                <span className="material-symbols-outlined text-primary group-hover:rotate-12 transition-transform">logout</span>
-                <span className="text-sm">{t("logout")}</span>
+              <a href="#" className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-white font-bold hover:bg-white/5 transition-all active:scale-95 group">
+                <span className="material-symbols-outlined text-primary text-[18px]">logout</span>
+                <span className="text-[11px] tracking-tight">{t("logout")}</span>
               </a>
             </nav>
 
-            {/* Footer Section: Language Selector */}
-            <div className="px-6 py-6 mt-2 border-t border-[#191b23] flex flex-col gap-3 bg-[#191b23]/30">
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-white/50">{t("language")}</span>
-              <div className="relative flex w-full h-11 bg-[#191b23] rounded-full p-1 cursor-pointer select-none items-center overflow-hidden border border-white/5">
-                {/* Highlight slider */}
+            {/* MINI Footer Section: Language */}
+            <div className="px-4 py-3 bg-black/30 border-t border-white/5">
+              <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/30 mb-2 block">{t("language")}</span>
+              <div className="relative flex w-full h-8 bg-[#0a0b14] rounded-full p-0.5 border border-white/5 shadow-inner">
                 <motion.div
-                  className="absolute h-9 bg-primary rounded-full z-0"
+                  className="absolute h-7 bg-primary rounded-full z-0"
                   animate={{
                     x: language === "en" ? 0 : "100%",
                     width: "50%",
                   }}
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
-                  style={{ left: 4 }}
+                  transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+                  style={{ left: 2 }}
                 />
-
-                {/* English Option */}
                 <button
                   onClick={() => setLanguage("en")}
-                  className={`relative flex-1 flex items-center justify-center z-10 h-full transition-colors duration-300 font-bold text-xs outline-none ${
-                    language === "en" ? "text-[#402d00]" : "text-white"
+                  className={`relative flex-1 flex items-center justify-center z-10 h-full font-black text-[9px] uppercase tracking-tighter transition-colors ${
+                    language === "en" ? "text-background" : "text-white/30"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">🇺🇸</span>
-                    <span>{t("english")}</span>
-                  </div>
+                  EN
                 </button>
-
-                {/* Spanish Option */}
                 <button
                   onClick={() => setLanguage("es")}
-                  className={`relative flex-1 flex items-center justify-center z-10 h-full transition-colors duration-300 font-bold text-xs outline-none ${
-                    language === "es" ? "text-[#402d00]" : "text-white"
+                  className={`relative flex-1 flex items-center justify-center z-10 h-full font-black text-[9px] uppercase tracking-tighter transition-colors ${
+                    language === "es" ? "text-background" : "text-white/30"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">🇪🇸</span>
-                    <span>{t("spanish")}</span>
-                  </div>
+                  ES
                 </button>
               </div>
             </div>
