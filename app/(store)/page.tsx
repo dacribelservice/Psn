@@ -1,57 +1,172 @@
 "use client";
 
+import React, { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { useLanguage } from "@/context/LanguageContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function StorePage() {
   const { t, language } = useLanguage();
+  const [[currentSlide, direction], setSlide] = useState([0, 0]);
+
+  const banners = [
+    {
+      id: 1,
+      title: "ELDEN RING: SHADOW OF THE ERDTREE",
+      desc: language === 'es' ? 'La expansión más esperada del año. Obtenla ahora al mejor precio.' : 'The most anticipated expansion of the year. Get it now at the best price.',
+      img: "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop",
+    },
+    {
+      id: 2,
+      title: "GOD OF WAR RAGNARÖK",
+      desc: language === 'es' ? 'Acompaña a Kratos y Atreus en su viaje mítico. Disponible en digital.' : 'Join Kratos and Atreus on their mythical journey. Available in digital.',
+      img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop",
+    },
+    {
+      id: 3,
+      title: "SPIDER-MAN 2",
+      desc: language === 'es' ? 'Balancéate por Nueva York con Peter y Miles. Recarga tus créditos.' : 'Swing through New York with Peter and Miles. Top up your credits.',
+      img: "https://gmedia.playstation.com/is/image/SIEPDC/marvels-spider-man-2-listing-thumb-01-en-01jun23?$facebook$",
+    }
+  ];
+
+  const paginate = (newDirection: number) => {
+    const nextSlide = (currentSlide + newDirection + banners.length) % banners.length;
+    setSlide([nextSlide, newDirection]);
+  };
+
+  const setPage = (index: number) => {
+    const newDir = index > currentSlide ? 1 : -1;
+    setSlide([index, newDir]);
+  };
+
+  const variants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 1000 : -1000,
+      opacity: 0,
+      scale: 1.1,
+      filter: "blur(10px)",
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      filter: "blur(0px)",
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 1000 : -1000,
+      opacity: 0,
+      scale: 0.9,
+      filter: "blur(10px)",
+    })
+  };
 
   return (
-    <div className="min-h-screen bg-background text-on-surface">
+    <div className="min-h-screen bg-background text-on-surface overflow-x-hidden">
       <Sidebar />
       <Header />
 
-      <main className="pt-24 px-6 max-w-7xl mx-auto lg:ml-64 lg:px-12 pb-32">
-        {/* Banner Section */}
-        <section className="relative group rounded-[2.5rem] overflow-hidden aspect-[4/5] md:aspect-[21/9] mb-8 bg-surface-container-low shadow-2xl border border-white/5">
-          <div className="absolute inset-0 flex transition-transform duration-500 ease-out">
-            <div className="min-w-full h-full relative">
+      <main className="pt-24 px-4 md:px-6 max-w-7xl mx-auto lg:ml-64 lg:px-12 pb-32">
+        {/* Premium Manual Banner Carousel */}
+        <section className="relative group rounded-[2rem] md:rounded-[3rem] overflow-hidden aspect-[16/10] md:aspect-[21/9] mb-12 shadow-[0_40px_80px_rgba(0,0,0,0.6)] border border-white/5 bg-black">
+          <AnimatePresence initial={false} custom={direction}>
+            <motion.div
+              key={currentSlide}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.4 },
+                scale: { duration: 0.6 },
+                filter: { duration: 0.4 }
+              }}
+              className="absolute inset-0"
+            >
               <img
-                alt="PlayStation Promotion"
-                className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-1000"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZ9liCz5w08cybR5VFCYdsmkm9JzkJUMJW1EQRIQWgdgZQE9rpmPCVShtR__Lv9zaXFoV59iqITc08grjo7SDAbhy-ILjXbnYWs5O8b4d5b53gQZXqyRUKXbTE6PXJP4vW3lEFY5MXr--_YjNQoO4XuPwEGAxtidG9AWRP5cfYx8cuNTGspKN0UbDH-k2V1cjB19zCWzxmTvWRwXUJ14VDupeGeOyvJT8ICiZiNoEB2LEeoXwfI8g6ArL29WsJ-mexqBxJEp7u9lmb"
+                src={banners[currentSlide].img}
+                alt={banners[currentSlide].title}
+                className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent flex flex-col justify-center px-8 md:px-16">
-                <span className="text-primary font-black tracking-[0.2em] text-[10px] uppercase mb-3 drop-shadow-md">
+              <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black via-black/40 to-transparent flex flex-col justify-end md:justify-center p-6 md:px-20 pb-12 md:pb-6">
+                <motion.span 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-primary font-black tracking-[0.4em] text-[8px] md:text-[10px] uppercase mb-4 drop-shadow-md select-none"
+                >
                   {t("featured_offer")}
-                </span>
-                <h2 className="text-4xl md:text-6xl font-black text-on-surface mb-6 leading-tight max-w-lg drop-shadow-2xl">
-                  {t("unleash_power").split(" ").map((word, i) => (
-                    <span key={i} className={word === "PLAY" || word === "JUEGO" ? "text-primary" : ""}>
-                      {word}{" "} {(i === 2 && word !== "POWER" && word !== "PODER") ? <br /> : ""}
-                    </span>
-                  ))}
-                </h2>
-                <p className="text-[#c3c4e2] max-w-sm mb-8 text-sm md:text-base font-medium opacity-80 leading-relaxed">
-                  {language === 'es' 
-                    ? 'Recarga tu billetera de PlayStation al instante. Accede a miles de títulos hoy mismo.'
-                    : 'Top up your PlayStation wallet instantly. Access thousands of titles today.'}
-                </p>
-                <button className="w-fit bg-gradient-to-b from-primary to-[#f2b92f] text-[#402d00] font-black px-10 py-4 rounded-2xl hover:scale-110 active:scale-95 transition-all shadow-[0_15px_35px_rgba(242,185,47,0.4)] uppercase tracking-tight text-sm">
+                </motion.span>
+                <motion.h2 
+                  initial={{ opacity: 0, y: 30, filter: "blur(5px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ delay: 0.4, duration: 0.5 }}
+                  className="text-3xl md:text-5xl lg:text-7xl font-black text-on-surface mb-4 md:mb-8 leading-tight max-w-3xl drop-shadow-2xl font-headline tracking-tighter"
+                >
+                  {banners[currentSlide].title}
+                </motion.h2>
+                <motion.p 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="text-[#c3c4e2] max-w-sm mb-8 md:mb-12 text-sm md:text-lg font-medium opacity-70 leading-relaxed"
+                >
+                  {banners[currentSlide].desc}
+                </motion.p>
+                <motion.button 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.6, type: "spring" }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-fit bg-gradient-to-b from-primary to-[#f2b92f] text-[#402d00] font-black px-10 md:px-12 py-4 md:py-5 rounded-xl md:rounded-2xl shadow-[0_20px_40px_rgba(242,185,47,0.4)] uppercase tracking-tight text-xs md:text-sm"
+                >
                   {t("get_credits")}
-                </button>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Indicators - Premium Pill Style */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
+            {banners.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setPage(idx)}
+                className="relative h-2.5 group focus:outline-none"
+              >
+                {idx === currentSlide ? (
+                  <motion.div
+                    layoutId="active-pill"
+                    className="w-12 bg-primary rounded-full h-full shadow-[0_0_20px_rgba(242,185,47,0.8)]"
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  />
+                ) : (
+                  <div className="w-2.5 bg-white/10 rounded-full h-full hover:bg-white/30 transition-all duration-300" />
+                )}
+              </button>
+            ))}
           </div>
-          {/* Carousel Controls */}
-          <button className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center text-on-surface hover:bg-white/10 transition-all border border-white/10 active:scale-90">
-            <span className="material-symbols-outlined">chevron_left</span>
+
+          {/* Premium Navigation Arrows */}
+          <button 
+            onClick={() => paginate(-1)}
+            className="absolute left-8 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white/5 backdrop-blur-2xl hidden md:flex items-center justify-center text-on-surface hover:bg-primary hover:text-background transition-all border border-white/10 active:scale-90 z-20 group shadow-2xl"
+          >
+            <span className="material-symbols-outlined text-[24px] group-hover:-translate-x-1 transition-transform">arrow_back_ios_new</span>
           </button>
-          <button className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/5 backdrop-blur-xl flex items-center justify-center text-on-surface hover:bg-white/10 transition-all border border-white/10 active:scale-90">
-            <span className="material-symbols-outlined">chevron_right</span>
+          <button 
+            onClick={() => paginate(1)}
+            className="absolute right-8 top-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-white/5 backdrop-blur-2xl hidden md:flex items-center justify-center text-on-surface hover:bg-primary hover:text-background transition-all border border-white/10 active:scale-90 z-20 group shadow-2xl"
+          >
+            <span className="material-symbols-outlined text-[24px] group-hover:translate-x-1 transition-transform">arrow_forward_ios</span>
           </button>
         </section>
 
@@ -95,7 +210,6 @@ export default function StorePage() {
             </h3>
           </div>
           <div className="grid grid-cols-4 gap-6 md:gap-14 max-w-4xl mx-auto">
-            {/* Category Circles... */}
             {[
               { id: 'PSN', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDiTxVt6ySeAnfCpLGKdS27Vppb3aajRDHAEAo6CoHcv1AC4n-Fy8WSv-omjSNGOpnr6z_-CqDr_DD6VYi4sksRmxVxo017NrFnfooq2xYG6mH5hZ9MqJyf6rJFhcVNEMm3YKbdw3i1NfCYgk04aCwwxWtJxhxfluWKXUwF0R3hhpIcgo3SjRM8pv0X6-NfdkauNFzWtWjnMMPz8uyOI9GIqKFSwGhXzljl83sTj0T6xV_p9TwnpX9hycsfOAHp5Pii_-iw7_tpxLMs' },
               { id: 'Xbox', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAtGwrArEDEuWWCZT2hTrBXTewRkBrl1d62pUxTA7jvm6CafMelj1YXfljeODZpzcydjozr8KOHB9PfQ54juwSH7dQxe_q_oFbkZu1AMotCxMSksV90boaoMzkvs6nTD1Tc7-8WP0tnaW5CHOarZflm8rLroVR0YPilfy4XJrMUgg-xiVwesTWZaN8Sbywtk8o4s24jTB5ONrXXKFL2oRYLxW48Q_JScRMnbtm1BQo1WLwpqr9HtI9XlSCOAt7H7fF3J7Y98yWyedqD' },
@@ -103,10 +217,10 @@ export default function StorePage() {
               { id: 'Roblox', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAM3FMx2vTaoNam0rubroypijS2V_7xS7T-OpkTe9PoJKooFUEG0W8BHahnEb0bI9TkE73Z22TakNKWvOmMgh9WBQpY_HFXGp1Q0c96ZAjH1juEU0mPpvxZiThNAir3wqbXRYkprrPChtvOHqKN629Iqe_cvtlGWsip_okk7FiVsC0NIJaNysJxDsOIsUIwU2R-azC5uilvyW1pxWFGNzx0skUi2DdEdp7bDCiDZeJGMc7sh8a_IQn2z059ZP0S8yfP8doKK-PPp-Z9' },
             ].map((cat) => (
               <div key={cat.id} className="flex flex-col items-center group cursor-pointer transition-all duration-300">
-                <div className="w-24 h-24 md:w-36 md:h-36 rounded-full bg-[#191b23] flex items-center justify-center mb-6 ring-2 ring-white/5 group-hover:ring-primary/60 transition-all duration-500 overflow-hidden shadow-2xl group-hover:shadow-primary/20 group-hover:-translate-y-2">
+                <div className="w-16 h-16 md:w-36 md:h-36 rounded-full bg-[#191b23] flex items-center justify-center mb-4 md:mb-6 ring-2 ring-white/5 group-hover:ring-primary/60 transition-all duration-500 overflow-hidden shadow-2xl group-hover:shadow-primary/20 group-hover:-translate-y-2">
                   <img alt={cat.id} className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700 opacity-90 group-hover:opacity-100" src={cat.img} />
                 </div>
-                <span className="text-on-surface font-black text-[10px] md:text-sm tracking-widest group-hover:text-primary transition-colors text-center uppercase">{cat.id}</span>
+                <span className="text-on-surface font-black text-[8px] md:text-sm tracking-widest group-hover:text-primary transition-colors text-center uppercase">{cat.id}</span>
               </div>
             ))}
           </div>
@@ -115,13 +229,13 @@ export default function StorePage() {
         {/* Products Grids */}
         <section className="mb-20">
           <div className="flex items-center justify-between mb-10 px-2">
-            <h3 className="text-3xl font-black text-on-surface tracking-tight">{t("best_sellers")}</h3>
-            <div className="h-px flex-1 bg-white/10 mx-8"></div>
-            <button className="text-primary text-xs font-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity">{t("view_all")}</button>
+            <h3 className="text-2xl md:text-3xl font-black text-on-surface tracking-tight">{t("best_sellers")}</h3>
+            <div className="h-px flex-1 bg-white/10 mx-4 md:mx-8"></div>
+            <button className="text-primary text-[10px] md:text-xs font-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity">{t("view_all")}</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-2">
             <ProductCard 
-              image="https://lh3.googleusercontent.com/aida-public/AB6AXuDiTxVt6ySeAnfCpLGKdS27Vppb3aajRDHAEAo6CoHcv1AC4n-Fy8WSv-omjSNGOpnr6z_-CqDr_DD6VYi4sksRmxVxo017NrFnfooq2xYG6mH5hZ9MqJyf6rJFhcVNEMm3YKbdw3i1NfCYgk04aCwwxWtJxhxfluWKXUwF0R3hhpIcgo3SjRM8pv0X6-NfdkauNFzWtWjnMMPz8uyOI9GIqKFSwGhXzljl83sTj0T6xV_p9TwnpX9hycsfOAHp5Pii_-iw7_tpxLMs"
+              image="https://lh3.googleusercontent.com/aida-public/AB6AXuDiTxVt6ySeAnfCpLGKdS27Vppb3aajRDHAEAo6CoHcv1AC4n-Fy8WSv-omjSNGOpnr6z_-CqDr_DD6VYi4sksRmxVxo017NrFnfooq2xYG6mH5hZ9MqJyf6rJFhcVNEMm3YKbdw3i1NfCYgk04aCwwxWtJxhxfluWKXUwF0R3hhpIcgo3SjRM8pv0X6-FfdkauNFzWtWjnMMPz8uyOI9GIqKFSwGhXzljl83sTj0T6xV_p9TwnpX9hycsfOAHp5Pii_-iw7_tpxLMs"
               title="PlayStation Store (USA)" denom="$10.00" price="9.3 USDT" language={language}
             />
             <ProductCard 

@@ -20,7 +20,7 @@ export const ProfileMenu = ({ isOpen, onClose, role = "user" }: ProfileMenuProps
     { label: "Telegram: @Dacribel", icon: "send", href: "https://t.me/Dacribel" },
     { label: t("terms_conditions"), icon: "description", href: "#" },
     { label: t("about_us"), icon: "info", href: "#" },
-  ];
+  ].filter(item => item.href !== "/admin" || role === "admin");
 
   return (
     <AnimatePresence>
