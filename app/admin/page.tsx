@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
+import { CategoryBottomSheet } from "@/components/admin/CategoryBottomSheet";
 
 export default function AdminInventoryPage() {
   const { t } = useLanguage();
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
 
   const metrics = [
     { label: t("total_invested"), value: "24,500", sub: "$89.425.000 COP", unit: "USDT", icon: "payments", trend: "+12.5%", color: "primary" },
@@ -98,26 +100,36 @@ export default function AdminInventoryPage() {
 
         {/* Detailed Codes Table */}
         <section className="space-y-6">
-           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-2">
-              <div className="flex items-center gap-4">
+           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 px-2">
+              <div className="flex items-center gap-5">
                  <h3 className="text-2xl font-black text-white tracking-tighter uppercase">{t("inventory")}</h3>
-                 <div className="flex items-center gap-2">
-                    <button className="w-10 h-10 rounded-full bg-primary text-background flex items-center justify-center hover:brightness-110 active:scale-90 transition-all shadow-lg shadow-primary/20">
-                       <span className="material-symbols-outlined text-[22px] font-black">add</span>
+                 <div className="flex items-center gap-2.5">
+                    <button 
+                      onClick={() => setIsCategorySheetOpen(true)}
+                      className="w-11 h-11 rounded-full bg-primary text-[#402d00] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_8px_20px_rgba(242,185,47,0.3)]"
+                    >
+                       <span className="material-symbols-outlined text-[20px] font-black">folder</span>
                     </button>
-                    <button className="w-10 h-10 rounded-full bg-white/5 text-white flex items-center justify-center hover:bg-white/10 transition-all border border-white/10">
-                       <span className="material-symbols-outlined text-[20px]">folder_open</span>
+                    <button className="w-11 h-11 rounded-full bg-primary text-[#402d00] flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_8px_20px_rgba(242,185,47,0.3)]">
+                       <span className="material-symbols-outlined text-[22px] font-black">add</span>
                     </button>
                  </div>
               </div>
 
-              <div className="flex items-center gap-3 flex-1 md:flex-none">
-                 <div className="relative group flex-1 md:w-64">
-                    <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-white/20 text-[18px]">search</span>
+              <div className="flex flex-1 flex-col md:flex-row items-center gap-4 justify-end">
+                 <div className="relative group w-full md:max-w-md">
                     <input 
-                       className="w-full bg-white/5 border border-white/5 rounded-2xl py-2.5 pl-11 pr-4 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 transition-all"
-                       placeholder={t("search_placeholder_admin")}
+                       className="w-full bg-[#191b23] border border-white/5 rounded-2xl py-3.5 px-6 text-xs text-white/90 placeholder:text-white/20 focus:outline-none focus:border-primary/40 transition-all text-center shadow-inner"
+                       placeholder="Buscar por correo o ID..."
                     />
+                 </div>
+                 <div className="flex items-center gap-3 w-full md:w-auto">
+                    <button className="flex-1 md:flex-none px-6 py-3.5 rounded-2xl bg-[#1e202f] border border-white/5 text-primary font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#25283d] transition-all group shadow-lg">
+                      {t("all")?.toUpperCase() || "TODOS"} <span className="material-symbols-outlined text-[16px] text-primary/50 group-hover:text-primary transition-colors">expand_more</span>
+                    </button>
+                    <button className="flex-1 md:flex-none px-6 py-3.5 rounded-2xl bg-[#1e202f] border border-white/5 text-primary font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#25283d] transition-all group shadow-lg">
+                      {t("platform")?.toUpperCase() || "PLATAFORMA"} <span className="material-symbols-outlined text-[16px] text-primary/50 group-hover:text-primary transition-colors">expand_more</span>
+                    </button>
                  </div>
               </div>
            </div>
@@ -232,6 +244,11 @@ export default function AdminInventoryPage() {
           </button>
         ))}
       </nav>
+
+      <CategoryBottomSheet 
+        isOpen={isCategorySheetOpen} 
+        onClose={() => setIsCategorySheetOpen(false)} 
+      />
     </div>
   );
 }

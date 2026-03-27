@@ -68,7 +68,7 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 - [ ] Fase 3. d) Función de eliminación de cuenta y cierre de sesión.
 
 ### 🟣 FASE 4: Storefront & Inventario
-- [ ] Fase 4. a) Categorías por consola (Banners dinámicos).
+- [x] Fase 4. a) Banners dinámicos (Carousel interactivo premium).
 - [x] Fase 4. b) Cartas de Producto (Denominaciones de $5, $10, $50, etc.).
 - [ ] Fase 4. c) Lógica de compra única (Sin carrito, flujo directo).
 - [ ] Fase 4. d) Base de datos de Inventory (Códigos listos para entrega).
@@ -80,15 +80,23 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 - [ ] Fase 5. d) Lógica de liberación instantánea de código tras confirmación.
 
 ### 🟠 FASE 6: Admin Dashboard & Settings
-- [x] Fase 6. a) Panel de Administración (Gestión de Stock de Códigos).
+- [x] Fase 6. a) Panel de Administración (Rediseño de Inventario y Gestión de Stock).
 - [ ] Fase 6. b) Editor de Términos y Condiciones / Contacto para el Admin.
 - [ ] Fase 6. c) Gestión de Afiliados integrada.
 - [ ] Fase 6. d) Logs de seguridad y monitoreo de pagos.
 1: 
-2: ---
-3: 
-4: ## 📝 ÚLTIMA INTEGRACIÓN (27/03/2026)
-5: - **Historial de Órdenes:** Integración completa del diseño "Bento Style" para el usuario.
-6: - **Modularización:** Extracción de `BottomNav` como componente reutilizable.
-7: - **Admin Dashboard:** Verificación de la existencia del módulo de Inventario Admin con métricas reales y gestión de stock.
-8: - **Corrección de Puerto:** Configuración definitiva forzada en el puerto **3003** vía `package.json`.
+---
+
+## 📝 ÚLTIMA INTEGRACIÓN (27/03/2026 - Sesión de Tarde)
+- **Refinamiento de UI/UX Global**:
+  - **Menú de Perfil Dinámico**: Roles (Admin/User) y nuevo selector de idiomas con banderas.
+  - **Navegación Unificada**: Estilos del Sidebar de Admin aplicados al Sidebar de usuario.
+  - **Header de Admin**: Popups funcionales con cierre por clic exterior.
+- **Storefront (Tienda)**:
+  - **Carousel Premium**: Manual, con animaciones de blur/escala e indicadores tipo "píldora".
+  - **Banners**: Ejemplos de Elden Ring, God of War y Spider-Man 2.
+- **Admin Dashboard (Inventario)**:
+  - **Rediseño de Cabecera**: Botones circulares amarillos (folder/add) y buscador oscuro.
+  - **Gestor de Categorías**: Botón de carpeta abre el **Category Bottom Sheet**.
+- **GitHub**: Backup completo de los cambios en la rama `main`.
+
