@@ -9,9 +9,12 @@ export const Header = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-20 bg-background/80 backdrop-blur-2xl z-50 border-b border-white/5 flex items-center justify-between px-6 lg:px-12 lg:ml-64">
-      <div className="flex items-center gap-4">
-        {/* Mobile menu trigger could go here */}
+    <header className="fixed top-0 left-0 right-0 h-16 bg-[#11131b]/80 backdrop-blur-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 border-b border-white/5 flex items-center justify-between px-4 lg:px-12 lg:ml-64">
+      <div className="flex items-center gap-3">
+        <button className="text-primary hover:bg-[#282a32] transition-colors p-2 rounded-lg active:scale-95 duration-200 md:hidden">
+          <span className="material-symbols-outlined">menu</span>
+        </button>
+        <h1 className="text-xl font-bold text-primary tracking-tighter font-['Inter'] md:hidden">Dacribel</h1>
       </div>
 
       <div className="flex items-center gap-6">

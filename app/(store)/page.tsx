@@ -2,6 +2,7 @@
 
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -135,19 +136,7 @@ export default function StorePage() {
         </section>
       </main>
 
-      {/* Mobile Bottom Nav */}
-      <div className="md:hidden">
-        <nav className="fixed bottom-8 left-0 right-0 flex justify-center items-center z-50 px-6">
-          <div className="bg-[#191b23]/90 backdrop-blur-2xl flex justify-around items-center w-full max-w-[240px] rounded-full p-2 border border-white/10 shadow-2xl">
-            <a className="text-primary bg-primary/10 rounded-full p-4 flex flex-col items-center hover:scale-110" href="#">
-              <span className="material-symbols-outlined text-2xl">home</span>
-            </a>
-            <a className="text-[#c3c4e2] p-4 flex flex-col items-center hover:text-primary transition-all" href="#">
-              <span className="material-symbols-outlined text-2xl">history</span>
-            </a>
-          </div>
-        </nav>
-      </div>
+      <BottomNav />
     </div>
   );
 }
