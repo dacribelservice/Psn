@@ -47,11 +47,11 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 - [x] Fase 1. b) Creación de estructura de carpetas modular (app, components, lib, services, types, i18n).
 - [x] Fase 1. c) Configuración de Supabase (Database Schema & Auth).
 - [ ] Fase 1. d) Definición de sistema de colores y tokens (Ethereal Vault).
-- [ ] Fase 1. e) Configuración básica de i18n (Internacionalización ES/EN).
+- [x] Fase 1. e) Configuración básica de i18n (Internacionalización ES/EN).
 
 ### 🟡 FASE 2: UI & Layout Premium
 - [ ] Fase 2. a) Implementación de Layout Global (Sidebar & Header).
-- [ ] Fase 2. b) Desarrollo de Menú de Perfil (Profile Menu con micro-animaciones).
+- [x] Fase 2. b) Desarrollo de Menú de Perfil (Profile Menu con micro-animaciones).
 - [ ] Fase 2. c) Creación de componentes base (Buttons, Modals, Cards, Glassmorphism).
 - [ ] Fase 2. d) Implementación de pestañas principales (Home / History).
 

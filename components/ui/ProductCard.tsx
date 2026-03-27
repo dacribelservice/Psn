@@ -1,31 +1,44 @@
+"use client";
+
+import React from "react";
+
 interface ProductCardProps {
-  title: string;
-  denomination: string;
-  price: string;
   image: string;
+  title: string;
+  denom: string;
+  price: string;
+  language: string;
 }
 
-export default function ProductCard({ title, denomination, price, image }: ProductCardProps) {
+export const ProductCard = ({ image, title, denom, price, language }: ProductCardProps) => {
   return (
-    <div className="glass-card p-6 rounded-[2rem] hover:border-[#f2b92f]/40 transition-all group">
-      <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 bg-surface-container-high rounded-2xl flex items-center justify-center p-2">
-          <img alt={title} className="w-full h-full object-contain" src={image}/>
+    <div className="glass-card p-7 rounded-[2.5rem] hover:border-primary/50 transition-all group hover:-translate-y-2 shadow-xl hover:shadow-primary/10">
+      <div className="flex items-center gap-5 mb-8">
+        <div className="w-16 h-16 bg-[#191b23] rounded-2xl flex items-center justify-center p-2 ring-1 ring-white/5 group-hover:ring-primary/40 transition-all shadow-inner">
+          <img
+            alt={title}
+            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500"
+            src={image}
+          />
         </div>
         <div>
-          <h4 className="font-bold text-lg text-on-surface line-clamp-1">{title}</h4>
-          <p className="text-secondary text-xs">Denominación: {denomination}</p>
+          <h4 className="font-black text-lg text-on-surface tracking-tight group-hover:text-primary transition-colors">{title}</h4>
+          <p className="text-[#c3c4e2]/60 text-[10px] font-black uppercase tracking-widest">
+            {language === 'es' ? 'Denominación' : 'Denomination'}: {denom}
+          </p>
         </div>
       </div>
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
-          <span className="text-[10px] font-bold text-[#f2b92f] uppercase tracking-widest">Precio</span>
-          <span className="text-2xl font-black text-on-surface">{price} USDT</span>
+          <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-1">
+            {language === 'es' ? 'Precio' : 'Price'}
+          </span>
+          <span className="text-3xl font-black text-on-surface tracking-tighter">{price}</span>
         </div>
-        <button className="bg-[#f2b92f]/10 text-[#f2b92f] p-4 rounded-2xl group-hover:bg-[#f2b92f] group-hover:text-on-primary-fixed transition-all shadow-lg shadow-black/20">
-          <span className="material-symbols-outlined">shopping_bag</span>
+        <button className="bg-primary/10 text-primary p-5 rounded-2xl group-hover:bg-primary group-hover:text-[#402d00] transition-all shadow-lg active:scale-90">
+          <span className="material-symbols-outlined font-black">shopping_bag</span>
         </button>
       </div>
     </div>
   );
-}
+};
