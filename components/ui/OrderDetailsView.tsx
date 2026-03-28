@@ -73,11 +73,11 @@ export const OrderDetailsView = ({ orderId, onClose, showConfetti = true }: Orde
           
           {/* Círculo Principal (Capa base gris que ahora es verde) */}
           <div className="relative w-32 h-32 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(34,197,94,0.3)] border border-white/10">
-            {/* El "Check" Gris con animación */}
+            {/* El "Check" Blanco más grande con animación */}
             <motion.span 
               animate={{ y: [0, -6, 0] }}
               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-              className="material-symbols-outlined text-[80px] text-[#11131b] font-black"
+              className="material-symbols-outlined text-[100px] text-white font-black"
               style={{ fontVariationSettings: "'FILL' 1, 'wght' 700" }}
             >
               check
