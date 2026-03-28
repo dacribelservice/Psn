@@ -2,26 +2,45 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 
 interface CategoryBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export const CategoryBottomSheet = ({ isOpen, onClose }: CategoryBottomSheetProps) => {
-  const [platform, setPlatform] = useState("");
+export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBottomSheetProps) => {
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleCreate = () => {
-    console.log("Creando categoría:", platform);
-    // Aquí iría la lógica de guardado en el futuro
-    onClose();
+  const handleCreate = async () => {
+    if (!name.trim()) return;
+    
+    setLoading(true);
+    try {
+      const slug = name.toLowerCase().trim().replace(/\s+/g, '-');
+      const { error } = await supabase
+        .from('categories')
+        .insert([{ name, slug }]);
+
+      if (error) throw error;
+      
+      onSuccess?.();
+      onClose();
+      setName("");
+    } catch (err) {
+      console.error("Error creating category:", err);
+      alert("Error al crear la categoría");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -30,7 +49,6 @@ export const CategoryBottomSheet = ({ isOpen, onClose }: CategoryBottomSheetProp
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
           />
 
-          {/* Bottom Sheet Container */}
           <div className="fixed inset-0 flex items-end sm:items-center justify-center pointer-events-none z-[110] p-0 sm:p-4">
             <motion.div
               initial={{ y: "100%" }}
@@ -39,11 +57,10 @@ export const CategoryBottomSheet = ({ isOpen, onClose }: CategoryBottomSheetProp
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
               className="relative w-full max-w-sm bg-[#e9e9e9] dark:bg-[#1e1e1e] rounded-t-[2.5rem] sm:rounded-[2.5rem] flex flex-col shadow-2xl overflow-hidden pointer-events-auto border border-white/5 max-h-[85vh]"
             >
-              {/* Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/5 shrink-0">
-                <div className="w-8" /> {/* Spacer */}
-                <h2 className="text-headline-md font-display text-gray-900 dark:text-white uppercase text-center flex-1">
-                  AGREGAR CATEGORIAS
+                <div className="w-8" />
+                <h2 className="text-sm font-black text-gray-900 dark:text-white uppercase text-center flex-1 tracking-widest">
+                  AGREGAR CATEGORIA
                 </h2>
                 <button 
                   onClick={onClose}
@@ -53,49 +70,28 @@ export const CategoryBottomSheet = ({ isOpen, onClose }: CategoryBottomSheetProp
                 </button>
               </div>
 
-              {/* Content Area */}
-              <div className="p-6 flex flex-col space-y-6 overflow-y-auto no-scrollbar custom-scrollbar font-sans antialiased">
-                {/* Platform Input */}
+              <div className="p-6 flex flex-col space-y-6">
                 <div className="space-y-2">
-                  <label className="block text-label-sm text-gray-500 dark:text-white/30 uppercase tracking-[0.2em]" htmlFor="platform">
-                    PLATAFORMA
+                  <label className="block text-[10px] font-black text-gray-500 dark:text-white/30 uppercase tracking-[0.2em]">
+                    NOMBRE DE LA CATEGORIA
                   </label>
                   <input
-                    id="platform"
                     type="text"
-                    value={platform}
-                    onChange={(e) => setPlatform(e.target.value)}
-                    placeholder="Ingrese el nombre de la plataforma..."
-                    className="w-full bg-gray-300/50 dark:bg-[#30334a] border border-black/5 dark:border-white/5 rounded-xl py-4 px-5 focus:ring-1 focus:ring-primary text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 transition-all outline-none font-bold text-body-md shadow-inner"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Ej. PlayStation Network"
+                    className="w-full bg-gray-300/50 dark:bg-[#30334a] border border-black/5 dark:border-white/5 rounded-xl py-4 px-5 focus:ring-1 focus:ring-primary text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 transition-all outline-none font-bold text-sm shadow-inner"
                   />
-                </div>
-
-                {/* Image Upload Area */}
-                <div className="space-y-2">
-                  <label className="block text-label-sm text-gray-500 dark:text-white/30 uppercase tracking-[0.2em]">
-                    ELEGIR IMAGEN
-                  </label>
-                  <div className="relative flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 dark:border-white/10 rounded-xl bg-gray-300/30 dark:bg-[#30334a] hover:border-primary transition-all cursor-pointer group shadow-inner">
-                    <input accept="image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" type="file" />
-                    <div className="flex flex-col items-center space-y-3">
-                      <span className="material-symbols-outlined text-gray-400 dark:text-white/20 group-hover:text-primary transition-colors text-3xl">
-                        upload_file
-                      </span>
-                      <span className="text-label-sm text-gray-500 dark:text-white/40 uppercase tracking-widest group-hover:text-primary/60">
-                        Haz clic para subir imagen
-                      </span>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {/* Footer / Create Button */}
-              <div className="p-6 pt-2 border-t border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-transparent pb-8">
+              <div className="p-6 pt-2 pb-8">
                 <button 
                   onClick={handleCreate}
-                  className="w-full bg-[#f2b92f] text-black font-display py-3 px-6 rounded-xl shadow-[0_10px_20px_rgba(242,185,47,0.2)] hover:brightness-110 active:scale-95 transition-all transform uppercase text-label-sm"
+                  disabled={loading}
+                  className="w-full bg-[#f2b92f] text-black font-black py-4 rounded-xl shadow-2xl hover:brightness-110 active:scale-95 transition-all uppercase text-[11px] disabled:opacity-50"
                 >
-                  CREAR
+                  {loading ? "CREANDO..." : "CREAR CATEGORIA"}
                 </button>
               </div>
             </motion.div>

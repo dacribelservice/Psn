@@ -2,24 +2,29 @@
 
 import React, { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
 export default function RegisterPage() {
   const { language, setLanguage } = useLanguage();
+  const { signUp, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       alert(language === "es" ? "Las contraseñas no coinciden" : "Passwords do not match");
       return;
     }
-    console.log("Register attempt:", { email, password });
-    // TODO: Implement registration logic with Supabase later
+    try {
+      await signUp(email, password);
+    } catch (error) {
+      alert(language === "es" ? "Error al registrarse. Prueba de nuevo." : "Sign up error. Please try again.");
+    }
   };
 
   return (
@@ -145,10 +150,15 @@ export default function RegisterPage() {
             </div>
 
             <button 
-              className="w-full bg-gradient-to-b from-[#f2b92f] to-[#d49e1a] hover:brightness-110 active:scale-[0.98] transition-all duration-200 text-[#402d00] font-headline font-extrabold py-4 rounded-xl shadow-[0_8px_20px_rgba(242,185,47,0.2)] mt-4" 
+              className="w-full bg-gradient-to-b from-[#f2b92f] to-[#d49e1a] hover:brightness-110 active:scale-[0.98] transition-all duration-200 text-[#402d00] font-headline font-extrabold py-4 rounded-xl shadow-[0_8px_20px_rgba(242,185,47,0.2)] mt-4 disabled:opacity-50 flex items-center justify-center gap-2" 
               type="submit"
+              disabled={loading}
             >
-              {language === "es" ? "Crear Cuenta" : "Create Account"}
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-[#402d00]/30 border-t-[#402d00] rounded-full animate-spin" />
+              ) : (
+                language === "es" ? "Crear Cuenta" : "Create Account"
+              )}
             </button>
           </form>
 

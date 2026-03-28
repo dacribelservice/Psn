@@ -2,15 +2,16 @@
 
 import React from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export const AdminSidebar = () => {
   const { t } = useLanguage();
+  const { signOut } = useAuth();
   const pathname = usePathname();
 
   const menuItems = [
-    { label: t("home"), icon: "home", href: "/" },
     { label: t("finances"), icon: "account_balance", href: "/admin/finances" },
     { label: t("inventory"), icon: "inventory_2", href: "/admin/inventory" },
   ];
@@ -50,7 +51,10 @@ export const AdminSidebar = () => {
           ))}
           
           <div className="pt-4 mt-4 border-t border-white/5">
-            <button className="w-full flex items-center px-4 py-3 text-red-500/80 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all group">
+            <button 
+              onClick={() => signOut()}
+              className="w-full flex items-center px-4 py-3 text-red-500/80 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all group"
+            >
               <span className="material-symbols-outlined mr-3 text-[22px]">logout</span>
               <span className="font-bold text-sm tracking-tight">{t("logout")}</span>
             </button>

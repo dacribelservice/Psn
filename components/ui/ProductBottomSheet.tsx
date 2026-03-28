@@ -2,15 +2,14 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Category, Product } from "@/services/inventory";
 
 interface ProductBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   onProceed?: (amount: number) => void;
-  category: {
-    id: string;
-    img: string;
-  } | null;
+  category: Category | null;
+  allProducts: Product[];
 }
 
 export const ProductBottomSheet = ({
@@ -18,11 +17,22 @@ export const ProductBottomSheet = ({
   onClose,
   onProceed,
   category,
+  allProducts,
 }: ProductBottomSheetProps) => {
-  const [quantity, setQuantity] = useState(2);
-  const unitPrice = 23.90;
+  const [quantity, setQuantity] = useState(1);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   
+  const categoryProducts = allProducts.filter(p => p.category_id === category?.id);
+
+  React.useEffect(() => {
+    if (categoryProducts.length > 0 && !selectedProduct) {
+      setSelectedProduct(categoryProducts[0]);
+    }
+  }, [categoryProducts, selectedProduct]);
+
   if (!category) return null;
+
+  const unitPrice = selectedProduct?.price || 0;
 
   return (
     <AnimatePresence>
@@ -67,14 +77,12 @@ export const ProductBottomSheet = ({
                {/* Platform & Region */}
                <div className="flex items-center justify-between px-2 pt-0">
                   <div className="flex items-center space-x-3">
-                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-sm border border-black/[0.03]">
-                        <img 
-                          alt={category.id} 
-                          className="w-5 h-5 object-contain" 
-                          src={category.img} 
-                        />
+                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-black/[0.03]">
+                        <span className="material-symbols-outlined text-2xl text-black/60">
+                          {category.slug.includes('gift') ? 'card_giftcard' : 'sports_esports'}
+                        </span>
                      </div>
-                     <span className="font-black text-[#11131b] text-base tracking-tight">{category.id}</span>
+                     <span className="font-black text-[#11131b] text-base tracking-tight">{category.name}</span>
                   </div>
                   
                   <button className="flex items-center space-x-2 px-2.5 py-1.5 bg-white rounded-full hover:bg-[#f7be34]/10 transition-all shadow-sm active:scale-95 group border border-black/[0.03]">
@@ -92,18 +100,23 @@ export const ProductBottomSheet = ({
                <div>
                   <span className="block text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-3 ml-1">Denominación</span>
                   <div className="flex space-x-3 overflow-x-auto py-2 pb-4 custom-scrollbar-light scroll-smooth">
-                     {[5, 10, 15, 20, 25, 30, 50, 75, 100, 150, 200, 500].map((val) => (
-                        <button 
-                          key={val}
-                          className={`w-10 h-10 rounded-full font-black text-[11px] transition-all flex-shrink-0 flex items-center justify-center ${
-                            val === 25 
-                            ? 'bg-[#f7be34] text-[#402d00] shadow-[0_10px_20px_rgba(247,190,52,0.2)] scale-110' 
-                            : 'bg-black/5 text-black/40 hover:bg-black/10'
-                          }`}
-                        >
-                          {val}
-                        </button>
-                     ))}
+                     {categoryProducts.map((prod) => {
+                        const amountMatch = prod.name.match(/\$(\d+)/);
+                        const label = amountMatch ? `$${amountMatch[1]}` : prod.name;
+                        return (
+                          <button 
+                            key={prod.id}
+                            onClick={() => setSelectedProduct(prod)}
+                            className={`min-w-[50px] px-4 h-11 rounded-full font-black text-[13px] transition-all flex-shrink-0 flex items-center justify-center ${
+                              selectedProduct?.id === prod.id
+                              ? 'bg-[#f7be34] text-[#402d00] shadow-[0_10px_20px_rgba(247,190,52,0.2)] scale-110 border-2 border-white/50' 
+                              : 'bg-black/5 text-black/40 hover:bg-black/10'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        );
+                     })}
                   </div>
                </div>
 
@@ -134,7 +147,9 @@ export const ProductBottomSheet = ({
                {/* Description */}
                <div className="px-1">
                   <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-1">Detalles del vault</p>
-                  <p className="text-black/60 text-sm leading-relaxed font-medium">Tarjeta digital original para {category.id} USA. Entrega inmediata y segura garantizada por la Bóveda Etérea.</p>
+                  <p className="text-black/60 text-sm leading-relaxed font-medium">
+                    {selectedProduct?.description || `Tarjeta digital original para ${category.name} USA. Entrega inmediata y segura.`}
+                  </p>
                </div>
             </div>
 

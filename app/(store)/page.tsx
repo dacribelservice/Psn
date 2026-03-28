@@ -8,6 +8,7 @@ import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductBottomSheet } from "@/components/ui/ProductBottomSheet";
 import { PaymentBottomSheet } from "@/components/ui/PaymentBottomSheet";
 import { useLanguage } from "@/context/LanguageContext";
+import { inventoryService, type Category, type Product } from "@/services/inventory";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -18,7 +19,28 @@ export default function StorePage() {
   const [amount, setAmount] = useState(0);
   const [isProductSheetOpen, setIsProductSheetOpen] = useState(false);
   const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<{ id: string, img: string } | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [cats, prods] = await Promise.all([
+          inventoryService.getCategories(),
+          inventoryService.getStorefrontProducts()
+        ]);
+        setCategories(cats);
+        setProducts(prods);
+      } catch (err) {
+        console.error("Error loading store data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   const handleProceedToPayment = (selectedAmount: number) => {
     setAmount(selectedAmount);
@@ -220,12 +242,7 @@ export default function StorePage() {
             </h3>
           </div>
           <div className="grid grid-cols-4 gap-6 md:gap-14 max-w-4xl mx-auto">
-            {[
-              { id: 'PSN', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDiTxVt6ySeAnfCpLGKdS27Vppb3aajRDHAEAo6CoHcv1AC4n-Fy8WSv-omjSNGOpnr6z_-CqDr_DD6VYi4sksRmxVxo017NrFnfooq2xYG6mH5hZ9MqJyf6rJFhcVNEMm3YKbdw3i1NfCYgk04aCwwxWtJxhxfluWKXUwF0R3hhpIcgo3SjRM8pv0X6-NfdkauNFzWtWjnMMPz8uyOI9GIqKFSwGhXzljl83sTj0T6xV_p9TwnpX9hycsfOAHp5Pii_-iw7_tpxLMs' },
-              { id: 'Xbox', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAtGwrArEDEuWWCZT2hTrBXTewRkBrl1d62pUxTA7jvm6CafMelj1YXfljeODZpzcydjozr8KOHB9PfQ54juwSH7dQxe_q_oFbkZu1AMotCxMSksV90boaoMzkvs6nTD1Tc7-8WP0tnaW5CHOarZflm8rLroVR0YPilfy4XJrMUgg-xiVwesTWZaN8Sbywtk8o4s24jTB5ONrXXKFL2oRYLxW48Q_JScRMnbtm1BQo1WLwpqr9HtI9XlSCOAt7H7fF3J7Y98yWyedqD' },
-              { id: 'Nintendo', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDs8x_b6xVP6t8lvtHdf9RXupeTnVY3mBeUVq9wOWdjFpvJQqLo4cr90ViI6B4RS3b93-0JP6YpBYMLu6JrP-06TKPuCKa3hedoGW8LZVHocR8-A1ayeZjrSDFHOHaMEa931APToz2mM8ZkKkxwZ-1tS_bhYsB74XfkyvgyJNcSxWp-106sDzDse6f8elNZcAKDDzlitVV6LYOsBf7Rmm4N4k9DYgNEkw1Y_PawlefSJCt2gF32fSPFIgbhd9SF8GgKgMuZZSXBLMJZ' },
-              { id: 'Roblox', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAM3FMx2vTaoNam0rubroypijS2V_7xS7T-OpkTe9PoJKooFUEG0W8BHahnEb0bI9TkE73Z22TakNKWvOmMgh9WBQpY_HFXGp1Q0c96ZAjH1juEU0mPpvxZiThNAir3wqbXRYkprrPChtvOHqKN629Iqe_cvtlGWsip_okk7FiVsC0NIJaNysJxDsOIsUIwU2R-azC5uilvyW1pxWFGNzx0skUi2DdEdp7bDCiDZeJGMc7sh8a_IQn2z059ZP0S8yfP8doKK-PPp-Z9' },
-            ].map((cat) => (
+            {categories.map((cat) => (
               <div 
                 key={cat.id} 
                 className="flex flex-col items-center group cursor-pointer transition-all duration-300"
@@ -235,9 +252,17 @@ export default function StorePage() {
                 }}
               >
                 <div className="w-16 h-16 md:w-36 md:h-36 rounded-full bg-[#191b23] flex items-center justify-center mb-4 md:mb-6 ring-2 ring-white/5 group-hover:ring-primary/60 transition-all duration-500 overflow-hidden shadow-2xl group-hover:shadow-primary/20 group-hover:-translate-y-2">
-                  <img alt={cat.id} className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700 opacity-90 group-hover:opacity-100" src={cat.img} />
+                  <span className="material-symbols-outlined text-4xl text-primary opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all">
+                    {cat.slug.includes('gift') ? 'card_giftcard' : 'sports_esports'}
+                  </span>
                 </div>
-                <span className="text-on-surface font-black text-[8px] md:text-sm tracking-widest group-hover:text-primary transition-colors text-center uppercase">{cat.id}</span>
+                <span className="text-on-surface font-black text-[8px] md:text-sm tracking-widest group-hover:text-primary transition-colors text-center uppercase">{cat.name}</span>
+              </div>
+            ))}
+            {loading && [1,2,3,4].map(i => (
+              <div key={i} className="animate-pulse flex flex-col items-center">
+                <div className="w-16 h-16 md:w-36 md:h-36 rounded-full bg-white/5 mb-4"></div>
+                <div className="h-4 w-20 bg-white/5 rounded"></div>
               </div>
             ))}
           </div>
@@ -250,6 +275,7 @@ export default function StorePage() {
         isOpen={isProductSheetOpen}
         onClose={() => setIsProductSheetOpen(false)}
         category={selectedCategory}
+        allProducts={products}
         onProceed={handleProceedToPayment}
       />
 
