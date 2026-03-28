@@ -23,7 +23,7 @@ const config: Config = {
         "on-background": "#e1e1ed",
         "secondary-container": "#42455d",
         "surface-container-highest": "#33343d",
-        "primary": "#ffd98d",
+        "primary": "#f7be34",
         "inverse-surface": "#e1e1ed",
         "surface-dim": "#11131b",
         "on-secondary-fixed-variant": "#42455d",
@@ -58,9 +58,9 @@ const config: Config = {
         "on-tertiary": "#2f3131"
       },
       fontFamily: {
-        "headline": ["Inter", "sans-serif"],
-        "body": ["Inter", "sans-serif"],
-        "label": ["Inter", "sans-serif"]
+        "headline": ["var(--font-lexend)", "sans-serif"],
+        "body": ["var(--font-public-sans)", "sans-serif"],
+        "label": ["var(--font-public-sans)", "sans-serif"]
       },
       borderRadius: {
         "DEFAULT": "0.5rem",

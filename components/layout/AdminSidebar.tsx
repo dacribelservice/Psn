@@ -41,7 +41,7 @@ export const AdminSidebar = () => {
               <span className={`material-symbols-outlined mr-3 text-[22px] ${item.active ? "text-primary" : "group-hover:text-white"}`}>
                 {item.icon}
               </span>
-              <span className="font-bold text-sm tracking-tight">{item.label}</span>
+              <span className="font-body font-bold text-sm tracking-tight">{item.label}</span>
             </Link>
           ))}
           
