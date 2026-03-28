@@ -71,14 +71,18 @@ export const OrderDetailsView = ({ orderId, onClose, showConfetti = true }: Orde
           {/* Brillo exterior */}
           <div className="absolute inset-0 blur-[40px] rounded-full bg-emerald-500/20 scale-125"></div>
           
-          {/* Círculo Principal (Capa base gris que ahora es verde) */}
-          <div className="relative w-32 h-32 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(34,197,94,0.3)] border border-white/10">
-            {/* El "Check" Blanco más grande con animación */}
+          {/* Círculo Principal (Reducido 6 veces) */}
+          <div className="relative w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.4)] border-2 border-white/10">
+            {/* El "Check" Blanco proporcionado al nuevo tamaño */}
             <motion.span 
-              animate={{ y: [0, -6, 0] }}
+              animate={{ y: [0, -3, 0] }}
               transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-              className="material-symbols-outlined text-[100px] text-white font-black"
-              style={{ fontVariationSettings: "'FILL' 1, 'wght' 700" }}
+              className="material-symbols-outlined text-white font-black"
+              style={{ 
+                fontSize: "40px", 
+                lineHeight: "1",
+                fontVariationSettings: "'FILL' 1, 'wght' 900" 
+              }}
             >
               check
             </motion.span>

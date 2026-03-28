@@ -151,19 +151,20 @@ export default function AdminInventoryPage() {
                  </div>
               </div>
 
-              <div className="flex flex-1 flex-col md:flex-row items-center gap-4 justify-end">
-                 <div className="relative group w-full md:max-w-sm">
+              <div className="flex flex-1 flex-col md:flex-row items-center gap-3 justify-end">
+                 <div className="relative group w-full md:max-w-xs">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/20 text-lg group-focus-within:text-primary transition-colors">search</span>
                     <input 
-                       className="w-full bg-[#1e202f] border border-white/5 rounded-2xl py-4 px-6 text-label-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:border-primary/40 transition-all text-center shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]"
+                       className="w-full bg-[#1e202f]/60 backdrop-blur-md border border-white/5 rounded-xl py-2.5 pl-11 pr-6 text-[11px] font-bold text-white/90 placeholder:text-white/20 focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]"
                        placeholder="BUSCAR POR CORREO O ID..."
                     />
                  </div>
-                 <div className="flex items-center gap-3 w-full md:w-auto">
-                    <button className="flex-1 md:flex-none px-6 py-4 rounded-2xl bg-[#191b23] border-none text-white/60 text-label-sm uppercase flex items-center justify-center gap-4 hover:bg-[#282a32] transition-all group shadow-2xl">
-                       TODOS <span className="material-symbols-outlined text-[16px] text-white/20 group-hover:text-primary transition-colors">expand_more</span>
+                 <div className="flex items-center gap-2 w-full md:w-auto">
+                    <button className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-[#191b23] border-none text-white/40 text-[10px] font-black uppercase flex items-center justify-center gap-3 hover:bg-[#282a32] hover:text-white transition-all group shadow-2xl">
+                       TODOS <span className="material-symbols-outlined text-[14px] text-white/10 group-hover:text-primary transition-colors">expand_more</span>
                     </button>
-                    <button className="flex-1 md:flex-none px-6 py-4 rounded-2xl bg-[#191b23] border-none text-white/60 text-label-sm uppercase flex items-center justify-center gap-4 hover:bg-[#282a32] transition-all group shadow-2xl">
-                       PLATAFORMA <span className="material-symbols-outlined text-[16px] text-white/20 group-hover:text-primary transition-colors">expand_more</span>
+                    <button className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-[#191b23] border-none text-white/40 text-[10px] font-black uppercase flex items-center justify-center gap-3 hover:bg-[#282a32] hover:text-white transition-all group shadow-2xl">
+                       PLATAFORMA <span className="material-symbols-outlined text-[14px] text-white/10 group-hover:text-primary transition-colors">expand_more</span>
                     </button>
                  </div>
               </div>
@@ -205,12 +206,12 @@ export default function AdminInventoryPage() {
                              </div>
                           </td>
                           <td className="px-8 py-6">
-                             <span className={`inline-flex px-3.5 py-1.5 rounded-full text-label-sm font-black uppercase tracking-widest border-none ${item.active ? 'bg-green-500/10 text-green-400' : 'bg-white/5 text-white/20'}`}>
+                             <span className={`inline-flex px-1.5 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border border-white/5 ${item.active ? 'bg-green-500/10 text-green-400' : 'bg-white/5 text-white/20'}`}>
                                 {item.status}
                              </span>
                           </td>
                           <td className="px-8 py-6">
-                             <code className="text-label-sm font-mono font-bold text-white/40 bg-black/40 px-4 py-2 rounded-xl border border-white/5 group-hover:text-primary transition-colors select-all tracking-widest">
+                             <code className="text-[9px] font-mono font-bold text-white/40 bg-black/40 px-2 py-1 rounded-xl border border-white/5 group-hover:text-primary transition-colors select-all tracking-wide">
                                 {item.code}
                              </code>
                           </td>
@@ -274,8 +275,7 @@ export default function AdminInventoryPage() {
       {/* Mobile Bottom Bar */}
       <nav className="fixed bottom-0 left-0 w-full z-50 lg:hidden h-16 bg-[#11131b]/90 backdrop-blur-3xl border-t border-white/5 flex justify-around items-center px-4">
         {[
-          { label: "Dash", icon: "grid_view", active: true },
-          { label: "Stats", icon: "analytics" },
+          { label: "Stats", icon: "analytics", active: true },
           { label: "TXs", icon: "history" },
           { label: "Self", icon: "person" },
         ].map((item, idx) => (

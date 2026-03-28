@@ -11,7 +11,6 @@ export const AdminSidebar = () => {
 
   const menuItems = [
     { label: t("home"), icon: "home", href: "/" },
-    { label: "Dashboard", icon: "dashboard", href: "/admin/dashboard" },
     { label: t("finances"), icon: "account_balance", href: "/admin/finances" },
     { label: t("inventory"), icon: "inventory_2", href: "/admin/inventory" },
   ];

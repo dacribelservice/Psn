@@ -9,18 +9,24 @@ interface ProfileMenuProps {
   isOpen: boolean;
   onClose: () => void;
   role?: "admin" | "user";
+  onBannersClick?: () => void;
+  onProfileClick?: () => void;
 }
 
-export const ProfileMenu = ({ isOpen, onClose, role = "user" }: ProfileMenuProps) => {
+export const ProfileMenu = ({ isOpen, onClose, role = "user", onBannersClick, onProfileClick }: ProfileMenuProps) => {
   const { language, setLanguage, t } = useLanguage();
 
-  const menuItems = [
-    { label: t("my_profile"), icon: "person", href: "#" },
-    { label: t("admin"), icon: "admin_panel_settings", href: "/admin" },
+   const menuItems = [
+    { label: t("my_profile"), icon: "person", href: "#", isProfile: true },
+    { label: t("admin"), icon: "view_carousel", href: "/admin", isBanners: true },
     { label: "Telegram: @Dacribel", icon: "send", href: "https://t.me/Dacribel" },
     { label: t("terms_conditions"), icon: "description", href: "#" },
     { label: t("about_us"), icon: "info", href: "#" },
-  ].filter(item => item.href !== "/admin" || role === "admin");
+  ].filter(item => {
+    if (item.href === "/admin") return role === "admin";
+    if (item.label.includes("Telegram") && role === "admin") return false;
+    return true;
+  });
 
   return (
     <AnimatePresence>
@@ -56,28 +62,50 @@ export const ProfileMenu = ({ isOpen, onClose, role = "user" }: ProfileMenuProps
             </div>
 
             <nav className="flex flex-col px-1 py-2">
-              {menuItems.map((item, idx) => (
-                <Link
-                  key={idx}
-                  href={item.href}
-                  onClick={() => {
-                    if (item.href !== "#") onClose();
-                  }}
-                  className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-white/80 font-bold hover:bg-white/5 hover:text-white transition-all active:scale-95 group"
-                >
-                  <span className="material-symbols-outlined text-primary text-[18px]">
-                    {item.icon}
-                  </span>
-                  <span className="text-[11px] tracking-tight">{item.label}</span>
-                </Link>
-              ))}
+              {menuItems.map((item, idx) => {
+                const isAction = item.href === "#" || (item.isBanners && onBannersClick) || (item.isProfile && onProfileClick);
+                
+                return isAction ? (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      if (item.isBanners && onBannersClick) {
+                        onBannersClick();
+                      } else if (item.isProfile && onProfileClick) {
+                        onProfileClick();
+                      }
+                      onClose();
+                    }}
+                    className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-white/80 font-bold hover:bg-white/5 hover:text-white transition-all active:scale-95 group w-full text-left"
+                  >
+                    <span className="material-symbols-outlined text-primary text-[18px]">
+                      {item.icon}
+                    </span>
+                    <span className="text-[11px] tracking-tight">{item.label}</span>
+                  </button>
+                ) : (
+                  <Link
+                    key={idx}
+                    href={item.href}
+                    onClick={onClose}
+                    className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-white/80 font-bold hover:bg-white/5 hover:text-white transition-all active:scale-95 group"
+                  >
+                    <span className="material-symbols-outlined text-primary text-[18px]">
+                      {item.icon}
+                    </span>
+                    <span className="text-[11px] tracking-tight">{item.label}</span>
+                  </Link>
+                );
+              })}
               
               <div className="h-[1px] bg-white/5 my-1.5 mx-3" />
               
-              <button className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-red-400 font-bold hover:bg-red-500/10 transition-all active:scale-95 group w-full text-left">
-                <span className="material-symbols-outlined text-red-500 text-[18px]">delete_forever</span>
-                <span className="text-[11px] tracking-tight">{t("delete_account")}</span>
-              </button>
+              {role !== "admin" && (
+                <button className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-red-400 font-bold hover:bg-red-500/10 transition-all active:scale-95 group w-full text-left">
+                  <span className="material-symbols-outlined text-red-500 text-[18px]">delete_forever</span>
+                  <span className="text-[11px] tracking-tight">{t("delete_account")}</span>
+                </button>
+              )}
               <button className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-white font-bold hover:bg-white/5 transition-all active:scale-95 group w-full text-left">
                 <span className="material-symbols-outlined text-primary text-[18px]">logout</span>
                 <span className="text-[11px] tracking-tight">{t("logout")}</span>

@@ -2,17 +2,19 @@
 
 import React, { useState } from "react";
 import { ProfileMenu } from "./ProfileMenu";
+import { BannersModal } from "../ui/BannersModal";
+import { EditProfileModal } from "../ui/EditProfileModal";
 
 export const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isBannersOpen, setIsBannersOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   return (
     <>
       <header className="fixed top-0 left-0 right-0 h-16 bg-[#11131b]/80 backdrop-blur-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 border-b border-white/5 flex items-center justify-between px-4 lg:px-12 lg:ml-64">
+        {/* ... existing header content ... */}
         <div className="flex items-center gap-3">
-          <button className="text-primary hover:bg-[#282a32] transition-colors p-2 rounded-lg active:scale-95 duration-200 md:hidden">
-            <span className="material-symbols-outlined">menu</span>
-          </button>
           <h1 className="text-xl font-black text-primary tracking-tighter md:hidden">Dacribel</h1>
         </div>
 
@@ -32,7 +34,14 @@ export const Header = () => {
       </header>
       
       {/* Popups */}
-      <ProfileMenu isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      <ProfileMenu 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)} 
+        onBannersClick={() => setIsBannersOpen(true)}
+        onProfileClick={() => setIsEditProfileOpen(true)}
+      />
+      <BannersModal isOpen={isBannersOpen} onClose={() => setIsBannersOpen(false)} />
+      <EditProfileModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
     </>
   );
 };

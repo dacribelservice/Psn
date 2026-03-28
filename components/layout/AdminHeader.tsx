@@ -5,15 +5,18 @@ import { useLanguage } from "@/context/LanguageContext";
 import { usePathname } from "next/navigation";
 import { ProfileMenu } from "./ProfileMenu";
 import { NotificationsPopup } from "./NotificationsPopup";
+import { BannersModal } from "../ui/BannersModal";
+import { EditProfileModal } from "../ui/EditProfileModal";
 
 export const AdminHeader = () => {
   const { t } = useLanguage();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isBannersOpen, setIsBannersOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const pathname = usePathname();
 
   const getTitle = () => {
-    if (pathname.includes("/admin/dashboard")) return "Dashboard";
     if (pathname.includes("/admin/inventory")) return t("inventory");
     if (pathname.includes("/admin/finances")) return t("finances");
     return t("inventory");
@@ -40,6 +43,8 @@ export const AdminHeader = () => {
             onClick={() => {
               setIsNotificationsOpen(!isNotificationsOpen);
               setIsProfileOpen(false);
+              setIsBannersOpen(false);
+              setIsEditProfileOpen(false);
             }}
             className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 transition-all active:scale-95 group"
           >
@@ -51,6 +56,8 @@ export const AdminHeader = () => {
             onClick={() => {
               setIsProfileOpen(!isProfileOpen);
               setIsNotificationsOpen(false);
+              setIsBannersOpen(false);
+              setIsEditProfileOpen(false);
             }}
             className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/10 hover:border-primary/50 transition-all active:scale-90 shadow-lg"
           >
@@ -64,8 +71,16 @@ export const AdminHeader = () => {
       </header>
 
       {/* Popups */}
-      <ProfileMenu isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} role="admin" />
+      <ProfileMenu 
+        isOpen={isProfileOpen} 
+        onClose={() => setIsProfileOpen(false)} 
+        role="admin" 
+        onBannersClick={() => setIsBannersOpen(true)}
+        onProfileClick={() => setIsEditProfileOpen(true)}
+      />
       <NotificationsPopup isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
+      <BannersModal isOpen={isBannersOpen} onClose={() => setIsBannersOpen(false)} />
+      <EditProfileModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
     </>
   );
 };
