@@ -25,7 +25,7 @@ const StatCard = ({ label, value, sub, trend, icon, hasSelector, color = "primar
     </div>
     <div className="z-10 mt-auto">
       {sub && <div className="text-label-sm text-white/20 uppercase mb-1">{sub}</div>}
-      <div className="text-3xl md:text-display-lg font-display text-white flex items-baseline gap-1.5 leading-none">
+      <div className="text-xl md:text-2xl font-display text-white flex items-baseline gap-1.5 leading-none">
         {value}
       </div>
       {trend && (
@@ -65,7 +65,7 @@ export default function AdminFinancesPage() {
         <section className="space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
              <div className="flex items-center gap-6 flex-1">
-                <h3 className="text-display-lg font-display text-white uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">ORDENES</h3>
+                <h3 className="text-xl md:text-2xl font-display text-white uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">ORDENES</h3>
                 <div className="relative group flex-1 max-w-sm">
                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors text-[20px]">search</span>
                    <input 

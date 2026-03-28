@@ -118,3 +118,15 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 
 - **GitHub**: Respaldo completo de la lógica de pago y entrega de códigos.
 
+---
+
+## 📝 ÚLTIMA INTEGRACIÓN (28/03/2026 - Auditoría y Ajustes UX/UI)
+- **Correcciones de UX/UI en Panel Admin**: Solución de discrepancias tipográficas (`text-display-lg`) en las vistas de Inventario y Finanzas, reduciendo los tamaños a escalas proporcionales (`text-xl` y `2xl`) para restaurar el balance visual y el espacio de trabajo.
+- **Silenciado de Linter CSS**: Creación de archivo `.vscode/settings.json` para ignorar falsas advertencias de reglas `@tailwind`.
+- **Auditoría General de Arquitectura y Flujos**:
+  - **✅ Storefront & Checkout (UI) - Completado**: Las pantallas de visualización, modales de compra y entrega final (con confeti) están 100% integradas visualmente.
+  - **✅ Dashboard Admin (UI) - Completado**: Base estructural (Finanzas, Inventario) terminada con estética Ethereal Vault y vistas de tablas responsivas.
+  - **❌ Flujos de Autenticación (Fase 3) - Ausente**: El directorio `/app/(auth)` está vacío. No existe proveedor de sesión en `layout.tsx` ni lógica de protección de rutas o roles.
+  - **❌ Backend y Webhooks (Fase 5) - Ausente**: El directorio `/app/api` está vacío. La lógica de generación de wallets y persistencia real en Supabase no ha iniciado.
+
+> **Siguiente Paso Crítico Recomendado**: Ejecutar la **FASE 3: Autenticación y Perfil**. Es el pilar fundamental que falta para proteger el acceso a `/admin`, separar los roles y vincular las compras simuladas en la UI con una base de datos real en Supabase.

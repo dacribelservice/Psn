@@ -93,7 +93,7 @@ export default function AdminInventoryPage() {
                  ) : (
                    <>
                     <div className="text-label-sm text-white/20 uppercase mb-1">{item.sub}</div>
-                    <div className="text-3xl md:text-display-lg font-display text-white flex items-baseline gap-1.5 leading-none">
+                    <div className="text-xl md:text-2xl font-display text-white flex items-baseline gap-1.5 leading-none">
                       {item.value} <span className="text-[14px] font-black text-primary uppercase">{item.unit || ""}</span>
                     </div>
                    </>
@@ -123,7 +123,7 @@ export default function AdminInventoryPage() {
                    </div>
                    <div className="flex flex-col items-end">
                       <span className="text-label-sm text-white/20 uppercase leading-none">STOCK</span>
-                      <span className={`text-display-lg font-display ${item.stock <= item.stockAlert ? 'text-red-400' : 'text-white'}`}>{item.stock}</span>
+                      <span className={`text-xl md:text-2xl font-display ${item.stock <= item.stockAlert ? 'text-red-400' : 'text-white'}`}>{item.stock}</span>
                    </div>
                 </div>
              ))}
@@ -134,7 +134,7 @@ export default function AdminInventoryPage() {
         <section className="space-y-6 pt-4">
            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 px-4">
               <div className="flex items-center gap-6">
-                 <h1 className="text-display-lg font-display text-white uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">{t("inventory")}</h1>
+                 <h1 className="text-xl md:text-2xl font-display text-white uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">{t("inventory")}</h1>
                  <div className="flex items-center gap-3">
                     <button 
                       onClick={() => setIsCategorySheetOpen(true)}
