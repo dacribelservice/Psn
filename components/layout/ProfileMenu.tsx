@@ -11,16 +11,17 @@ interface ProfileMenuProps {
   role?: "admin" | "user";
   onBannersClick?: () => void;
   onProfileClick?: () => void;
+  onTermsClick?: () => void;
 }
 
-export const ProfileMenu = ({ isOpen, onClose, role = "user", onBannersClick, onProfileClick }: ProfileMenuProps) => {
+export const ProfileMenu = ({ isOpen, onClose, role = "user", onBannersClick, onProfileClick, onTermsClick }: ProfileMenuProps) => {
   const { language, setLanguage, t } = useLanguage();
 
    const menuItems = [
     { label: t("my_profile"), icon: "person", href: "#", isProfile: true },
     { label: t("admin"), icon: "view_carousel", href: "/admin", isBanners: true },
     { label: "Telegram: @Dacribel", icon: "send", href: "https://t.me/Dacribel" },
-    { label: t("terms_conditions"), icon: "description", href: "#" },
+    { label: t("terms_conditions"), icon: "description", href: "#", isTerms: true },
     { label: t("about_us"), icon: "info", href: "#" },
   ].filter(item => {
     if (item.href === "/admin") return role === "admin";
@@ -63,7 +64,7 @@ export const ProfileMenu = ({ isOpen, onClose, role = "user", onBannersClick, on
 
             <nav className="flex flex-col px-1 py-2">
               {menuItems.map((item, idx) => {
-                const isAction = item.href === "#" || (item.isBanners && onBannersClick) || (item.isProfile && onProfileClick);
+                const isAction = item.href === "#" || (item.isBanners && onBannersClick) || (item.isProfile && onProfileClick) || (item.isTerms && onTermsClick);
                 
                 return isAction ? (
                   <button
@@ -73,6 +74,8 @@ export const ProfileMenu = ({ isOpen, onClose, role = "user", onBannersClick, on
                         onBannersClick();
                       } else if (item.isProfile && onProfileClick) {
                         onProfileClick();
+                      } else if (item.isTerms && onTermsClick) {
+                        onTermsClick();
                       }
                       onClose();
                     }}

@@ -7,6 +7,7 @@ import { ProfileMenu } from "./ProfileMenu";
 import { NotificationsPopup } from "./NotificationsPopup";
 import { BannersModal } from "../ui/BannersModal";
 import { EditProfileModal } from "../ui/EditProfileModal";
+import { AdminTermsModal } from "../admin/AdminTermsModal";
 
 export const AdminHeader = () => {
   const { t } = useLanguage();
@@ -14,6 +15,7 @@ export const AdminHeader = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isBannersOpen, setIsBannersOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isAdminTermsOpen, setIsAdminTermsOpen] = useState(false);
   const pathname = usePathname();
 
   const getTitle = () => {
@@ -45,6 +47,7 @@ export const AdminHeader = () => {
               setIsProfileOpen(false);
               setIsBannersOpen(false);
               setIsEditProfileOpen(false);
+              setIsAdminTermsOpen(false);
             }}
             className="relative w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 transition-all active:scale-95 group"
           >
@@ -58,6 +61,7 @@ export const AdminHeader = () => {
               setIsNotificationsOpen(false);
               setIsBannersOpen(false);
               setIsEditProfileOpen(false);
+              setIsAdminTermsOpen(false);
             }}
             className="w-10 h-10 rounded-full overflow-hidden border-2 border-white/10 hover:border-primary/50 transition-all active:scale-90 shadow-lg"
           >
@@ -77,10 +81,12 @@ export const AdminHeader = () => {
         role="admin" 
         onBannersClick={() => setIsBannersOpen(true)}
         onProfileClick={() => setIsEditProfileOpen(true)}
+        onTermsClick={() => setIsAdminTermsOpen(true)}
       />
       <NotificationsPopup isOpen={isNotificationsOpen} onClose={() => setIsNotificationsOpen(false)} />
       <BannersModal isOpen={isBannersOpen} onClose={() => setIsBannersOpen(false)} />
       <EditProfileModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
+      <AdminTermsModal isOpen={isAdminTermsOpen} onClose={() => setIsAdminTermsOpen(false)} />
     </>
   );
 };

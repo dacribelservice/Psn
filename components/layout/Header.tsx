@@ -4,11 +4,13 @@ import React, { useState } from "react";
 import { ProfileMenu } from "./ProfileMenu";
 import { BannersModal } from "../ui/BannersModal";
 import { EditProfileModal } from "../ui/EditProfileModal";
+import { UserTermsBottomSheet } from "../ui/UserTermsBottomSheet";
 
 export const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isBannersOpen, setIsBannersOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   return (
     <>
@@ -39,9 +41,11 @@ export const Header = () => {
         onClose={() => setIsProfileOpen(false)} 
         onBannersClick={() => setIsBannersOpen(true)}
         onProfileClick={() => setIsEditProfileOpen(true)}
+        onTermsClick={() => setIsTermsOpen(true)}
       />
       <BannersModal isOpen={isBannersOpen} onClose={() => setIsBannersOpen(false)} />
       <EditProfileModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
+      <UserTermsBottomSheet isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
     </>
   );
 };
