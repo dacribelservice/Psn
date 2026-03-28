@@ -14,6 +14,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onCreate }: GiftCardBotto
   const [value, setValue] = useState(0);
   const [rate, setRate] = useState(3650);
   const [region, setRegion] = useState("USA");
+  const [description, setDescription] = useState("");
   const [codesText, setCodesText] = useState("");
   const [stockAlert, setStockAlert] = useState(1);
   const [isPlatformOpen, setIsPlatformOpen] = useState(false);
@@ -27,9 +28,11 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onCreate }: GiftCardBotto
   ];
 
   const regions = [
-    { id: "USA", name: "USA", flag: "🇺🇸" },
-    { id: "COL", name: "Colombia", flag: "🇨🇴" },
-    { id: "MEX", name: "Mexico", flag: "🇲🇽" },
+    { id: "USA", name: "USA", flag: "https://flagcdn.com/w40/us.png" },
+    { id: "COL", name: "Colombia", flag: "https://flagcdn.com/w40/co.png" },
+    { id: "MEX", name: "Mexico", flag: "https://flagcdn.com/w40/mx.png" },
+    { id: "BRA", name: "Brazil", flag: "https://flagcdn.com/w40/br.png" },
+    { id: "ARG", name: "Argentina", flag: "https://flagcdn.com/w40/ar.png" },
   ];
 
   const handleCreate = () => {
@@ -43,6 +46,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onCreate }: GiftCardBotto
       value,
       rate,
       region,
+      description,
       codes: codesArray,
       stock: codesArray.length,
       stockAlert,
@@ -56,6 +60,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onCreate }: GiftCardBotto
     // Reset form
     setPlatform("Seleccione una plataforma...");
     setValue(0);
+    setDescription("");
     setCodesText("");
   };
 
@@ -190,7 +195,11 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onCreate }: GiftCardBotto
                       className="w-full flex items-center justify-between bg-gray-300/50 dark:bg-[#30334a] border border-black/5 dark:border-white/5 rounded-xl py-3 px-5 focus:ring-1 focus:ring-primary transition-all outline-none text-gray-900 dark:text-gray-100 font-bold shadow-inner text-xs"
                     >
                       <div className="flex items-center gap-3 text-body-md">
-                        <span>{regions.find(r => r.id === region)?.flag}</span>
+                        <img 
+                          src={regions.find(r => r.id === region)?.flag} 
+                          alt={region}
+                          className="w-5 h-3.5 object-cover rounded-[2px] opacity-80"
+                        />
                         <span>{regions.find(r => r.id === region)?.name}</span>
                       </div>
                       <span className={`material-symbols-outlined text-sm transition-transform duration-300 ${isRegionOpen ? 'rotate-180' : ''}`}>expand_more</span>
@@ -211,7 +220,11 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onCreate }: GiftCardBotto
                                   onClick={() => { setRegion(r.id); setIsRegionOpen(false); }}
                                   className="w-full text-left px-5 py-2.5 text-gray-700 dark:text-white hover:bg-primary/10 hover:text-primary transition-colors flex items-center gap-3 font-bold text-xs"
                                 >
-                                  <span className="text-base">{r.flag}</span>
+                                  <img 
+                                    src={r.flag} 
+                                    alt={r.name}
+                                    className="w-5 h-3.5 object-cover rounded-[2px]"
+                                  />
                                   <span className="text-body-md">{r.name}</span>
                                 </button>
                               </li>
@@ -220,6 +233,23 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onCreate }: GiftCardBotto
                         </motion.div>
                       )}
                     </AnimatePresence>
+                  </div>
+                </div>
+
+                {/* Product Detail */}
+                <div className="space-y-2">
+                  <label className="block text-label-sm text-gray-500 dark:text-white/30 uppercase tracking-[0.2em]">
+                    DETALLE DEL PRODUCTO
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-5 text-gray-400 dark:text-white/20 material-symbols-outlined text-lg">description</span>
+                    <input
+                      type="text"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Ej. PlayStation Network 25 USD"
+                      className="w-full bg-gray-300/50 dark:bg-[#30334a] border border-black/5 dark:border-white/5 rounded-xl py-3 pl-12 pr-5 focus:ring-1 focus:ring-primary text-gray-900 dark:text-white font-bold text-xs outline-none shadow-inner"
+                    />
                   </div>
                 </div>
 

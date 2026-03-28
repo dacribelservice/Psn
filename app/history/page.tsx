@@ -34,7 +34,7 @@ export default function HistoryPage() {
               <span className="text-label-sm text-white/30 block uppercase">
                 {language === 'es' ? 'Transacciones' : 'Transactions'}
               </span>
-              <h2 className="text-4xl md:text-display-lg font-display text-white">
+              <h2 className="text-2xl md:text-4xl font-display font-black text-white tracking-tight">
                 {language === 'es' ? 'Historial de Órdenes' : 'Order History'}
               </h2>
             </div>
@@ -79,7 +79,7 @@ export default function HistoryPage() {
                   <span className="material-symbols-outlined text-emerald-400 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                 </div>
               </div>
-              <p className="text-3xl md:text-display-lg font-display text-white z-10">24</p>
+              <p className="text-2xl md:text-4xl font-display font-black text-white z-10">24</p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-[80px] group-hover:bg-emerald-500/20 transition-all"></div>
             </div>
 
@@ -93,7 +93,7 @@ export default function HistoryPage() {
                   <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
                 </div>
               </div>
-              <p className="text-3xl md:text-display-lg font-display text-white z-10">02</p>
+              <p className="text-2xl md:text-4xl font-display font-black text-white z-10">02</p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all"></div>
             </div>
 
@@ -107,7 +107,7 @@ export default function HistoryPage() {
                   <span className="material-symbols-outlined text-white/40 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>confirmation_number</span>
                 </div>
               </div>
-              <p className="text-3xl md:text-display-lg font-display text-white z-10">840</p>
+              <p className="text-2xl md:text-4xl font-display font-black text-white z-10">840</p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/5 rounded-full blur-[80px] group-hover:bg-white/10 transition-all"></div>
             </div>
           </div>
