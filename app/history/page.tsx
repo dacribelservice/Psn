@@ -4,22 +4,61 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { useLanguage } from "@/context/LanguageContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { OrderDetailsView } from "@/components/ui/OrderDetailsView";
 import { AnimatePresence } from "framer-motion";
 
 export default function HistoryPage() {
   const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
-  const transactions = [
-    { id: "88241", product: "Netflix Gift Card", amount: "$50.00", method: "USDT (TRC20)", date: "12 Oct 2023, 14:30", status: "Completed" },
-    { id: "88239", product: "Amazon Balance", amount: "$100.00", method: "USDT (TRC20)", date: "11 Oct 2023, 09:15", status: "Pending" },
-    { id: "88235", product: "Apple Store Card", amount: "$25.00", method: "LTC", date: "10 Oct 2023, 18:45", status: "Completed" },
-    { id: "88230", product: "Steam Wallet", amount: "$10.00", method: "BTC", date: "08 Oct 2023, 21:05", status: "Completed" },
-    { id: "88228", product: "PlayStation Plus 12M", amount: "$60.00", method: "USDT (ERC20)", date: "05 Oct 2023, 11:20", status: "Completed" },
-  ];
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          id,
+          amount,
+          payment_method,
+          created_at,
+          status,
+          products ( name ),
+          inventory_codes ( id, code )
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (data && !error) {
+        const formatted = data.map((o: any) => ({
+          id: o.id.slice(0, 8),
+          originalId: o.id,
+          product: o.products?.name || "Producto Desconocido",
+          amount: `$${Number(o.amount).toFixed(2)}`,
+          originalAmount: Number(o.amount).toFixed(2),
+          method: o.payment_method,
+          date: new Date(o.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }),
+          fullDate: new Date(o.created_at).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          status: o.status === 'completed' ? 'Completed' : 'Pending',
+          code: o.inventory_codes?.code || "PENDIENTE",
+        }));
+        setTransactions(formatted);
+      }
+      setLoading(false);
+    };
+    fetchOrders();
+  }, []);
+
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
@@ -114,39 +153,45 @@ export default function HistoryPage() {
 
           {/* Mobile Card List */}
           <div className="md:hidden flex flex-col gap-4">
-            {transactions.map((tx) => (
-              <div key={tx.id} className="bg-[#191b23] rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-                <div className="flex justify-between items-start mb-6">
-                  <div>
-                    <p className="text-[10px] font-headline font-black text-white/20 uppercase tracking-[0.2em] mb-1">
-                      {language === 'es' ? 'Pedido' : 'Order'} #{tx.id}
-                    </p>
-                    <h3 className="text-xl font-headline font-black text-white tracking-tight leading-none">{tx.product}</h3>
+            {loading ? (
+              <p className="text-center text-white/50 py-10">Cargando historial...</p>
+            ) : transactions.length === 0 ? (
+              <p className="text-center text-white/50 py-10">No tienes órdenes aún.</p>
+            ) : (
+              transactions.map((tx) => (
+                <div key={tx.id} className="bg-[#191b23] rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <p className="text-[10px] font-headline font-black text-white/20 uppercase tracking-[0.2em] mb-1">
+                        {language === 'es' ? 'Pedido' : 'Order'} #{tx.id}
+                      </p>
+                      <h3 className="text-xl font-headline font-black text-white tracking-tight leading-none">{tx.product}</h3>
+                    </div>
+                    <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                      tx.status === 'Completed' ? 'bg-green-500/10 text-green-400' : 'bg-primary/10 text-primary'
+                    }`}>
+                      {tx.status}
+                    </span>
                   </div>
-                  <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
-                    tx.status === 'Completed' ? 'bg-green-500/10 text-green-400' : 'bg-primary/10 text-primary'
-                  }`}>
-                    {tx.status}
-                  </span>
-                </div>
-                <div className="flex justify-between items-end">
-                  <div>
-                    <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest leading-none mb-2">{tx.date}</p>
-                    <p className="text-2xl font-headline font-black text-primary leading-none">{tx.amount}</p>
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest leading-none mb-2">{tx.date}</p>
+                      <p className="text-2xl font-headline font-black text-primary leading-none">{tx.amount}</p>
+                    </div>
+                    <button 
+                      onClick={() => tx.status === 'Completed' && setSelectedOrder(tx)}
+                      className={`${
+                        tx.status === 'Completed' 
+                          ? 'bg-primary text-black active:scale-95' 
+                          : 'bg-white/5 text-white/20 cursor-not-allowed'
+                      } text-[10px] font-black px-5 py-3 rounded-xl transition-all uppercase tracking-widest shadow-lg`}
+                    >
+                      {tx.status === 'Completed' ? (language === 'es' ? 'VER CÓDIGOS' : 'VIEW CODES') : (language === 'es' ? 'ESPERANDO' : 'PENDING')}
+                    </button>
                   </div>
-                  <button 
-                    onClick={() => tx.status === 'Completed' && setSelectedOrderId(tx.id)}
-                    className={`${
-                      tx.status === 'Completed' 
-                        ? 'bg-primary text-black active:scale-95' 
-                        : 'bg-white/5 text-white/20 cursor-not-allowed'
-                    } text-[10px] font-black px-5 py-3 rounded-xl transition-all uppercase tracking-widest shadow-lg`}
-                  >
-                    {tx.status === 'Completed' ? (language === 'es' ? 'VER CÓDIGOS' : 'VIEW CODES') : (language === 'es' ? 'ESPERANDO' : 'PENDING')}
-                  </button>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           {/* Desktop Table View */}
@@ -164,36 +209,42 @@ export default function HistoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/5">
-                {transactions.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-surface-container-highest/30 transition-colors group">
-                    <td className="px-6 py-6 text-sm font-mono text-on-surface-variant">#{tx.id}</td>
-                    <td className="px-6 py-6 font-bold text-on-surface">{tx.product}</td>
-                    <td className="px-6 py-6 font-black text-primary">{tx.amount}</td>
-                    <td className="px-6 py-6 text-xs text-secondary-fixed-dim">{tx.method}</td>
-                    <td className="px-6 py-6 text-xs text-secondary-fixed-dim">{tx.date}</td>
-                    <td className="px-6 py-6">
-                      <span className={`px-3 py-1 rounded-full text-[0.625rem] font-bold uppercase tracking-widest ${
-                        tx.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#f2b92f]/10 text-[#f2b92f]'
-                      }`}>
-                        {tx.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-6 text-right">
-                      {tx.status === 'Completed' ? (
-                        <button 
-                          onClick={() => setSelectedOrderId(tx.id)}
-                          className="text-[#f7be34] text-xs font-bold hover:underline transition-all"
-                        >
-                          {language === 'es' ? 'VER CÓDIGOS' : 'VIEW CODES'}
-                        </button>
-                      ) : (
-                        <span className="text-on-surface-variant/40 text-[0.625rem] font-bold uppercase">
-                          {language === 'es' ? 'Procesando...' : 'Processing...'}
+                {loading ? (
+                  <tr><td colSpan={7} className="text-center py-10 opacity-50">Cargando historial...</td></tr>
+                ) : transactions.length === 0 ? (
+                  <tr><td colSpan={7} className="text-center py-10 opacity-50">No tienes órdenes aún.</td></tr>
+                ) : (
+                  transactions.map((tx) => (
+                    <tr key={tx.id} className="hover:bg-surface-container-highest/30 transition-colors group">
+                      <td className="px-6 py-6 text-sm font-mono text-on-surface-variant">#{tx.id}</td>
+                      <td className="px-6 py-6 font-bold text-on-surface">{tx.product}</td>
+                      <td className="px-6 py-6 font-black text-primary">{tx.amount}</td>
+                      <td className="px-6 py-6 text-xs text-secondary-fixed-dim">{tx.method}</td>
+                      <td className="px-6 py-6 text-xs text-secondary-fixed-dim">{tx.date}</td>
+                      <td className="px-6 py-6">
+                        <span className={`px-3 py-1 rounded-full text-[0.625rem] font-bold uppercase tracking-widest ${
+                          tx.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#f2b92f]/10 text-[#f2b92f]'
+                        }`}>
+                          {tx.status}
                         </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-6 py-6 text-right">
+                        {tx.status === 'Completed' ? (
+                          <button 
+                            onClick={() => setSelectedOrder(tx)}
+                            className="text-[#f7be34] text-xs font-bold hover:underline transition-all"
+                          >
+                            {language === 'es' ? 'VER CÓDIGOS' : 'VIEW CODES'}
+                          </button>
+                        ) : (
+                          <span className="text-on-surface-variant/40 text-[0.625rem] font-bold uppercase">
+                            {language === 'es' ? 'Procesando...' : 'Processing...'}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
             <div className="px-6 py-6 bg-surface-container-high/20 flex justify-between items-center text-on-surface">
@@ -216,10 +267,10 @@ export default function HistoryPage() {
 
       {/* Order Details View Overlay */}
       <AnimatePresence>
-        {selectedOrderId && (
+        {selectedOrder && (
           <OrderDetailsView 
-            orderId={selectedOrderId} 
-            onClose={() => setSelectedOrderId(null)} 
+            orderData={selectedOrder} 
+            onClose={() => setSelectedOrder(null)} 
             showConfetti={true} 
           />
         )}

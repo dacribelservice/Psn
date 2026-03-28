@@ -7,7 +7,7 @@ import { Category, Product } from "@/services/inventory";
 interface ProductBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  onProceed?: (amount: number) => void;
+  onProceed?: (amount: number, productId: string) => void;
   category: Category | null;
   allProducts: Product[];
 }
@@ -160,7 +160,7 @@ export const ProductBottomSheet = ({
                   <p className="text-2xl font-black text-[#11131b] tracking-tighter">${(unitPrice * quantity).toFixed(2)} <span className="text-[11px] text-[#f7be34] uppercase font-black">USDT</span></p>
                </div>
                <button 
-                  onClick={() => onProceed?.(unitPrice * quantity)}
+                  onClick={() => onProceed?.(unitPrice * quantity, selectedProduct?.id || '')}
                   className="bg-[#f7be34] text-[#402d00] font-black py-4 px-8 rounded-xl shadow-[0_15px_30px_rgba(247,190,52,0.25)] hover:scale-105 active:scale-95 transition-all uppercase tracking-[0.05em] text-[11px]"
                >
                   Pagar ahora

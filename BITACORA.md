@@ -148,3 +148,14 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 - **Estado**: Flujo de frontend 100% listo para Supabase Auth.
 
 > **Siguiente Paso Cr�tico**: Integraci�n real con **Supabase Auth** (Middleware y DB).
+
+---
+
+## ⚡ ÚLTIMA INTEGRACIÓN (28/03/2026 - Conexión Supabase DB y Pagos - VII)
+- **Base de Datos Configurada**: Creación de la tabla orders protegida con RLS y función atómica en checkout_rpc.sql para prevenir colisiones en la asignación de códigos digitales.
+- **Historial en Vivo (Storefront)**: Conectado el componente HistoryPage a Supabase, mostrando órdenes reales y calculando montos en base a la relación orders -> products.
+- **Vista de Orden Real (OrderDetailsView)**: Integración dinámica para presentar el ticket de pago exitoso y revelar el código digital del inventario descontado.
+- **Dinamismo y Errores (Auth)**: Corregidas las alertas de inicio de sesión y registro para mapear y mostrar los errores literales del SDK de Supabase Auth (Ej. contraseñas de menos de 6 dígitos). Habilitado evento OnClick de Google Auth.
+- **Estado**: Flujo E2E de compras (Tienda -> Checkout Backend -> Inventario Historial) totalmente finalizado.
+
+> **Siguiente Paso Crítico**: FASE 6 - Dashboard Financiero del Administrador: Mostrar gráficos de ganancias en tiempo real en la página principal del admin consumiendo de la tabla orders.

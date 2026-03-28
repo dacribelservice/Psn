@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function LoginPage() {
   const { language, setLanguage } = useLanguage();
-  const { signIn, loading } = useAuth();
+  const { signIn, signInWithGoogle, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,8 +16,9 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       await signIn(email, password);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login failed:", error);
+      alert(error.message || (language === "es" ? "Error al iniciar sesión." : "Login failed."));
     }
   };
 
@@ -48,7 +49,11 @@ export default function LoginPage() {
           </div>
 
           {/* SSO Integration */}
-          <button className="w-full bg-surface-container-highest hover:bg-surface-bright transition-all duration-300 rounded-xl py-4 px-6 flex items-center justify-center gap-3 group mb-6">
+          <button 
+            type="button"
+            onClick={signInWithGoogle}
+            className="w-full bg-surface-container-highest hover:bg-surface-bright transition-all duration-300 rounded-xl py-4 px-6 flex items-center justify-center gap-3 group mb-6"
+          >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>

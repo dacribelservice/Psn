@@ -17,6 +17,7 @@ export default function StorePage() {
   const { t, language } = useLanguage();
   const [[currentSlide, direction], setSlide] = useState([0, 0]);
   const [amount, setAmount] = useState(0);
+  const [selectedProductId, setSelectedProductId] = useState('');
   const [isProductSheetOpen, setIsProductSheetOpen] = useState(false);
   const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -42,8 +43,9 @@ export default function StorePage() {
     loadData();
   }, []);
 
-  const handleProceedToPayment = (selectedAmount: number) => {
+  const handleProceedToPayment = (selectedAmount: number, productId: string) => {
     setAmount(selectedAmount);
+    setSelectedProductId(productId);
     setIsProductSheetOpen(false);
     setTimeout(() => {
       setIsPaymentSheetOpen(true);
@@ -56,7 +58,7 @@ export default function StorePage() {
     
     // Smooth transition to payment processing page
     setTimeout(() => {
-      router.push(`/payment/processing?method=${method}&amount=${amount.toFixed(2)}`);
+      router.push(`/payment/processing?method=${method}&amount=${amount.toFixed(2)}&productId=${selectedProductId}`);
     }, 300);
   };
 

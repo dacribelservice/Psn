@@ -6,12 +6,12 @@ import { useLanguage } from "@/context/LanguageContext";
 import confetti from "canvas-confetti";
 
 interface OrderDetailsViewProps {
-  orderId: string;
+  orderData: any;
   onClose: () => void;
   showConfetti?: boolean;
 }
 
-export const OrderDetailsView = ({ orderId, onClose, showConfetti = true }: OrderDetailsViewProps) => {
+export const OrderDetailsView = ({ orderData, onClose, showConfetti = true }: OrderDetailsViewProps) => {
   const { t, language } = useLanguage();
 
   useEffect(() => {
@@ -110,30 +110,30 @@ export const OrderDetailsView = ({ orderId, onClose, showConfetti = true }: Orde
                 />
               </div>
               <div>
-                <h3 className="font-bold text-on-surface">PlayStation $10</h3>
+                <h3 className="font-bold text-on-surface">{orderData.product}</h3>
                 <p className="text-xs text-white/40">Gift Card Digital</p>
               </div>
             </div>
             <div className="text-right flex flex-col items-end">
               <span className="text-[10px] uppercase tracking-wider text-white/40 font-medium mb-0.5">Total</span>
-              <span className="text-[#f2b92f] font-bold text-lg leading-tight">$9.3 USDT</span>
+              <span className="text-[#f2b92f] font-bold text-lg leading-tight">{orderData.amount}</span>
             </div>
           </div>
 
           <div className="space-y-3 border-t border-white/5 pt-4">
             <div className="flex justify-between items-center">
               <span className="text-xs uppercase tracking-wider text-white/30 font-medium">Transacción</span>
-              <span className="text-sm font-mono text-white/60">#TXN-{orderId}</span>
+              <span className="text-sm font-mono text-white/60">#TXN-{orderData.id}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs uppercase tracking-wider text-white/30 font-medium">{language === "es" ? "Fecha" : "Date"}</span>
-              <span className="text-sm text-white/60">Oct 24, 2023 • 14:22</span>
+              <span className="text-sm text-white/60">{orderData.fullDate}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs uppercase tracking-wider text-white/30 font-medium">{language === "es" ? "Método" : "Method"}</span>
               <div className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px] text-[#f2b92f]" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance_wallet</span>
-                <span className="text-sm text-white/60">Crypto Wallet</span>
+                <span className="text-sm text-white/60">{orderData.method}</span>
               </div>
             </div>
             <div className="flex justify-between items-center">
@@ -154,7 +154,7 @@ export const OrderDetailsView = ({ orderId, onClose, showConfetti = true }: Orde
               className="w-full bg-[#282a32]/80 border-none rounded-xl p-4 text-[#f2b92f] font-mono text-sm resize-none focus:ring-1 focus:ring-primary/20 cursor-text shadow-inner" 
               readOnly 
               rows={3}
-              value="8H2J-K9L0-P5M3-Q1R7"
+              value={orderData.code}
             ></textarea>
           </div>
           
