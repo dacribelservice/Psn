@@ -220,7 +220,7 @@ export default function HistoryPage() {
           <OrderDetailsView 
             orderId={selectedOrderId} 
             onClose={() => setSelectedOrderId(null)} 
-            showConfetti={false} 
+            showConfetti={true} 
           />
         )}
       </AnimatePresence>

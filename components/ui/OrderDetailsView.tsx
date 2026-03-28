@@ -11,7 +11,7 @@ interface OrderDetailsViewProps {
   showConfetti?: boolean;
 }
 
-export const OrderDetailsView = ({ orderId, onClose, showConfetti = false }: OrderDetailsViewProps) => {
+export const OrderDetailsView = ({ orderId, onClose, showConfetti = true }: OrderDetailsViewProps) => {
   const { t, language } = useLanguage();
 
   useEffect(() => {
@@ -64,13 +64,16 @@ export const OrderDetailsView = ({ orderId, onClose, showConfetti = false }: Ord
         {/* Success State Visualization */}
         <motion.div 
           initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring" }}
-          className="relative mb-8"
+          animate={{ scale: 1, y: [0, -12, 0] }}
+          transition={{ 
+            scale: { delay: 0.2, type: "spring" },
+            y: { repeat: Infinity, duration: 4, ease: "easeInOut" }
+          }}
+          className="relative mb-10"
         >
-          <div className="absolute inset-0 blur-3xl rounded-full bg-emerald-500/20"></div>
-          <div className="relative w-24 h-24 bg-surface-container-high rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.3)] border border-emerald-500/20">
-            <span className="material-symbols-outlined text-[64px] text-emerald-500 animate-success-pop" style={{ fontVariationSettings: "'FILL' 1" }}>
+          <div className="absolute inset-0 blur-[50px] rounded-full bg-emerald-500/30 scale-150"></div>
+          <div className="relative w-40 h-40 bg-surface-container-high rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(34,197,94,0.4)] border border-emerald-500/30">
+            <span className="material-symbols-outlined text-[100px] text-emerald-500 animate-success-pop" style={{ fontVariationSettings: "'FILL' 1" }}>
               check_circle
             </span>
           </div>
