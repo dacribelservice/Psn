@@ -26,12 +26,12 @@ export default function HistoryPage() {
       <main className="pt-24 pb-32 md:pb-12 px-4 md:ml-64 lg:px-12 transition-all">
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
-          <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <span className="text-[0.6875rem] font-medium uppercase tracking-[0.2em] text-[#c3c4e2] block mb-2">
+          <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-1">
+              <span className="text-[11px] font-label font-black uppercase tracking-[0.3em] text-white/30 block">
                 {language === 'es' ? 'Transacciones' : 'Transactions'}
               </span>
-              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface">
+              <h2 className="text-4xl md:text-[3.5rem] font-headline font-black tracking-tighter text-white leading-[1.1] drop-shadow-[0_0_30px_rgba(255,255,255,0.08)]">
                 {language === 'es' ? 'Historial de Órdenes' : 'Order History'}
               </h2>
             </div>
@@ -49,87 +49,95 @@ export default function HistoryPage() {
             </div>
           </div>
 
-          {/* Stats Bar (Bento Style Redesign from HTML) */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {/* Stats Bar (Bento Style Redesign) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             {/* Stat 1: Última Compra */}
-            <div className="bg-[#30334a]/25 backdrop-blur-[20px] border border-white/5 p-5 rounded-2xl flex flex-col justify-between h-32 relative overflow-hidden group">
-              <div className="flex items-center justify-between">
-                <p className="text-[0.6875rem] text-[#c3c4e2] uppercase tracking-[0.1em] font-bold">
+            <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+              <div className="flex items-center justify-between z-10 w-full">
+                <p className="text-[10px] font-headline font-black text-white/30 uppercase tracking-[0.2em]">
                   {language === 'es' ? 'Última Compra' : 'Last Purchase'}
                 </p>
-                <span className="material-symbols-outlined text-[#f2b92f]/70 text-3xl" style={{ filter: 'drop-shadow(0 0 8px #f2b92f)' }}>account_balance_wallet</span>
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-[0_0_15px_rgba(247,190,52,0.1)]">
+                  <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance_wallet</span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <p className="text-xl font-black text-on-surface tracking-tight truncate">Netflix Gift Card</p>
-                <p className="text-[0.625rem] text-secondary-fixed-dim mt-1">12 Oct 2023</p>
+              <div className="flex flex-col z-10">
+                <p className="text-xl md:text-2xl font-headline font-black text-white tracking-tight leading-none mb-2">Netflix Gift Card</p>
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest leading-none">12 Oct 2023</p>
               </div>
-              <div className="absolute -bottom-1 -right-1 w-12 h-12 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all"></div>
+              <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all"></div>
             </div>
 
             {/* Stat 2: Completados */}
-            <div className="bg-[#30334a]/25 backdrop-blur-[20px] border border-white/5 p-5 rounded-2xl flex flex-col justify-between h-32 relative overflow-hidden group">
-              <div className="flex items-center justify-between">
-                <p className="text-[0.6875rem] text-[#c3c4e2] uppercase tracking-[0.1em] font-bold">
+            <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+              <div className="flex items-center justify-between z-10 w-full">
+                <p className="text-[10px] font-headline font-black text-white/30 uppercase tracking-[0.2em]">
                   {language === 'es' ? 'Completados' : 'Completed'}
                 </p>
-                <span className="material-symbols-outlined text-[#f2b92f]/70 text-3xl" style={{ filter: 'drop-shadow(0 0 8px #f2b92f)' }}>check_circle</span>
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                  <span className="material-symbols-outlined text-emerald-400 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                </div>
               </div>
-              <p className="text-2xl font-black text-on-surface tracking-tight">24</p>
-              <div className="absolute -bottom-1 -right-1 w-12 h-12 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
+              <p className="text-3xl md:text-4xl font-headline font-black text-white tracking-tight leading-none z-10">24</p>
+              <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-[80px] group-hover:bg-emerald-500/20 transition-all"></div>
             </div>
 
             {/* Stat 3: Pendientes */}
-            <div className="bg-[#30334a]/25 backdrop-blur-[20px] border border-white/5 p-5 rounded-2xl flex flex-col justify-between h-32 relative overflow-hidden group">
-              <div className="flex items-center justify-between">
-                <p className="text-[0.6875rem] text-[#c3c4e2] uppercase tracking-[0.1em] font-bold">
+            <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+              <div className="flex items-center justify-between z-10 w-full">
+                <p className="text-[10px] font-headline font-black text-white/30 uppercase tracking-[0.2em]">
                   {language === 'es' ? 'Pendientes' : 'Pending'}
                 </p>
-                <span className="material-symbols-outlined text-[#f2b92f]/70 text-3xl" style={{ filter: 'drop-shadow(0 0 8px #f2b92f)' }}>schedule</span>
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                  <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
+                </div>
               </div>
-              <p className="text-2xl font-black text-on-surface tracking-tight">02</p>
-              <div className="absolute -bottom-1 -right-1 w-12 h-12 bg-yellow-500/10 rounded-full blur-2xl group-hover:bg-yellow-500/20 transition-all"></div>
+              <p className="text-3xl md:text-4xl font-headline font-black text-white tracking-tight leading-none z-10">02</p>
+              <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all"></div>
             </div>
 
-            {/* Stat 4: Códigos Cancelados */}
-            <div className="bg-[#30334a]/25 backdrop-blur-[20px] border border-white/5 p-5 rounded-2xl flex flex-col justify-between h-32 relative overflow-hidden group">
-              <div className="flex items-center justify-between">
-                <p className="text-[0.6875rem] text-[#c3c4e2] uppercase tracking-[0.1em] font-bold">
+            {/* Stat 4: Códigos */}
+            <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+              <div className="flex items-center justify-between z-10 w-full">
+                <p className="text-[10px] font-headline font-black text-white/30 uppercase tracking-[0.2em]">
                   {language === 'es' ? 'Códigos' : 'Codes'}
                 </p>
-                <span className="material-symbols-outlined text-[#f2b92f]/70 text-3xl" style={{ filter: 'drop-shadow(0 0 8px #f2b92f)' }}>confirmation_number</span>
+                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5">
+                  <span className="material-symbols-outlined text-white/40 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>confirmation_number</span>
+                </div>
               </div>
-              <p className="text-2xl font-black text-on-surface tracking-tight">840</p>
-              <div className="absolute -bottom-1 -right-1 w-12 h-12 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-all"></div>
+              <p className="text-3xl md:text-4xl font-headline font-black text-white tracking-tight leading-none z-10">840</p>
+              <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/5 rounded-full blur-[80px] group-hover:bg-white/10 transition-all"></div>
             </div>
           </div>
 
           {/* Mobile Card List */}
           <div className="md:hidden flex flex-col gap-4">
             {transactions.map((tx) => (
-              <div key={tx.id} className="bg-[#30334a]/40 backdrop-blur-[12px] border border-white/5 rounded-2xl p-5 shadow-lg">
-                <div className="flex justify-between items-start mb-4">
+              <div key={tx.id} className="bg-[#191b23] rounded-[2rem] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                <div className="flex justify-between items-start mb-6">
                   <div>
-                    <p className="text-[0.625rem] text-secondary-fixed-dim font-bold uppercase tracking-widest mb-1">
+                    <p className="text-[10px] font-headline font-black text-white/20 uppercase tracking-[0.2em] mb-1">
                       {language === 'es' ? 'Pedido' : 'Order'} #{tx.id}
                     </p>
-                    <h3 className="text-lg font-bold text-on-surface">{tx.product}</h3>
+                    <h3 className="text-xl font-headline font-black text-white tracking-tight leading-none">{tx.product}</h3>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-[0.625rem] font-bold uppercase tracking-tighter ${
-                    tx.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-[#f2b92f]/10 text-[#f2b92f]'
+                  <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                    tx.status === 'Completed' ? 'bg-green-500/10 text-green-400' : 'bg-primary/10 text-primary'
                   }`}>
                     {tx.status}
                   </span>
                 </div>
                 <div className="flex justify-between items-end">
                   <div>
-                    <p className="text-[0.625rem] text-secondary-fixed-dim mb-1">{tx.date}</p>
-                    <p className="text-xl font-black text-[#f2b92f]">{tx.amount}</p>
+                    <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest leading-none mb-2">{tx.date}</p>
+                    <p className="text-2xl font-headline font-black text-primary leading-none">{tx.amount}</p>
                   </div>
                   <button className={`${
                     tx.status === 'Completed' 
-                      ? 'bg-[#f7be34] text-[#402d00] active:scale-95' 
-                      : 'bg-surface-container-highest text-on-surface opacity-50 cursor-not-allowed'
-                  } text-xs font-bold px-4 py-2 rounded-lg transition-transform uppercase tracking-tighter`}>
+                      ? 'bg-primary text-black active:scale-95' 
+                      : 'bg-white/5 text-white/20 cursor-not-allowed'
+                  } text-[10px] font-black px-5 py-3 rounded-xl transition-all uppercase tracking-widest shadow-lg`}>
                     {tx.status === 'Completed' ? (language === 'es' ? 'VER CÓDIGOS' : 'VIEW CODES') : (language === 'es' ? 'ESPERANDO' : 'PENDING')}
                   </button>
                 </div>
