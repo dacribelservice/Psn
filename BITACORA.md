@@ -62,10 +62,11 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 - [x] Fase 2. d) Implementación de pestañas principales (Home / History).
 
 ### 🔴 FASE 3: Autenticación y Perfil
-- [ ] Fase 3. a) Módulo de Login/Registro (Email y Google Auth).
-- [ ] Fase 3. b) Lógica de Roles (Admin vs User).
-- [ ] Fase 3. c) Vista de Perfil del Cliente.
-- [ ] Fase 3. d) Función de eliminación de cuenta y cierre de sesión.
+- [ ] Fase 3. a) Configuración de **Middleware de Supabase** para protección de rutas y roles.
+- [x] Fase 3. b) Pantallas de `/app/(auth)`: Login, Registro y Recuperación (Diseño Ethereal).
+- [x] Fase 3. c) Implementación de `AuthContext` para estado global (Admin/User).
+- [ ] Fase 3. d) Perfil de Usuario con edición de metadatos (Nombre, Avatar).
+- [ ] Fase 3. e) Lógica de Cierre de Sesión y Eliminación segura de cuenta.
 
 ### 🟣 FASE 4: Storefront & Inventario
 - [x] Fase 4. a) Banners dinámicos (Carousel interactivo premium).
@@ -81,7 +82,7 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 
 ### 🟠 FASE 6: Admin Dashboard & Settings
 - [x] Fase 6. a) Panel de Administración (Rediseño de Inventario y Gestión de Stock).
-- [ ] Fase 6. b) Editor de Términos y Condiciones / Contacto para el Admin.
+- [x] Fase 6. b) Editor de Términos y Condiciones (Admin) y Visor de Lectura (User).
 - [ ] Fase 6. c) Gestión de Afiliados integrada.
 - [ ] Fase 6. d) Logs de seguridad y monitoreo de pagos.
 1: 
@@ -129,4 +130,21 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
   - **❌ Flujos de Autenticación (Fase 3) - Ausente**: El directorio `/app/(auth)` está vacío. No existe proveedor de sesión en `layout.tsx` ni lógica de protección de rutas o roles.
   - **❌ Backend y Webhooks (Fase 5) - Ausente**: El directorio `/app/api` está vacío. La lógica de generación de wallets y persistencia real en Supabase no ha iniciado.
 
-> **Siguiente Paso Crítico Recomendado**: Ejecutar la **FASE 3: Autenticación y Perfil**. Es el pilar fundamental que falta para proteger el acceso a `/admin`, separar los roles y vincular las compras simuladas en la UI con una base de datos real en Supabase.
+## 📝 ÚLTIMA INTEGRACIÓN (28/03/2026 - Sistema de Términos y Condiciones - V)
+- **Admin Terms Editor**: Implementación de `AdminTermsModal.tsx` con diseño Glassmorphism y guardado simulado en `localStorage`.
+- **User Terms Viewer**: Creación de `UserTermsBottomSheet.tsx` de solo lectura para el cliente final.
+- **Red de Menús**: Refactorización de `ProfileMenu`, `Header` y `AdminHeader` para soportar la lógica de términos según el rol.
+- **GitHub**: Respaldo completo del sistema de términos y condiciones en la rama `main`.
+
+> **Siguiente Paso Crítico**: Iniciar la **FASE 3: Autenticación y Perfil**. Implementación de Middleware de Supabase, AuthContext y pantallas de Login/Registro.
+
+---
+
+## ?? �LTIMA INTEGRACI�N (28/03/2026 - Autenticaci�n y Roles - VI)
+- **Visual Auth Flow**: Implementaci�n completa de las pantallas de Login, Registro y Recuperar Contrase�a en /app/(auth).
+- **AuthContext & AuthProvider**: Sistema de gesti�n de sesi�n con persistencia en localStorage.
+- **L�gica de Roles**: Configuraci�n de administradores (cangel2890@gmail.com y dacribel.service@gmail.com) con redirecci�n inteligente.
+- **Header & Profile Integration**: Sincronizaci�n de ProfileMenu para mostrar el correo real y habilitar el cierre de sesi�n.
+- **Estado**: Flujo de frontend 100% listo para Supabase Auth.
+
+> **Siguiente Paso Cr�tico**: Integraci�n real con **Supabase Auth** (Middleware y DB).

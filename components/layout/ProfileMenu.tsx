@@ -3,6 +3,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 
 interface ProfileMenuProps {
@@ -14,8 +15,9 @@ interface ProfileMenuProps {
   onTermsClick?: () => void;
 }
 
-export const ProfileMenu = ({ isOpen, onClose, role = "user", onBannersClick, onProfileClick, onTermsClick }: ProfileMenuProps) => {
+export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, onTermsClick }: ProfileMenuProps) => {
   const { language, setLanguage, t } = useLanguage();
+  const { user, role, signOut } = useAuth();
 
    const menuItems = [
     { label: t("my_profile"), icon: "person", href: "#", isProfile: true },
@@ -57,9 +59,11 @@ export const ProfileMenu = ({ isOpen, onClose, role = "user", onBannersClick, on
                 />
               </div>
               <span className="text-[10px] font-bold text-primary/60 mb-0.5 lowercase">
-                {role === "admin" ? "admin@dacribel.com" : "cliente@ejemplo.com"}
+                {user?.email || (role === "admin" ? "admin@dacribel.com" : "cliente@ejemplo.com")}
               </span>
-              <h2 className="text-sm font-black tracking-tight leading-none text-on-surface">Ereogan Aysel</h2>
+              <h2 className="text-sm font-black tracking-tight leading-none text-on-surface">
+                {user?.email.split('@')[0] || "Usuario"}
+              </h2>
             </div>
 
             <nav className="flex flex-col px-1 py-2">
@@ -109,7 +113,13 @@ export const ProfileMenu = ({ isOpen, onClose, role = "user", onBannersClick, on
                   <span className="text-[11px] tracking-tight">{t("delete_account")}</span>
                 </button>
               )}
-              <button className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-white font-bold hover:bg-white/5 transition-all active:scale-95 group w-full text-left">
+              <button 
+                onClick={() => {
+                  signOut();
+                  onClose();
+                }}
+                className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-white font-bold hover:bg-white/5 transition-all active:scale-95 group w-full text-left"
+              >
                 <span className="material-symbols-outlined text-primary text-[18px]">logout</span>
                 <span className="text-[11px] tracking-tight">{t("logout")}</span>
               </button>

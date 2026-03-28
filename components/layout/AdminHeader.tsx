@@ -78,7 +78,6 @@ export const AdminHeader = () => {
       <ProfileMenu 
         isOpen={isProfileOpen} 
         onClose={() => setIsProfileOpen(false)} 
-        role="admin" 
         onBannersClick={() => setIsBannersOpen(true)}
         onProfileClick={() => setIsEditProfileOpen(true)}
         onTermsClick={() => setIsAdminTermsOpen(true)}

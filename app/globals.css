@@ -29,6 +29,16 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.glass-vault {
+  background: rgba(48, 51, 74, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.input-glow:focus-within {
+  box-shadow: 0 0 0 1px #f2b92f;
+}
+
 .tonal-layering {
     background: #11131b;
 }
