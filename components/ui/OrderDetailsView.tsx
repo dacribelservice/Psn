@@ -64,18 +64,24 @@ export const OrderDetailsView = ({ orderId, onClose, showConfetti = true }: Orde
         {/* Success State Visualization */}
         <motion.div 
           initial={{ scale: 0 }}
-          animate={{ scale: 1, y: [0, -12, 0] }}
-          transition={{ 
-            scale: { delay: 0.2, type: "spring" },
-            y: { repeat: Infinity, duration: 4, ease: "easeInOut" }
-          }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, type: "spring" }}
           className="relative mb-10"
         >
-          <div className="absolute inset-0 blur-[50px] rounded-full bg-emerald-500/30 scale-150"></div>
-          <div className="relative w-40 h-40 bg-surface-container-high rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(34,197,94,0.4)] border border-emerald-500/30">
-            <span className="material-symbols-outlined text-[100px] text-emerald-500 animate-success-pop" style={{ fontVariationSettings: "'FILL' 1" }}>
-              check_circle
-            </span>
+          {/* Brillo exterior */}
+          <div className="absolute inset-0 blur-[40px] rounded-full bg-emerald-500/20 scale-125"></div>
+          
+          {/* Círculo Principal (Capa base gris que ahora es verde) */}
+          <div className="relative w-32 h-32 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(34,197,94,0.3)] border border-white/10">
+            {/* El "Check" Gris con animación */}
+            <motion.span 
+              animate={{ y: [0, -6, 0] }}
+              transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
+              className="material-symbols-outlined text-[80px] text-[#11131b] font-black"
+              style={{ fontVariationSettings: "'FILL' 1, 'wght' 700" }}
+            >
+              check
+            </motion.span>
           </div>
         </motion.div>
 
