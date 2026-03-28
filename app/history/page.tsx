@@ -28,10 +28,10 @@ export default function HistoryPage() {
           {/* Header Section */}
           <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-1">
-              <span className="text-[11px] font-label font-black uppercase tracking-[0.3em] text-white/30 block">
+              <span className="text-label-sm text-white/30 block uppercase">
                 {language === 'es' ? 'Transacciones' : 'Transactions'}
               </span>
-              <h2 className="text-4xl md:text-[3.5rem] font-headline font-black tracking-tighter text-white leading-[1.1] drop-shadow-[0_0_30px_rgba(255,255,255,0.08)]">
+              <h2 className="text-4xl md:text-display-lg font-display text-white">
                 {language === 'es' ? 'Historial de Órdenes' : 'Order History'}
               </h2>
             </div>
@@ -47,23 +47,21 @@ export default function HistoryPage() {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-          </div>
-
-          {/* Stats Bar (Bento Style Redesign) */}
+          </div>          {/* Stats Bar (Bento Style Redesign) */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             {/* Stat 1: Última Compra */}
             <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
               <div className="flex items-center justify-between z-10 w-full">
-                <p className="text-[10px] font-headline font-black text-white/30 uppercase tracking-[0.2em]">
+                <span className="text-label-sm text-white/30 block uppercase">
                   {language === 'es' ? 'Última Compra' : 'Last Purchase'}
-                </p>
+                </span>
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-[0_0_15px_rgba(247,190,52,0.1)]">
                   <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>account_balance_wallet</span>
                 </div>
               </div>
               <div className="flex flex-col z-10">
-                <p className="text-xl md:text-2xl font-headline font-black text-white tracking-tight leading-none mb-2">Netflix Gift Card</p>
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest leading-none">12 Oct 2023</p>
+                <p className="text-headline-sm text-white tracking-tight leading-none mb-2">Netflix Gift Card</p>
+                <p className="text-label-sm text-white/20 uppercase tracking-widest leading-none">12 Oct 2023</p>
               </div>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all"></div>
             </div>
@@ -71,42 +69,42 @@ export default function HistoryPage() {
             {/* Stat 2: Completados */}
             <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
               <div className="flex items-center justify-between z-10 w-full">
-                <p className="text-[10px] font-headline font-black text-white/30 uppercase tracking-[0.2em]">
+                <p className="text-label-sm text-white/30 uppercase">
                   {language === 'es' ? 'Completados' : 'Completed'}
                 </p>
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
                   <span className="material-symbols-outlined text-emerald-400 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                 </div>
               </div>
-              <p className="text-3xl md:text-4xl font-headline font-black text-white tracking-tight leading-none z-10">24</p>
+              <p className="text-3xl md:text-display-lg font-display text-white z-10">24</p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-[80px] group-hover:bg-emerald-500/20 transition-all"></div>
             </div>
 
             {/* Stat 3: Pendientes */}
             <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
               <div className="flex items-center justify-between z-10 w-full">
-                <p className="text-[10px] font-headline font-black text-white/30 uppercase tracking-[0.2em]">
+                <p className="text-label-sm text-white/30 uppercase">
                   {language === 'es' ? 'Pendientes' : 'Pending'}
                 </p>
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
                   <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
                 </div>
               </div>
-              <p className="text-3xl md:text-4xl font-headline font-black text-white tracking-tight leading-none z-10">02</p>
+              <p className="text-3xl md:text-display-lg font-display text-white z-10">02</p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all"></div>
             </div>
 
             {/* Stat 4: Códigos */}
             <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
               <div className="flex items-center justify-between z-10 w-full">
-                <p className="text-[10px] font-headline font-black text-white/30 uppercase tracking-[0.2em]">
+                <p className="text-label-sm text-white/30 uppercase">
                   {language === 'es' ? 'Códigos' : 'Codes'}
                 </p>
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5">
                   <span className="material-symbols-outlined text-white/40 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>confirmation_number</span>
                 </div>
               </div>
-              <p className="text-3xl md:text-4xl font-headline font-black text-white tracking-tight leading-none z-10">840</p>
+              <p className="text-3xl md:text-display-lg font-display text-white z-10">840</p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/5 rounded-full blur-[80px] group-hover:bg-white/10 transition-all"></div>
             </div>
           </div>

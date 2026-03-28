@@ -13,7 +13,7 @@ export const Header = () => {
           <button className="text-primary hover:bg-[#282a32] transition-colors p-2 rounded-lg active:scale-95 duration-200 md:hidden">
             <span className="material-symbols-outlined">menu</span>
           </button>
-          <h1 className="text-xl font-bold text-primary tracking-tighter font-['Inter'] md:hidden">Dacribel</h1>
+          <h1 className="text-xl font-black text-primary tracking-tighter md:hidden">Dacribel</h1>
         </div>
 
         <div className="flex items-center gap-6">

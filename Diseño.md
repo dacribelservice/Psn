@@ -28,7 +28,7 @@ Nuestra paleta está arraigada en una base profunda y nocturna, acentuada por "O
 ---
 
 ## 3. Tipografía
-Usamos **Lexend** para encabezados y **Public Sans** para el texto del cuerpo y etiquetas, por su claridad moderna, permitiendo que la asimetría estructural del diseño tome el centro del escenario.
+Usamos **Inter** para todo el sistema por su claridad premium y moderna, adaptando sus estilos según su función:
 
 *   **Display (Display-lg, 3.5rem):** Se usa para encabezados hero y balances criptográficos significativos.
 *   **Headline (Headline-sm, 1.5rem):** Se usa para títulos de categorías de tarjetas de regalo.

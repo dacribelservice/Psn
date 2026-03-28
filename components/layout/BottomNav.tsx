@@ -29,7 +29,7 @@ export const BottomNav = () => {
           <span className="material-symbols-outlined mb-1" style={item.active ? { fontVariationSettings: "'FILL' 1" } : {}}>
             {item.icon}
           </span>
-          <span className="text-[0.6875rem] font-medium uppercase tracking-widest font-['Inter'] leading-none">
+          <span className={`text-[10px] font-label font-black uppercase tracking-widest leading-none ${item.active ? 'text-primary' : 'text-white/20'}`}>
             {item.label}
           </span>
         </Link>

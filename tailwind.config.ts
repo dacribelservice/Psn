@@ -58,9 +58,16 @@ const config: Config = {
         "on-tertiary": "#2f3131"
       },
       fontFamily: {
-        "headline": ["var(--font-lexend)", "sans-serif"],
-        "body": ["var(--font-public-sans)", "sans-serif"],
-        "label": ["var(--font-public-sans)", "sans-serif"]
+        "display": ["var(--font-inter)", "sans-serif"],
+        "headline": ["var(--font-inter)", "sans-serif"],
+        "body": ["var(--font-inter)", "sans-serif"],
+        "label": ["var(--font-inter)", "sans-serif"],
+        "sans": ["var(--font-inter)", "sans-serif"]
+      },
+      fontSize: {
+        "display-lg": ["3.5rem", { lineHeight: "1.1", letterSpacing: "-0.02em", fontWeight: "900" }],
+        "headline-sm": ["1.5rem", { lineHeight: "1.2", fontWeight: "700" }],
+        "label-sm": ["0.6875rem", { lineHeight: "1.5", letterSpacing: "0.2em", fontWeight: "900" }],
       },
       borderRadius: {
         "DEFAULT": "0.5rem",
