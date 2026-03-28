@@ -13,8 +13,13 @@ export const AdminSidebar = () => {
     { label: t("home"), icon: "home", href: "/" },
     { label: "Dashboard", icon: "dashboard", href: "/admin/dashboard" },
     { label: t("finances"), icon: "account_balance", href: "/admin/finances" },
-    { label: t("inventory"), icon: "inventory_2", href: "/admin/inventory", active: true },
+    { label: t("inventory"), icon: "inventory_2", href: "/admin/inventory" },
   ];
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname.startsWith(href);
+  };
 
   return (
     <aside className="fixed left-0 top-0 bottom-0 z-40 h-full w-64 hidden lg:flex flex-col bg-[#191b23] border-r border-white/5">
@@ -33,12 +38,12 @@ export const AdminSidebar = () => {
               key={idx}
               href={item.href}
               className={`flex items-center px-4 py-3 rounded-lg transition-all group ${
-                item.active 
+                isActive(item.href) 
                   ? "bg-[#282a32] text-primary shadow-lg shadow-black/20" 
                   : "text-[#c3c4e2] opacity-70 hover:bg-[#282a32] hover:text-white"
               }`}
             >
-              <span className={`material-symbols-outlined mr-3 text-[22px] ${item.active ? "text-primary" : "group-hover:text-white"}`}>
+              <span className={`material-symbols-outlined mr-3 text-[22px] ${isActive(item.href) ? "text-primary" : "group-hover:text-white"}`}>
                 {item.icon}
               </span>
               <span className="font-body font-bold text-sm tracking-tight">{item.label}</span>

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePathname } from "next/navigation";
 import { ProfileMenu } from "./ProfileMenu";
 import { NotificationsPopup } from "./NotificationsPopup";
 
@@ -9,6 +10,14 @@ export const AdminHeader = () => {
   const { t } = useLanguage();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const pathname = usePathname();
+
+  const getTitle = () => {
+    if (pathname.includes("/admin/dashboard")) return "Dashboard";
+    if (pathname.includes("/admin/inventory")) return t("inventory");
+    if (pathname.includes("/admin/finances")) return t("finances");
+    return t("inventory");
+  };
 
   return (
     <>
@@ -22,7 +31,7 @@ export const AdminHeader = () => {
             />
           </div>
           <h2 className="font-headline font-black text-[10px] text-[#c3c4e2] uppercase tracking-[0.25em] leading-none">
-            {t("inventory")}
+            {getTitle()}
           </h2>
         </div>
 

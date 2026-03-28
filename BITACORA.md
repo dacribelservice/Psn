@@ -87,16 +87,16 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 1: 
 ---
 
-## 📝 ÚLTIMA INTEGRACIÓN (27/03/2026 - Sesión de Tarde)
-- **Refinamiento de UI/UX Global**:
-  - **Menú de Perfil Dinámico**: Roles (Admin/User) y nuevo selector de idiomas con banderas.
-  - **Navegación Unificada**: Estilos del Sidebar de Admin aplicados al Sidebar de usuario.
-  - **Header de Admin**: Popups funcionales con cierre por clic exterior.
-- **Storefront (Tienda)**:
-  - **Carousel Premium**: Manual, con animaciones de blur/escala e indicadores tipo "píldora".
-  - **Banners**: Ejemplos de Elden Ring, God of War y Spider-Man 2.
-- **Admin Dashboard (Inventario)**:
-  - **Rediseño de Cabecera**: Botones circulares amarillos (folder/add) y buscador oscuro.
-  - **Gestor de Categorías**: Botón de carpeta abre el **Category Bottom Sheet**.
-- **GitHub**: Backup completo de los cambios en la rama `main`.
+## 📝 ÚLTIMA INTEGRACIÓN (27/03/2026 - Sesión de Tarde - II)
+- **Sistema de Diseño "La Bóveda Etérea"**:
+  - **Firma Visual Final**: Implementación de profundidad tonal (#191b23 / #282a32) eliminando bordes sólidos de 1px.
+  - **Tipografía Editorial**: Integración de **Lexend** (Titulares) y **Public Sans** (Cuerpo/Labels) via Next.js Google Fonts.
+  - **Paleta de Oro Líquido**: Estandarización del color primario `#f7be34` en CTAs y acentos.
+- **Admin Modules (Finalización Estética)**:
+  - **Dashboard**: Cuadrícula bento de métricas, gráfico de ganancias y tabla de órdenes recientes.
+  - **Finanzas**: Reportes detallados de inventario total y ventas por mes con selectores dinámicos.
+  - **Inventory**: Reubicación a la ruta `/admin/inventory` con selección activa en amarillo.
+- **Navegación Admin**: Lógica dinámica en Sidebar y Header basada en `usePathname`.
+- **GitHub**: Backup completo realizado en el repositorio principal (`main`).
+- **Archivo Diseño.md**: Documentación formal del sistema para referencias futuras.
 
