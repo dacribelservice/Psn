@@ -66,7 +66,7 @@ export default function AdminInventoryPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#11131b] text-on-surface font-body">
+    <div className="flex min-h-screen bg-[#11131b] text-on-surface font-sans antialiased">
       <AdminSidebar />
       <AdminHeader />
 
@@ -75,8 +75,8 @@ export default function AdminInventoryPage() {
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {metrics.map((item, idx) => (
             <div key={idx} className={`bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-none`}>
-               <div className="flex justify-between items-start z-10">
-                  <span className={`text-[11px] font-label font-black uppercase tracking-[0.2em] ${item.color === 'red' ? 'text-red-400' : 'text-white/30'}`}>{item.label}</span>
+               <div className="flex justify-between items-start z-10 w-full">
+                  <span className={`text-label-sm uppercase ${item.color === 'red' ? 'text-red-400' : 'text-white/30'}`}>{item.label}</span>
                   <span className={`material-symbols-outlined text-[18px] opacity-20 group-hover:opacity-40 transition-opacity`}>{item.icon}</span>
                </div>
                
@@ -85,16 +85,16 @@ export default function AdminInventoryPage() {
                     <div className="space-y-1.5">
                       {item.alerts.map((alert, i) => (
                         <div key={i} className="flex justify-between items-center bg-white/5 px-2.5 py-1.5 rounded-xl">
-                          <span className="text-[10px] font-bold text-white/40">{alert.name}</span>
-                          <span className="text-[10px] font-black text-red-400">STOCK: {alert.stock}</span>
+                          <span className="text-label-sm text-white/40">{alert.name}</span>
+                          <span className="text-label-sm text-red-400">STOCK: {alert.stock}</span>
                         </div>
                       ))}
                     </div>
                  ) : (
                    <>
-                    <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">{item.sub}</div>
-                    <div className="text-xl md:text-2xl font-black text-white flex items-baseline gap-1.5 leading-none">
-                      {item.value} <span className="text-[10px] font-black text-primary uppercase">{item.unit || ""}</span>
+                    <div className="text-label-sm text-white/20 uppercase mb-1">{item.sub}</div>
+                    <div className="text-3xl md:text-display-lg font-display text-white flex items-baseline gap-1.5 leading-none">
+                      {item.value} <span className="text-[14px] font-black text-primary uppercase">{item.unit || ""}</span>
                     </div>
                    </>
                  )}
@@ -107,23 +107,23 @@ export default function AdminInventoryPage() {
         {/* Stock Summary (Vault Card style) */}
         <section className="bg-[#191b23] rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-none">
           <div className="px-8 py-5 border-b border-white/5 bg-white/5 flex items-center justify-between">
-            <h4 className="text-[11px] font-headline font-black text-white/40 uppercase tracking-[0.25em]">{t("stock_summary")}</h4>
+            <h4 className="text-label-sm text-white/40 uppercase">{t("stock_summary")}</h4>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-y divide-white/5 md:divide-y-0">
              {inventory.map((item, idx) => (
                 <div key={idx} className="flex items-center justify-between px-8 py-6 hover:bg-white/5 transition-colors group">
                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border-none font-black text-[10px] ${item.platform === 'PS' ? 'bg-primary/20 text-primary' : item.platform === 'XB' ? 'bg-[#c3c4e2]/20 text-[#c3c4e2]' : 'bg-green-400/20 text-green-400'}`}>
+                      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border-none text-label-sm ${item.platform === 'PS' ? 'bg-primary/20 text-primary' : item.platform === 'XB' ? 'bg-[#c3c4e2]/20 text-[#c3c4e2]' : 'bg-green-400/20 text-green-400'}`}>
                         {item.platform}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-[13px] font-black text-white/80 group-hover:text-white transition-colors tracking-tight">{item.name}</span>
-                        <span className="text-[10px] font-black text-primary">${item.value}us</span>
+                        <span className="text-[13px] font-bold text-white/80 group-hover:text-white transition-colors tracking-tight">{item.name}</span>
+                        <span className="text-label-sm text-primary">${item.value}us</span>
                       </div>
                    </div>
                    <div className="flex flex-col items-end">
-                      <span className="text-[9px] font-black text-white/20 uppercase tracking-widest leading-none">STOCK</span>
-                      <span className={`text-xl font-black ${item.stock <= item.stockAlert ? 'text-red-400' : 'text-white'}`}>{item.stock}</span>
+                      <span className="text-label-sm text-white/20 uppercase leading-none">STOCK</span>
+                      <span className={`text-display-lg font-display ${item.stock <= item.stockAlert ? 'text-red-400' : 'text-white'}`}>{item.stock}</span>
                    </div>
                 </div>
              ))}
@@ -134,17 +134,17 @@ export default function AdminInventoryPage() {
         <section className="space-y-6 pt-4">
            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 px-4">
               <div className="flex items-center gap-6">
-                 <h1 className="text-3xl font-headline font-black text-white tracking-[0.05em] uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">{t("inventory")}</h1>
+                 <h1 className="text-display-lg font-display text-white uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">{t("inventory")}</h1>
                  <div className="flex items-center gap-3">
                     <button 
                       onClick={() => setIsCategorySheetOpen(true)}
-                      className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white/60 flex items-center justify-center active:scale-95 transition-all shadow-xl"
+                      className="w-12 h-12 rounded-full bg-[#f2b92f] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-[0_15px_30px_rgba(242,185,47,0.2)]"
                     >
                        <span className="material-symbols-outlined text-[20px] font-black">folder</span>
                     </button>
                     <button 
                       onClick={() => setIsGiftCardSheetOpen(true)}
-                      className="w-12 h-12 rounded-2xl bg-[#f7be34] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-[0_15px_30px_rgba(247,190,52,0.2)]"
+                      className="w-12 h-12 rounded-full bg-[#f2b92f] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-[0_15px_30px_rgba(242,185,47,0.2)]"
                     >
                        <span className="material-symbols-outlined text-[24px] font-black">add</span>
                     </button>
@@ -154,15 +154,15 @@ export default function AdminInventoryPage() {
               <div className="flex flex-1 flex-col md:flex-row items-center gap-4 justify-end">
                  <div className="relative group w-full md:max-w-sm">
                     <input 
-                       className="w-full bg-[#1e202f] border border-white/5 rounded-2xl py-4 px-6 text-xs text-white/90 placeholder:text-white/20 focus:outline-none focus:border-primary/40 transition-all text-center shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]"
+                       className="w-full bg-[#1e202f] border border-white/5 rounded-2xl py-4 px-6 text-label-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:border-primary/40 transition-all text-center shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]"
                        placeholder="BUSCAR POR CORREO O ID..."
                     />
                  </div>
                  <div className="flex items-center gap-3 w-full md:w-auto">
-                    <button className="flex-1 md:flex-none px-6 py-4 rounded-2xl bg-[#191b23] border-none text-white/60 font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-[#282a32] transition-all group shadow-2xl">
+                    <button className="flex-1 md:flex-none px-6 py-4 rounded-2xl bg-[#191b23] border-none text-white/60 text-label-sm uppercase flex items-center justify-center gap-4 hover:bg-[#282a32] transition-all group shadow-2xl">
                        TODOS <span className="material-symbols-outlined text-[16px] text-white/20 group-hover:text-primary transition-colors">expand_more</span>
                     </button>
-                    <button className="flex-1 md:flex-none px-6 py-4 rounded-2xl bg-[#191b23] border-none text-white/60 font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-[#282a32] transition-all group shadow-2xl">
+                    <button className="flex-1 md:flex-none px-6 py-4 rounded-2xl bg-[#191b23] border-none text-white/60 text-label-sm uppercase flex items-center justify-center gap-4 hover:bg-[#282a32] transition-all group shadow-2xl">
                        PLATAFORMA <span className="material-symbols-outlined text-[16px] text-white/20 group-hover:text-primary transition-colors">expand_more</span>
                     </button>
                  </div>
@@ -174,11 +174,11 @@ export default function AdminInventoryPage() {
               <table className="w-full border-separate border-spacing-0">
                  <thead>
                     <tr className="bg-white/5">
-                       <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">{t("platform")}</th>
-                       <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">{t("value")}</th>
-                       <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">{t("price")}</th>
-                       <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">{t("status")}</th>
-                       <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">{t("code")}</th>
+                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">{t("platform")}</th>
+                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">{t("value")}</th>
+                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">{t("price")}</th>
+                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">{t("status")}</th>
+                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">{t("code")}</th>
                     </tr>
                  </thead>
                  <tbody className="divide-y divide-white/5">
@@ -186,7 +186,7 @@ export default function AdminInventoryPage() {
                        <tr key={idx} className={`group hover:bg-white/5 transition-all cursor-default`}>
                           <td className="px-8 py-6 font-bold text-white text-sm">
                              <div className="flex items-center gap-4">
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-black ${item.platform === 'PS' ? 'bg-primary/20 text-primary' : item.platform === 'XB' ? 'bg-[#c3c4e2]/20 text-[#c3c4e2]' : 'bg-green-400/20 text-green-400'}`}>
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-label-sm font-black ${item.platform === 'PS' ? 'bg-primary/20 text-primary' : item.platform === 'XB' ? 'bg-[#c3c4e2]/20 text-[#c3c4e2]' : 'bg-green-400/20 text-green-400'}`}>
                                    {item.platform}
                                 </div>
                                 <span className={item.active ? 'text-white/90' : 'text-white/20'}>{item.name}</span>
@@ -195,22 +195,22 @@ export default function AdminInventoryPage() {
                           <td className="px-8 py-6">
                              <div className="flex items-baseline gap-1.5">
                                 <span className={`text-lg font-black tracking-tighter ${item.active ? 'text-white' : 'text-white/20'}`}>{item.value}</span>
-                                <span className="text-[9px] font-black text-primary uppercase tracking-widest">{item.region}</span>
+                                <span className="text-label-sm text-primary uppercase">{item.region}</span>
                              </div>
                           </td>
                           <td className="px-8 py-6">
                              <div className="flex items-baseline gap-1.5">
                                 <span className={`text-lg font-black tracking-tighter ${item.active ? 'text-primary' : 'text-white/20'}`}>{item.price}</span>
-                                <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">USDT</span>
+                                <span className="text-label-sm text-white/20 uppercase">USDT</span>
                              </div>
                           </td>
                           <td className="px-8 py-6">
-                             <span className={`inline-flex px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border-none ${item.active ? 'bg-green-500/10 text-green-400' : 'bg-white/5 text-white/20'}`}>
+                             <span className={`inline-flex px-3.5 py-1.5 rounded-full text-label-sm font-black uppercase tracking-widest border-none ${item.active ? 'bg-green-500/10 text-green-400' : 'bg-white/5 text-white/20'}`}>
                                 {item.status}
                              </span>
                           </td>
                           <td className="px-8 py-6">
-                             <code className="text-[11px] font-mono font-bold text-white/40 bg-black/40 px-4 py-2 rounded-xl border border-white/5 group-hover:text-primary transition-colors select-all tracking-widest">
+                             <code className="text-label-sm font-mono font-bold text-white/40 bg-black/40 px-4 py-2 rounded-xl border border-white/5 group-hover:text-primary transition-colors select-all tracking-widest">
                                 {item.code}
                              </code>
                           </td>
@@ -230,32 +230,32 @@ export default function AdminInventoryPage() {
                              {item.platform}
                           </div>
                           <div className="flex flex-col">
-                             <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em]">PLATAFORMA</span>
+                             <span className="text-label-sm text-white/20 uppercase">PLATAFORMA</span>
                              <span className="text-lg font-black text-white tracking-tight">{item.name}</span>
                           </div>
                        </div>
-                       <span className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest ${item.active ? 'bg-green-500/10 text-green-400' : 'bg-white/5 text-white/20'}`}>
+                       <span className={`px-4 py-2 rounded-full text-label-sm font-black uppercase tracking-widest ${item.active ? 'bg-green-500/10 text-green-400' : 'bg-white/5 text-white/20'}`}>
                           {item.status}
                        </span>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                        <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                          <span className="text-[8px] font-black text-white/20 uppercase tracking-widest block mb-1">VALOR</span>
+                          <span className="text-label-sm text-white/20 uppercase block mb-1">VALOR</span>
                           <div className="flex items-baseline gap-1.5">
                              <span className="text-2xl font-black text-white">{item.value}</span>
-                             <span className="text-[9px] font-black text-primary uppercase">{item.region}</span>
+                             <span className="text-label-sm text-primary uppercase">{item.region}</span>
                           </div>
                        </div>
                        <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
-                          <span className="text-[8px] font-black text-white/20 uppercase tracking-widest block mb-1">PRECIO</span>
+                          <span className="text-label-sm text-white/20 uppercase block mb-1">PRECIO</span>
                           <div className="flex items-baseline gap-1.5">
                              <span className="text-2xl font-black text-primary">{item.price}</span>
-                             <span className="text-[9px] font-black text-white/20 uppercase">USDT</span>
+                             <span className="text-label-sm text-white/20 uppercase">USDT</span>
                           </div>
                        </div>
                     </div>
                     <div className="bg-black/40 rounded-2xl p-4 border border-white/5 text-center shadow-inner">
-                       <code className="text-sm font-mono font-bold text-white/80 break-all select-all tracking-widest uppercase">{item.code}</code>
+                       <code className="text-label-sm font-mono font-bold text-white/80 break-all select-all tracking-widest uppercase">{item.code}</code>
                     </div>
                  </div>
               ))}
@@ -266,7 +266,7 @@ export default function AdminInventoryPage() {
       {/* Mobile Floating Action Button */}
       <button 
         onClick={() => setIsGiftCardSheetOpen(true)}
-        className="lg:hidden fixed bottom-24 right-6 w-14 h-14 bg-[#f7be34] rounded-full shadow-[0_20px_50px_rgba(247,190,52,0.3)] flex items-center justify-center text-black z-50 active:scale-90 transition-transform"
+        className="lg:hidden fixed bottom-24 right-6 w-14 h-14 bg-[#f2b92f] rounded-full shadow-[0_20px_50px_rgba(242,185,47,0.3)] flex items-center justify-center text-black z-50 active:scale-90 transition-transform"
       >
         <span className="material-symbols-outlined font-black text-2xl">add</span>
       </button>

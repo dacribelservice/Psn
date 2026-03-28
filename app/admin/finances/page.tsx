@@ -9,10 +9,10 @@ const StatCard = ({ label, value, sub, trend, icon, hasSelector, color = "primar
   <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-none">
     <div className="flex justify-between items-start z-10 w-full">
       <div className="flex flex-col gap-1.5 flex-1">
-        <span className="text-[10px] font-label font-black text-white/30 uppercase tracking-[0.2em]">{label}</span>
+        <span className="text-label-sm text-white/30 uppercase">{label}</span>
         {hasSelector && (
           <div className="relative w-fit">
-            <select className="appearance-none bg-white/5 border border-white/5 rounded-lg px-3 py-1 text-[11px] font-black text-primary hover:bg-white/10 transition-all focus:outline-none pr-8">
+            <select className="appearance-none bg-white/5 border border-white/5 rounded-lg px-3 py-1 text-label-sm text-primary hover:bg-white/10 transition-all focus:outline-none pr-8">
               <option>Junio</option>
               <option>Mayo</option>
               <option>Abril</option>
@@ -24,12 +24,12 @@ const StatCard = ({ label, value, sub, trend, icon, hasSelector, color = "primar
       <span className="material-symbols-outlined text-[18px] opacity-20 group-hover:opacity-40 transition-opacity">{icon}</span>
     </div>
     <div className="z-10 mt-auto">
-      {sub && <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">{sub}</div>}
-      <div className="text-xl md:text-2xl font-headline font-black text-white flex items-baseline gap-1.5 leading-none">
+      {sub && <div className="text-label-sm text-white/20 uppercase mb-1">{sub}</div>}
+      <div className="text-3xl md:text-display-lg font-display text-white flex items-baseline gap-1.5 leading-none">
         {value}
       </div>
       {trend && (
-        <div className="flex items-center text-[10px] text-green-400 mt-2 font-black">
+        <div className="flex items-center text-label-sm text-green-400 mt-2 font-black">
           <span className="material-symbols-outlined text-[12px] mr-1">trending_up</span> {trend}
         </div>
       )}
@@ -48,7 +48,7 @@ export default function AdminFinancesPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#11131b] text-on-surface font-body antialiased">
+    <div className="flex min-h-screen bg-[#11131b] text-on-surface font-sans antialiased">
       <AdminSidebar />
       <AdminHeader />
 
@@ -65,11 +65,11 @@ export default function AdminFinancesPage() {
         <section className="space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
              <div className="flex items-center gap-6 flex-1">
-                <h3 className="text-2xl font-headline font-black text-white tracking-widest uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">ORDENES</h3>
+                <h3 className="text-display-lg font-display text-white uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">ORDENES</h3>
                 <div className="relative group flex-1 max-w-sm">
                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors text-[20px]">search</span>
                    <input 
-                      className="w-full bg-[#1e202f] border border-white/5 rounded-2xl py-3 pl-12 pr-6 text-xs text-white/90 placeholder:text-white/20 focus:outline-none focus:border-primary/40 transition-all shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]"
+                      className="w-full bg-[#1e202f] border border-white/5 rounded-2xl py-3 pl-12 pr-6 text-label-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:border-primary/40 transition-all shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]"
                       placeholder="Buscar por correo o ID..."
                    />
                 </div>
@@ -84,11 +84,11 @@ export default function AdminFinancesPage() {
                 <table className="w-full border-separate border-spacing-0">
                    <thead>
                       <tr className="bg-white/5">
-                         <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Usuario</th>
-                         <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Monto</th>
-                         <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Estado</th>
-                         <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Hash / TXID</th>
-                         <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Acción</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Usuario</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Monto</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Hash / TXID</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Acción</th>
                       </tr>
                    </thead>
                    <tbody className="divide-y divide-white/5 text-sm">
@@ -96,36 +96,36 @@ export default function AdminFinancesPage() {
                          <tr key={idx} className="group hover:bg-white/5 transition-all cursor-default">
                             <td className="px-8 py-6">
                                <div className="flex items-center gap-4">
-                                  <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-[10px] font-black text-secondary">
+                                  <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-label-sm text-secondary">
                                      {order.email.substring(0, 2).toUpperCase()}
                                   </div>
                                   <div className="flex flex-col">
                                      <span className="font-bold text-white/90">{order.email}</span>
-                                     <span className="text-[10px] font-black text-white/20 uppercase">{order.id}</span>
+                                     <span className="text-label-sm text-white/20 uppercase">{order.id}</span>
                                   </div>
                                </div>
                             </td>
                             <td className="px-8 py-6 text-on-surface">
                                <div className="flex flex-col">
                                   <span className="font-black text-white">{order.amount}</span>
-                                  <span className="text-[10px] font-black text-primary tracking-tighter uppercase">USDT</span>
+                                  <span className="text-label-sm text-primary uppercase">USDT</span>
                                </div>
                             </td>
                             <td className="px-8 py-6">
-                               <span className={`inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${order.status === 'Completed' ? 'bg-green-500/10 text-green-400' : 'bg-primary/10 text-primary'}`}>
+                               <span className={`inline-flex px-3 py-1 rounded-full text-label-sm font-black uppercase tracking-widest ${order.status === 'Completed' ? 'bg-green-500/10 text-green-400' : 'bg-primary/10 text-primary'}`}>
                                   {order.status}
                                </span>
                             </td>
                             <td className="px-8 py-6 font-mono text-[11px] text-white/40">
-                               <span className="bg-black/20 px-3 py-1.5 rounded-xl border border-white/5">{order.hash}</span>
+                               <span className="bg-black/20 px-3 py-1.5 rounded-xl border border-white/5 text-label-sm">{order.hash}</span>
                             </td>
                             <td className="px-8 py-6 text-on-surface">
                                {order.active ? (
-                                  <button className="bg-primary text-black px-5 py-2.5 rounded-xl text-[10px] font-black tracking-widest uppercase hover:brightness-110 transition-all active:scale-95 shadow-lg">
+                                  <button className="bg-primary text-black px-5 py-2.5 rounded-xl text-label-sm font-black uppercase hover:brightness-110 transition-all active:scale-95 shadow-lg">
                                      Aprobar Hash
                                   </button>
                                ) : (
-                                  <span className="text-[9px] font-black text-green-400 uppercase tracking-tighter opacity-50">Validado</span>
+                                  <span className="text-label-sm text-green-400 uppercase opacity-50">Validado</span>
                                )}
                             </td>
                          </tr>

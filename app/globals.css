@@ -32,3 +32,34 @@
 .tonal-layering {
     background: #11131b;
 }
+
+.custom-scrollbar::-webkit-scrollbar { 
+  height: 4px; 
+  display: block; 
+} 
+
+.custom-scrollbar::-webkit-scrollbar-track { 
+  background: rgba(255, 255, 255, 0.05); 
+  border-radius: 10px;
+} 
+
+.custom-scrollbar::-webkit-scrollbar-thumb { 
+  background: #f2b92f; 
+  border-radius: 10px; 
+}
+
+.custom-scrollbar-light::-webkit-scrollbar { 
+  height: 4px; 
+  display: block; 
+} 
+
+.custom-scrollbar-light::-webkit-scrollbar-track { 
+  background: rgba(0, 0, 0, 0.05); 
+  border-radius: 10px;
+} 
+
+.custom-scrollbar-light::-webkit-scrollbar-thumb { 
+  background: #f7be34; 
+  border-radius: 10px; 
+}
+

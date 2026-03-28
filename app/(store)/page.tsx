@@ -5,12 +5,15 @@ import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { ProductCard } from "@/components/ui/ProductCard";
+import { ProductBottomSheet } from "@/components/ui/ProductBottomSheet";
 import { useLanguage } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function StorePage() {
   const { t, language } = useLanguage();
   const [[currentSlide, direction], setSlide] = useState([0, 0]);
+  const [isProductSheetOpen, setIsProductSheetOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<{ id: string, img: string } | null>(null);
 
   const banners = [
     {
@@ -184,22 +187,7 @@ export default function StorePage() {
           </div>
         </section>
 
-        {/* Filters */}
-        <section className="mb-12">
-          <div className="flex items-center gap-3 mb-6 px-2">
-            <span className="material-symbols-outlined text-primary text-xl">filter_alt</span>
-            <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[#c3c4e2]/60">
-              {language === 'es' ? 'Filtros Avanzados' : 'Advanced Filters'}
-            </h4>
-          </div>
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-4 px-2">
-            <button className="flex-shrink-0 px-8 py-3 rounded-full bg-white/5 border border-white/10 text-on-surface font-bold text-sm hover:border-primary/50 transition-all backdrop-blur-md active:scale-95">All</button>
-            <button className="flex-shrink-0 px-8 py-3 rounded-full bg-primary text-[#402d00] font-black text-sm shadow-[0_10px_25px_rgba(242,185,47,0.3)] hover:scale-105 active:scale-95 transition-all">PlayStation</button>
-            <button className="flex-shrink-0 px-8 py-3 rounded-full bg-white/5 border border-white/10 text-on-surface font-bold text-sm hover:border-primary/50 transition-all backdrop-blur-md active:scale-95">Xbox</button>
-            <button className="flex-shrink-0 px-8 py-3 rounded-full bg-white/5 border border-white/10 text-on-surface font-bold text-sm hover:border-primary/50 transition-all backdrop-blur-md active:scale-95">Nintendo</button>
-            <button className="flex-shrink-0 px-8 py-3 rounded-full bg-white/5 border border-white/10 text-on-surface font-bold text-sm hover:border-primary/50 transition-all backdrop-blur-md active:scale-95">Roblox</button>
-          </div>
-        </section>
+
 
         {/* Featured Collections */}
         <section className="mb-16">
@@ -216,7 +204,14 @@ export default function StorePage() {
               { id: 'Nintendo', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDs8x_b6xVP6t8lvtHdf9RXupeTnVY3mBeUVq9wOWdjFpvJQqLo4cr90ViI6B4RS3b93-0JP6YpBYMLu6JrP-06TKPuCKa3hedoGW8LZVHocR8-A1ayeZjrSDFHOHaMEa931APToz2mM8ZkKkxwZ-1tS_bhYsB74XfkyvgyJNcSxWp-106sDzDse6f8elNZcAKDDzlitVV6LYOsBf7Rmm4N4k9DYgNEkw1Y_PawlefSJCt2gF32fSPFIgbhd9SF8GgKgMuZZSXBLMJZ' },
               { id: 'Roblox', img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAM3FMx2vTaoNam0rubroypijS2V_7xS7T-OpkTe9PoJKooFUEG0W8BHahnEb0bI9TkE73Z22TakNKWvOmMgh9WBQpY_HFXGp1Q0c96ZAjH1juEU0mPpvxZiThNAir3wqbXRYkprrPChtvOHqKN629Iqe_cvtlGWsip_okk7FiVsC0NIJaNysJxDsOIsUIwU2R-azC5uilvyW1pxWFGNzx0skUi2DdEdp7bDCiDZeJGMc7sh8a_IQn2z059ZP0S8yfP8doKK-PPp-Z9' },
             ].map((cat) => (
-              <div key={cat.id} className="flex flex-col items-center group cursor-pointer transition-all duration-300">
+              <div 
+                key={cat.id} 
+                className="flex flex-col items-center group cursor-pointer transition-all duration-300"
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  setIsProductSheetOpen(true);
+                }}
+              >
                 <div className="w-16 h-16 md:w-36 md:h-36 rounded-full bg-[#191b23] flex items-center justify-center mb-4 md:mb-6 ring-2 ring-white/5 group-hover:ring-primary/60 transition-all duration-500 overflow-hidden shadow-2xl group-hover:shadow-primary/20 group-hover:-translate-y-2">
                   <img alt={cat.id} className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-700 opacity-90 group-hover:opacity-100" src={cat.img} />
                 </div>
@@ -225,32 +220,15 @@ export default function StorePage() {
             ))}
           </div>
         </section>
-
-        {/* Products Grids */}
-        <section className="mb-20">
-          <div className="flex items-center justify-between mb-10 px-2">
-            <h3 className="text-2xl md:text-3xl font-black text-on-surface tracking-tight">{t("best_sellers")}</h3>
-            <div className="h-px flex-1 bg-white/10 mx-4 md:mx-8"></div>
-            <button className="text-primary text-[10px] md:text-xs font-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity">{t("view_all")}</button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-2">
-            <ProductCard 
-              image="https://lh3.googleusercontent.com/aida-public/AB6AXuDiTxVt6ySeAnfCpLGKdS27Vppb3aajRDHAEAo6CoHcv1AC4n-Fy8WSv-omjSNGOpnr6z_-CqDr_DD6VYi4sksRmxVxo017NrFnfooq2xYG6mH5hZ9MqJyf6rJFhcVNEMm3YKbdw3i1NfCYgk04aCwwxWtJxhxfluWKXUwF0R3hhpIcgo3SjRM8pv0X6-FfdkauNFzWtWjnMMPz8uyOI9GIqKFSwGhXzljl83sTj0T6xV_p9TwnpX9hycsfOAHp5Pii_-iw7_tpxLMs"
-              title="PlayStation Store (USA)" denom="$10.00" price="9.3 USDT" language={language}
-            />
-            <ProductCard 
-              image="https://lh3.googleusercontent.com/aida-public/AB6AXuDiTxVt6ySeAnfCpLGKdS27Vppb3aajRDHAEAo6CoHcv1AC4n-Fy8WSv-omjSNGOpnr6z_-CqDr_DD6VYi4sksRmxVxo017NrFnfooq2xYG6mH5hZ9MqJyf6rJFhcVNEMm3YKbdw3i1NfCYgk04aCwwxWtJxhxfluWKXUwF0R3hhpIcgo3SjRM8pv0X6-NfdkauNFzWtWjnMMPz8uyOI9GIqKFSwGhXzljl83sTj0T6xV_p9TwnpX9hycsfOAHp5Pii_-iw7_tpxLMs"
-              title="PlayStation Store (USA)" denom="$3.00" price="2.8 USDT" language={language}
-            />
-            <ProductCard 
-              image="https://lh3.googleusercontent.com/aida-public/AB6AXuDs8x_b6xVP6t8lvtHdf9RXupeTnVY3mBeUVq9wOWdjFpvJQqLo4cr90ViI6B4RS3b93-0JP6YpBYMLu6JrP-06TKPuCKa3hedoGW8LZVHocR8-A1ayeZjrSDFHOHaMEa931APToz2mM8ZkKkxwZ-1tS_bhYsB74XfkyvgyJNcSxWp-106sDzDse6f8elNZcAKDDzlitVV6LYOsBf7Rmm4N4k9DYgNEkw1Y_PawlefSJCt2gF32fSPFIgbhd9SF8GgKgMuZZSXBLMJZ"
-              title="Nintendo eShop Card" denom="$20.00" price="18.5 USDT" language={language}
-            />
-          </div>
-        </section>
       </main>
 
       <BottomNav />
+
+      <ProductBottomSheet 
+        isOpen={isProductSheetOpen}
+        onClose={() => setIsProductSheetOpen(false)}
+        category={selectedCategory}
+      />
     </div>
   );
 }

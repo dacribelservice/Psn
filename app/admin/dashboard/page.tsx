@@ -7,17 +7,17 @@ import { AdminSidebar } from "@/components/layout/AdminSidebar";
 
 const StatCard = ({ label, value, sub, unit, trend, icon, color = "primary" }: any) => (
   <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-none">
-    <div className="flex justify-between items-start z-10">
-      <span className="text-[11px] font-label font-black text-white/30 uppercase tracking-[0.2em]">{label}</span>
+    <div className="flex justify-between items-start z-10 w-full">
+      <span className="text-label-sm text-white/30 uppercase">{label}</span>
       <span className="material-symbols-outlined text-[18px] opacity-20 group-hover:opacity-40 transition-opacity">{icon}</span>
     </div>
     <div className="z-10 mt-auto">
-      <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mb-1">{sub}</div>
-      <div className="text-xl md:text-2xl font-headline font-black text-white flex items-baseline gap-1.5 leading-none">
-        {value} <span className="text-[10px] font-black text-primary uppercase">{unit || ""}</span>
+      <div className="text-label-sm text-white/20 uppercase mb-1">{sub}</div>
+      <div className="text-3xl md:text-display-lg font-display text-white flex items-baseline gap-1.5 leading-none">
+        {value} <span className="text-[14px] font-black text-primary uppercase">{unit || ""}</span>
       </div>
       {trend && (
-        <div className="flex items-center text-[10px] text-green-400 mt-2 font-black">
+        <div className="flex items-center text-label-sm text-green-400 mt-2 font-black">
           <span className="material-symbols-outlined text-[12px] mr-1">trending_up</span> {trend}
         </div>
       )}
@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#11131b] text-on-surface font-body antialiased">
+    <div className="flex min-h-screen bg-[#11131b] text-on-surface font-sans antialiased">
       <AdminSidebar />
       <AdminHeader />
 
@@ -61,8 +61,8 @@ export default function AdminDashboardPage() {
           <section className="xl:col-span-2 space-y-6">
             <div className="flex items-center justify-between px-4">
                <div className="space-y-1">
-                  <h3 className="text-2xl font-headline font-black text-white tracking-widest uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">ORDENES RECIENTES</h3>
-                  <p className="text-[10px] font-label font-black text-white/20 uppercase tracking-[0.2em]">Gestión de transacciones en tiempo real</p>
+                  <h3 className="text-display-lg font-display text-white uppercase drop-shadow-[0_0_15px_rgba(247,190,52,0.1)]">ORDENES RECIENTES</h3>
+                  <p className="text-label-sm text-white/20 uppercase">Gestión de transacciones en tiempo real</p>
                </div>
                <button className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white/40 flex items-center justify-center transition-all">
                   <span className="material-symbols-outlined text-[20px]">filter_list</span>
@@ -73,11 +73,11 @@ export default function AdminDashboardPage() {
                <table className="w-full border-separate border-spacing-0">
                   <thead>
                      <tr className="bg-white/5">
-                        <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Usuario</th>
-                        <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Monto</th>
-                        <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Estado</th>
-                        <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Hash / TXID</th>
-                        <th className="px-8 py-6 text-[10px] font-black text-white/20 uppercase tracking-[0.2em] text-left">Acción</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Usuario</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Monto</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Hash / TXID</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Acción</th>
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5">
@@ -85,23 +85,23 @@ export default function AdminDashboardPage() {
                         <tr key={idx} className="group hover:bg-white/5 transition-all outline-none">
                            <td className="px-8 py-6">
                               <div className="flex items-center gap-4">
-                                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary">
+                                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-label-sm text-primary">
                                     {order.email.substring(0, 2).toUpperCase()}
                                  </div>
                                  <div className="flex flex-col">
                                     <span className="text-sm font-bold text-white/90">{order.email}</span>
-                                    <span className="text-[10px] font-black text-white/20 uppercase">{order.id}</span>
+                                    <span className="text-label-sm text-white/20 uppercase">{order.id}</span>
                                  </div>
                               </div>
                            </td>
                            <td className="px-8 py-6">
                               <div className="flex items-baseline gap-1.5">
                                  <span className="text-base font-black text-white">{order.amount}</span>
-                                 <span className="text-[9px] font-black text-primary uppercase">USDT</span>
+                                 <span className="text-label-sm text-primary uppercase">USDT</span>
                               </div>
                            </td>
                            <td className="px-8 py-6">
-                              <span className={`inline-flex px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${order.status === 'Completed' ? 'bg-green-500/10 text-green-400' : 'bg-primary/10 text-primary'}`}>
+                              <span className={`inline-flex px-3.5 py-1.5 rounded-full text-label-sm font-black uppercase tracking-widest ${order.status === 'Completed' ? 'bg-green-500/10 text-green-400' : 'bg-primary/10 text-primary'}`}>
                                  {order.status}
                               </span>
                            </td>
@@ -110,11 +110,11 @@ export default function AdminDashboardPage() {
                            </td>
                            <td className="px-8 py-6">
                               {order.active ? (
-                                <button className="bg-primary text-black px-4 py-2.5 rounded-xl text-[10px] font-black tracking-widest uppercase hover:brightness-110 active:scale-95 transition-all shadow-lg">
+                                <button className="bg-primary text-black px-4 py-2.5 rounded-xl text-label-sm font-black uppercase hover:brightness-110 active:scale-95 transition-all shadow-lg">
                                   APROBAR HASH
                                 </button>
                               ) : (
-                                <span className="text-[9px] font-black text-white/20 uppercase tracking-widest italic">VALIDADO</span>
+                                <span className="text-label-sm text-white/20 uppercase italic">VALIDADO</span>
                               )}
                            </td>
                         </tr>
@@ -128,7 +128,7 @@ export default function AdminDashboardPage() {
           <aside className="space-y-8">
             {/* Critical Inventory */}
             <section className="bg-[#191b23] rounded-[2.5rem] p-8 shadow-[0_40px_100px_rgba(0,0,0,0.5)] space-y-6 relative overflow-hidden">
-               <h4 className="text-[11px] font-headline font-black text-white/40 uppercase tracking-[0.25em]">INVENTARIO CRÍTICO</h4>
+               <h4 className="text-label-sm text-white/40 uppercase">INVENTARIO CRÍTICO</h4>
                <div className="space-y-4 relative z-10">
                   {criticalInventory.map((item, idx) => (
                     <div key={idx} className="flex items-center gap-4 p-5 bg-[#282a32] rounded-3xl border border-white/5 shadow-sm group hover:brightness-110 transition-all">
@@ -139,7 +139,7 @@ export default function AdminDashboardPage() {
                        </div>
                        <div className="flex-1 space-y-2">
                           <div className="flex justify-between items-end border-b border-white/5 pb-2">
-                             <div className="flex flex-col text-[10px] font-black text-white/30 uppercase tracking-widest">{item.platform}</div>
+                             <div className="flex flex-col text-label-sm text-white/30 uppercase">{item.platform}</div>
                              <div className="text-[10px] font-black text-white bg-blue-900/40 px-2 py-0.5 rounded border border-white/10 uppercase">{item.region}</div>
                           </div>
                           <div className="flex justify-between items-center pt-1">
@@ -158,8 +158,8 @@ export default function AdminDashboardPage() {
             {/* Monthly Earnings Placeholder / Chart logic */}
             <section className="bg-[#191b23] rounded-[2.5rem] p-8 shadow-[0_40px_100px_rgba(0,0,0,0.5)] space-y-6">
                <div className="flex items-center justify-between">
-                  <h4 className="text-[11px] font-headline font-black text-white/40 uppercase tracking-[0.25em]">GANANCIAS</h4>
-                  <span className="text-[9px] font-black text-primary bg-primary/10 px-2 py-1 rounded">2026</span>
+                  <h4 className="text-label-sm text-white/40 uppercase">GANANCIAS</h4>
+                  <span className="text-label-sm text-primary bg-primary/10 px-2 py-1 rounded">2026</span>
                </div>
                <div className="h-40 flex items-end gap-1.5 justify-between">
                   {[30, 45, 35, 60, 50, 80, 70, 90, 85, 95, 80, 100].map((h, i) => (

@@ -1,0 +1,154 @@
+"use client";
+
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface ProductBottomSheetProps {
+  isOpen: boolean;
+  onClose: () => void;
+  category: {
+    id: string;
+    img: string;
+  } | null;
+}
+
+export const ProductBottomSheet = ({
+  isOpen,
+  onClose,
+  category,
+}: ProductBottomSheetProps) => {
+  const [quantity, setQuantity] = useState(2);
+  const unitPrice = 23.90;
+  
+  if (!category) return null;
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
+          />
+
+          {/* Sheet */}
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed bottom-0 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:bottom-8 sm:max-w-[400px] w-full bg-[#e9e9e9] sm:rounded-[2rem] rounded-t-[2.5rem] flex flex-col max-h-[85vh] shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden z-[101] font-display"
+          >
+            {/* Handle for mobile */}
+            <div className="w-10 h-1 bg-black/10 rounded-full mx-auto mt-3 mb-1 shrink-0 md:hidden" />
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 shrink-0">
+               <div className="w-8 h-8" /> {/* Spacer */}
+               <div className="text-center">
+                  <span className="block text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-0.5">Categoría</span>
+                  <h2 className="text-lg font-black text-[#11131b] uppercase tracking-tight">Seleccionar Producto</h2>
+               </div>
+               <button 
+                onClick={onClose}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 text-black/40 hover:bg-black/10 hover:text-black transition-colors"
+               >
+                 <span className="material-symbols-outlined text-[18px]">close</span>
+               </button>
+            </div>
+
+            <div className="px-6 py-2 overflow-y-auto flex-1 no-scrollbar space-y-6">
+               {/* Platform & Region */}
+               <div className="flex items-center justify-between bg-black/5 p-4 rounded-2xl">
+                  <div className="flex items-center space-x-3">
+                     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden shadow-sm">
+                        <img 
+                          alt={category.id} 
+                          className="w-6 h-6 object-contain" 
+                          src={category.img} 
+                        />
+                     </div>
+                     <span className="font-black text-[#11131b] text-base tracking-tight">{category.id}</span>
+                  </div>
+                  
+                  <button className="flex items-center space-x-2 px-3 py-1.5 bg-white rounded-full hover:bg-[#f7be34]/10 transition-all shadow-sm active:scale-95 group">
+                     <img 
+                      alt="USA Flag" 
+                      className="w-4 h-3 rounded-sm object-cover" 
+                      src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" 
+                     />
+                     <span className="text-xs font-black text-[#11131b]">USA</span>
+                     <span className="material-symbols-outlined text-sm text-black/20 group-hover:text-[#f7be34] transition-colors">expand_more</span>
+                  </button>
+               </div>
+
+               {/* Denominations */}
+               <div>
+                  <span className="block text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-3 ml-1">Denominación</span>
+                  <div className="flex space-x-2 overflow-x-auto pb-4 custom-scrollbar-light">
+                     {[8, 9, 10, 25, 50, 75, 100].map((val) => (
+                        <button 
+                          key={val}
+                          className={`w-12 h-12 rounded-full font-black text-sm transition-all flex-shrink-0 flex items-center justify-center ${
+                            val === 25 
+                            ? 'bg-[#f7be34] text-[#402d00] shadow-[0_10px_20px_rgba(247,190,52,0.2)] scale-110' 
+                            : 'bg-black/5 text-black/40 hover:bg-black/10'
+                          }`}
+                        >
+                          {val}
+                        </button>
+                     ))}
+                  </div>
+               </div>
+
+               {/* Quantity & Unit Cost */}
+               <div className="flex items-center justify-between px-2">
+                  <div>
+                     <p className="text-[8px] font-black text-black/30 uppercase tracking-[0.2em] mb-0.5">Costo unitario</p>
+                     <p className="text-2xl font-black text-[#11131b] tracking-tighter">${unitPrice.toFixed(2)} <span className="text-[10px] text-[#f7be34] uppercase font-black">USDT</span></p>
+                  </div>
+                  
+                  <div className="flex items-center justify-between bg-black/5 p-1 rounded-full w-32 border border-black/[0.03]">
+                        <button 
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-black/5 transition-colors text-black/40 active:scale-90"
+                        >
+                           <span className="material-symbols-outlined text-[16px]">remove</span>
+                        </button>
+                        <span className="text-[#11131b] font-black text-base">{quantity}</span>
+                        <button 
+                          onClick={() => setQuantity(quantity + 1)}
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-black/5 transition-colors text-black/40 active:scale-90"
+                        >
+                           <span className="material-symbols-outlined text-[16px]">add</span>
+                        </button>
+                  </div>
+               </div>
+
+               {/* Description */}
+               <div className="px-1">
+                  <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-1">Detalles del vault</p>
+                  <p className="text-black/60 text-xs leading-relaxed font-medium">Tarjeta digital original para {category.id} USA. Entrega inmediata y segura garantizada por la Bóveda Etérea.</p>
+               </div>
+            </div>
+
+            {/* Total & Action */}
+            <div className="mt-4 p-6 bg-white/50 backdrop-blur-xl flex items-center justify-between shrink-0">
+               <div>
+                  <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-0.5">Total a pagar</p>
+                  <p className="text-2xl font-black text-[#11131b] tracking-tighter">${(unitPrice * quantity).toFixed(2)} <span className="text-xs uppercase text-[#f7be34] font-black">USDT</span></p>
+               </div>
+               <button className="bg-[#f7be34] text-[#402d00] font-black py-4 px-8 rounded-xl shadow-[0_15px_30px_rgba(247,190,52,0.25)] hover:scale-105 active:scale-95 transition-all uppercase tracking-tight text-xs">
+                  Pagar ahora
+               </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
