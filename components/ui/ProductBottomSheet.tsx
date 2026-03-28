@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 interface ProductBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
+  onProceed?: (amount: number) => void;
   category: {
     id: string;
     img: string;
@@ -15,6 +16,7 @@ interface ProductBottomSheetProps {
 export const ProductBottomSheet = ({
   isOpen,
   onClose,
+  onProceed,
   category,
 }: ProductBottomSheetProps) => {
   const [quantity, setQuantity] = useState(2);
@@ -47,11 +49,11 @@ export const ProductBottomSheet = ({
             <div className="w-10 h-1 bg-black/10 rounded-full mx-auto mt-3 mb-1 shrink-0 md:hidden" />
 
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 shrink-0">
+            <div className="flex items-center justify-between px-6 py-5 shrink-0">
                <div className="w-8 h-8" /> {/* Spacer */}
                <div className="text-center">
-                  <span className="block text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-0.5">Categoría</span>
-                  <h2 className="text-lg font-black text-[#11131b] uppercase tracking-tight">Seleccionar Producto</h2>
+                  <span className="block text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">Categoría</span>
+                  <h2 className="text-2xl font-black text-[#11131b] uppercase tracking-tighter">Seleccionar Producto</h2>
                </div>
                <button 
                 onClick={onClose}
@@ -63,37 +65,37 @@ export const ProductBottomSheet = ({
 
             <div className="px-6 py-2 overflow-y-auto flex-1 no-scrollbar space-y-6">
                {/* Platform & Region */}
-               <div className="flex items-center justify-between bg-black/5 p-4 rounded-2xl">
+               <div className="flex items-center justify-between px-2 pt-0">
                   <div className="flex items-center space-x-3">
-                     <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center overflow-hidden shadow-sm">
+                     <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-sm border border-black/[0.03]">
                         <img 
                           alt={category.id} 
-                          className="w-6 h-6 object-contain" 
+                          className="w-5 h-5 object-contain" 
                           src={category.img} 
                         />
                      </div>
                      <span className="font-black text-[#11131b] text-base tracking-tight">{category.id}</span>
                   </div>
                   
-                  <button className="flex items-center space-x-2 px-3 py-1.5 bg-white rounded-full hover:bg-[#f7be34]/10 transition-all shadow-sm active:scale-95 group">
+                  <button className="flex items-center space-x-2 px-2.5 py-1.5 bg-white rounded-full hover:bg-[#f7be34]/10 transition-all shadow-sm active:scale-95 group border border-black/[0.03]">
                      <img 
                       alt="USA Flag" 
-                      className="w-4 h-3 rounded-sm object-cover" 
+                      className="w-3.5 h-2.5 rounded-sm object-cover" 
                       src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" 
                      />
-                     <span className="text-xs font-black text-[#11131b]">USA</span>
-                     <span className="material-symbols-outlined text-sm text-black/20 group-hover:text-[#f7be34] transition-colors">expand_more</span>
+                     <span className="text-[11px] font-black text-[#11131b]">USA</span>
+                     <span className="material-symbols-outlined text-[14px] text-black/20 group-hover:text-[#f7be34] transition-colors">expand_more</span>
                   </button>
                </div>
 
                {/* Denominations */}
                <div>
-                  <span className="block text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-3 ml-1">Denominación</span>
-                  <div className="flex space-x-2 overflow-x-auto pb-4 custom-scrollbar-light">
-                     {[8, 9, 10, 25, 50, 75, 100].map((val) => (
+                  <span className="block text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-3 ml-1">Denominación</span>
+                  <div className="flex space-x-3 overflow-x-auto py-2 pb-4 custom-scrollbar-light scroll-smooth">
+                     {[5, 10, 15, 20, 25, 30, 50, 75, 100, 150, 200, 500].map((val) => (
                         <button 
                           key={val}
-                          className={`w-12 h-12 rounded-full font-black text-sm transition-all flex-shrink-0 flex items-center justify-center ${
+                          className={`w-10 h-10 rounded-full font-black text-[11px] transition-all flex-shrink-0 flex items-center justify-center ${
                             val === 25 
                             ? 'bg-[#f7be34] text-[#402d00] shadow-[0_10px_20px_rgba(247,190,52,0.2)] scale-110' 
                             : 'bg-black/5 text-black/40 hover:bg-black/10'
@@ -108,8 +110,8 @@ export const ProductBottomSheet = ({
                {/* Quantity & Unit Cost */}
                <div className="flex items-center justify-between px-2">
                   <div>
-                     <p className="text-[8px] font-black text-black/30 uppercase tracking-[0.2em] mb-0.5">Costo unitario</p>
-                     <p className="text-2xl font-black text-[#11131b] tracking-tighter">${unitPrice.toFixed(2)} <span className="text-[10px] text-[#f7be34] uppercase font-black">USDT</span></p>
+                     <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">Costo unitario</p>
+                     <p className="text-2xl font-black text-[#11131b] tracking-tighter">${unitPrice.toFixed(2)} <span className="text-[11px] text-[#f7be34] uppercase font-black">USDT</span></p>
                   </div>
                   
                   <div className="flex items-center justify-between bg-black/5 p-1 rounded-full w-32 border border-black/[0.03]">
@@ -131,18 +133,21 @@ export const ProductBottomSheet = ({
 
                {/* Description */}
                <div className="px-1">
-                  <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-1">Detalles del vault</p>
-                  <p className="text-black/60 text-xs leading-relaxed font-medium">Tarjeta digital original para {category.id} USA. Entrega inmediata y segura garantizada por la Bóveda Etérea.</p>
+                  <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-1">Detalles del vault</p>
+                  <p className="text-black/60 text-sm leading-relaxed font-medium">Tarjeta digital original para {category.id} USA. Entrega inmediata y segura garantizada por la Bóveda Etérea.</p>
                </div>
             </div>
 
             {/* Total & Action */}
             <div className="mt-4 p-6 bg-white/50 backdrop-blur-xl flex items-center justify-between shrink-0">
                <div>
-                  <p className="text-[10px] font-black text-black/30 uppercase tracking-[0.2em] mb-0.5">Total a pagar</p>
-                  <p className="text-2xl font-black text-[#11131b] tracking-tighter">${(unitPrice * quantity).toFixed(2)} <span className="text-xs uppercase text-[#f7be34] font-black">USDT</span></p>
+                  <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">Total a pagar</p>
+                  <p className="text-2xl font-black text-[#11131b] tracking-tighter">${(unitPrice * quantity).toFixed(2)} <span className="text-[11px] text-[#f7be34] uppercase font-black">USDT</span></p>
                </div>
-               <button className="bg-[#f7be34] text-[#402d00] font-black py-4 px-8 rounded-xl shadow-[0_15px_30px_rgba(247,190,52,0.25)] hover:scale-105 active:scale-95 transition-all uppercase tracking-tight text-xs">
+               <button 
+                  onClick={() => onProceed?.(unitPrice * quantity)}
+                  className="bg-[#f7be34] text-[#402d00] font-black py-4 px-8 rounded-xl shadow-[0_15px_30px_rgba(247,190,52,0.25)] hover:scale-105 active:scale-95 transition-all uppercase tracking-[0.05em] text-[11px]"
+               >
                   Pagar ahora
                </button>
             </div>

@@ -53,9 +53,6 @@ export const ProfileMenu = ({ isOpen, onClose, role = "user" }: ProfileMenuProps
                 {role === "admin" ? "admin@dacribel.com" : "cliente@ejemplo.com"}
               </span>
               <h2 className="text-sm font-black tracking-tight leading-none text-on-surface">Ereogan Aysel</h2>
-              <div className="mt-1 px-1 py-0.5 bg-primary/20 border border-primary/30 text-primary rounded text-[8px] font-black uppercase tracking-tighter">
-                {role === "admin" ? t("admin") : t("user")}
-              </div>
             </div>
 
             <nav className="flex flex-col px-1 py-2">

@@ -6,14 +6,37 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductBottomSheet } from "@/components/ui/ProductBottomSheet";
+import { PaymentBottomSheet } from "@/components/ui/PaymentBottomSheet";
 import { useLanguage } from "@/context/LanguageContext";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function StorePage() {
+  const router = useRouter();
   const { t, language } = useLanguage();
   const [[currentSlide, direction], setSlide] = useState([0, 0]);
+  const [amount, setAmount] = useState(0);
   const [isProductSheetOpen, setIsProductSheetOpen] = useState(false);
+  const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<{ id: string, img: string } | null>(null);
+
+  const handleProceedToPayment = (selectedAmount: number) => {
+    setAmount(selectedAmount);
+    setIsProductSheetOpen(false);
+    setTimeout(() => {
+      setIsPaymentSheetOpen(true);
+    }, 400); // Wait for first modal to exit partially
+  };
+
+  const handleConfirmPayment = (method: string) => {
+    console.log("Confirming payment with method:", method, "amount:", amount);
+    setIsPaymentSheetOpen(false);
+    
+    // Smooth transition to payment processing page
+    setTimeout(() => {
+      router.push(`/payment/processing?method=${method}&amount=${amount.toFixed(2)}`);
+    }, 300);
+  };
 
   const banners = [
     {
@@ -192,7 +215,6 @@ export default function StorePage() {
         {/* Featured Collections */}
         <section className="mb-16">
           <div className="flex flex-col items-center mb-12">
-            <span className="text-primary font-black text-[10px] tracking-[0.4em] uppercase mb-2 drop-shadow-md">Vault Collections</span>
             <h3 className="text-3xl font-black text-on-surface tracking-tight">
               {language === 'es' ? 'Tarjetas de Regalo' : 'Gift Cards'}
             </h3>
@@ -228,6 +250,13 @@ export default function StorePage() {
         isOpen={isProductSheetOpen}
         onClose={() => setIsProductSheetOpen(false)}
         category={selectedCategory}
+        onProceed={handleProceedToPayment}
+      />
+
+      <PaymentBottomSheet
+        isOpen={isPaymentSheetOpen}
+        onClose={() => setIsPaymentSheetOpen(false)}
+        onConfirm={handleConfirmPayment}
       />
     </div>
   );

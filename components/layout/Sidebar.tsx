@@ -44,17 +44,7 @@ export const Sidebar = () => {
           ))}
         </nav>
 
-        <div className="pt-4 mt-auto border-t border-white/5">
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#282a32]/50 border border-white/5 active:scale-110 transition-all cursor-pointer group">
-            <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 group-hover:border-primary/50 transition-all">
-              <span className="material-symbols-outlined text-primary group-hover:scale-110 transition-transform text-[18px]">person</span>
-            </div>
-            <div>
-              <p className="text-[10px] font-black text-white/80 uppercase tracking-tight leading-none mb-1">{t("vault_access")}</p>
-              <p className="text-[8px] text-white/30 font-bold uppercase tracking-widest">{t("verified_member")}</p>
-            </div>
-          </div>
-        </div>
+        {/* Removed user profile section as per request */}
       </div>
     </aside>
   );

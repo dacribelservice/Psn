@@ -70,14 +70,14 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
 ### 🟣 FASE 4: Storefront & Inventario
 - [x] Fase 4. a) Banners dinámicos (Carousel interactivo premium).
 - [x] Fase 4. b) Cartas de Producto (Denominaciones de $5, $10, $50, etc.).
-- [ ] Fase 4. c) Lógica de compra única (Sin carrito, flujo directo).
-- [ ] Fase 4. d) Base de datos de Inventory (Códigos listos para entrega).
+- [x] Fase 4. c) Lógica de compra única (Sin carrito, flujo directo).
+- [x] Fase 4. d) Base de datos de Inventory (Estructura de entrega de códigos).
 
 ### 🔵 FASE 5: Automatización de Pagos (Cripto)
 - [ ] Fase 5. a) Integración de API de Pagos (Generación de Wallet BEP20).
-- [ ] Fase 5. b) Implementación de Webhook de confirmación.
-- [ ] Fase 5. c) Modal de estado de pago (Esperando, Confirmado, Error).
-- [ ] Fase 5. d) Lógica de liberación instantánea de código tras confirmación.
+- [ ] Fase 5. b) Implementación de Webhook de confirmación (Lógica Backend).
+- [x] Fase 5. c) Modal de estado de pago (Esperando, Validando, Éxito - UI Completa).
+- [x] Fase 5. d) Lógica de liberación instantánea de código (Visualización de Gift Cards).
 
 ### 🟠 FASE 6: Admin Dashboard & Settings
 - [x] Fase 6. a) Panel de Administración (Rediseño de Inventario y Gestión de Stock).
@@ -95,4 +95,26 @@ Dacribel es un ecommerce de alta gama diseñado para la automatización total. E
   - **Emparejamiento Tipográfico**: Contraste refinado entre etiquetas en **Public Sans** (micro-dato) y titulares en **Lexend**.
 - **Consistencia Visual**: Auditoría de fuentes en Sidebar y Header para asegurar el uso de tokens variables de Next.js.
 - **GitHub**: Respaldo completo de la sesión sincronizado con el repositorio (`main`).
+
+---
+
+## 📝 ÚLTIMA INTEGRACIÓN (28/03/2026 - Sesión de Madrugada - IV)
+
+- **Flujo de Pago de Extremo a Extremo (End-to-End)**:
+    - **`ProductBottomSheet`**: Integración de selector de cantidad y cálculo dinámico de subtotales.
+    - **`PaymentBottomSheet`**: Selector de canales cripto (BEP20, TRC20) alineado con los diseños del cliente.
+    - **`CheckoutProcessingPage`**: Página de espera con **temporizador de 10 min** en tiempo real, QR dinámico y sistema de copiado de billetera prioritario.
+    - **`ValidationModal`**: Modal premium con micro-animaciones, spinner de reloj de arena y barra de progreso.
+    - **Visualización de Códigos (`OrderDetailsView`)**: Pantalla final con confeti, detalles de la transacción y visualización segura de los códigos adquiridos.
+
+- **Refinamiento de UX/UI**:
+    - **Limpieza de Roles**: Remoción completa de etiquetas "Vault Access" y badges de rol (Admin/User) para una estética más minimalista en Sidebar y Header.
+    - **Animaciones Premium**: Implementación de `framer-motion` para transiciones de "Page Overlay" y efectos de pulso en estados de carga.
+    - **Internacionalización**: Sincronización completa de todos los nuevos componentes con el `LanguageContext` (ES/EN).
+
+- **Mantenimiento y Dependencias**:
+    - Instalación de `canvas-confetti` y tipos para efectos visuales.
+    - Auditoría de estilos y corrección de desbordamientos en modales móviles.
+
+- **GitHub**: Respaldo completo de la lógica de pago y entrega de códigos.
 

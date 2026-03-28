@@ -5,10 +5,13 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { useLanguage } from "@/context/LanguageContext";
 import { useState } from "react";
+import { OrderDetailsView } from "@/components/ui/OrderDetailsView";
+import { AnimatePresence } from "framer-motion";
 
 export default function HistoryPage() {
   const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const transactions = [
     { id: "88241", product: "Netflix Gift Card", amount: "$50.00", method: "USDT (TRC20)", date: "12 Oct 2023, 14:30", status: "Completed" },
@@ -131,11 +134,14 @@ export default function HistoryPage() {
                     <p className="text-[10px] font-bold text-white/20 uppercase tracking-widest leading-none mb-2">{tx.date}</p>
                     <p className="text-2xl font-headline font-black text-primary leading-none">{tx.amount}</p>
                   </div>
-                  <button className={`${
-                    tx.status === 'Completed' 
-                      ? 'bg-primary text-black active:scale-95' 
-                      : 'bg-white/5 text-white/20 cursor-not-allowed'
-                  } text-[10px] font-black px-5 py-3 rounded-xl transition-all uppercase tracking-widest shadow-lg`}>
+                  <button 
+                    onClick={() => tx.status === 'Completed' && setSelectedOrderId(tx.id)}
+                    className={`${
+                      tx.status === 'Completed' 
+                        ? 'bg-primary text-black active:scale-95' 
+                        : 'bg-white/5 text-white/20 cursor-not-allowed'
+                    } text-[10px] font-black px-5 py-3 rounded-xl transition-all uppercase tracking-widest shadow-lg`}
+                  >
                     {tx.status === 'Completed' ? (language === 'es' ? 'VER CÓDIGOS' : 'VIEW CODES') : (language === 'es' ? 'ESPERANDO' : 'PENDING')}
                   </button>
                 </div>
@@ -174,7 +180,10 @@ export default function HistoryPage() {
                     </td>
                     <td className="px-6 py-6 text-right">
                       {tx.status === 'Completed' ? (
-                        <button className="text-[#f7be34] text-xs font-bold hover:underline transition-all">
+                        <button 
+                          onClick={() => setSelectedOrderId(tx.id)}
+                          className="text-[#f7be34] text-xs font-bold hover:underline transition-all"
+                        >
                           {language === 'es' ? 'VER CÓDIGOS' : 'VIEW CODES'}
                         </button>
                       ) : (
@@ -204,6 +213,17 @@ export default function HistoryPage() {
       </main>
 
       <BottomNav />
+
+      {/* Order Details View Overlay */}
+      <AnimatePresence>
+        {selectedOrderId && (
+          <OrderDetailsView 
+            orderId={selectedOrderId} 
+            onClose={() => setSelectedOrderId(null)} 
+            showConfetti={false} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

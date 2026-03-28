@@ -6,7 +6,7 @@
   body {
     @apply bg-background text-on-surface;
     min-height: max(884px, 100dvh);
-    font-family: var(--font-public-sans);
+    font-family: var(--font-inter);
   }
 }
 
@@ -34,32 +34,34 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar { 
-  height: 4px; 
+  height: 8px; 
   display: block; 
 } 
 
 .custom-scrollbar::-webkit-scrollbar-track { 
-  background: rgba(255, 255, 255, 0.05); 
+  background: rgba(255, 255, 255, 0.1); 
   border-radius: 10px;
 } 
 
 .custom-scrollbar::-webkit-scrollbar-thumb { 
   background: #f2b92f; 
   border-radius: 10px; 
+  border: 2px solid #11131b;
 }
 
 .custom-scrollbar-light::-webkit-scrollbar { 
-  height: 4px; 
+  height: 6px; 
   display: block; 
 } 
 
 .custom-scrollbar-light::-webkit-scrollbar-track { 
-  background: rgba(0, 0, 0, 0.05); 
+  background: rgba(0, 0, 0, 0.08); 
   border-radius: 10px;
 } 
 
 .custom-scrollbar-light::-webkit-scrollbar-thumb { 
   background: #f7be34; 
   border-radius: 10px; 
+  border: 1px solid rgba(0,0,0,0.05);
 }
 
