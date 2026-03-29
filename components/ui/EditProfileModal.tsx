@@ -18,25 +18,67 @@ interface EditProfileModalProps {
 export const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
   const { user } = useAuth();
   const [name, setName] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (user) {
+    if (user && isOpen) {
       setName(user.full_name || user.email.split('@')[0]);
+      setAvatarPreview(user.avatar_url || null);
+      setAvatarFile(null);
     }
   }, [user, isOpen]);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSave = async () => {
     if (!user) return;
     setIsSaving(true);
     try {
+      let finalAvatarUrl = user.avatar_url;
+
+      // 1. Upload new avatar if selected
+      if (avatarFile) {
+        const fileExt = avatarFile.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, avatarFile, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+        
+        finalAvatarUrl = publicUrl;
+      }
+
+      // 2. Update profile in database
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: name })
+        .update({ 
+          full_name: name,
+          avatar_url: finalAvatarUrl 
+        })
         .eq('id', user.id);
       
       if (error) throw error;
+      
+      // Force reload profile by refreshing page or triggering context update
+      // Since context listening is on, it might refresh automatically, but we ensure it.
       onClose();
+      window.location.reload(); 
     } catch (err) {
       console.error("Error updating profile:", err);
       alert("Error al actualizar el perfil");
@@ -79,16 +121,26 @@ export const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => 
             {/* Content Area */}
             <div className="px-8 py-8 space-y-8">
               {/* Avatar Section */}
-              <div className="relative flex flex-col items-center">
+               <div className="relative flex flex-col items-center">
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  accept="image/*" 
+                  onChange={handleFileChange}
+                />
                 <div className="relative group">
                   <div className="w-32 h-32 rounded-full ring-4 ring-primary/20 overflow-hidden shadow-2xl bg-[#0a0b14] flex items-center justify-center">
-                    {user?.avatar_url ? (
-                      <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
                       <span className="material-symbols-outlined text-[#d3c5ad] !text-[64px]">person</span>
                     )}
                   </div>
-                  <button className="absolute bottom-0 right-0 w-10 h-10 bg-[#f2b92f] text-[#261900] rounded-full flex items-center justify-center shadow-lg border-4 border-[#30334a] hover:scale-105 transition-transform">
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute bottom-0 right-0 w-10 h-10 bg-[#f2b92f] text-[#261900] rounded-full flex items-center justify-center shadow-lg border-4 border-[#30334a] hover:scale-105 transition-transform"
+                  >
                     <span className="material-symbols-outlined !text-[20px]">photo_camera</span>
                   </button>
                 </div>

@@ -5,6 +5,7 @@ import { ProfileMenu } from "./ProfileMenu";
 import { BannersModal } from "../ui/BannersModal";
 import { EditProfileModal } from "../ui/EditProfileModal";
 import { UserTermsBottomSheet } from "../ui/UserTermsBottomSheet";
+import { AdminTermsModal } from "../admin/AdminTermsModal";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import Link from "next/link";
@@ -57,7 +58,11 @@ export const Header = () => {
       />
       <BannersModal isOpen={isBannersOpen} onClose={() => setIsBannersOpen(false)} />
       <EditProfileModal isOpen={isEditProfileOpen} onClose={() => setIsEditProfileOpen(false)} />
-      <UserTermsBottomSheet isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
+      {user?.role === "admin" ? (
+        <AdminTermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
+      ) : (
+        <UserTermsBottomSheet isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
+      )}
     </>
   );
 };

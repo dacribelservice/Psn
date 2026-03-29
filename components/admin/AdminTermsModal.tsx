@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 interface AdminTermsModalProps {
   isOpen: boolean;
@@ -11,27 +13,49 @@ interface AdminTermsModalProps {
 
 export const AdminTermsModal = ({ isOpen, onClose }: AdminTermsModalProps) => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [terms, setTerms] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      const savedTerms = localStorage.getItem("dacribel_terms");
-      if (savedTerms) setTerms(savedTerms);
-    }
+    const fetchTerms = async () => {
+      if (isOpen) {
+        const { data, error } = await supabase
+          .from("settings")
+          .select("value")
+          .eq("key", "terms_conditions")
+          .maybeSingle();
+        
+        if (data?.value) {
+          setTerms(data.value.content || "");
+        }
+      }
+    };
+    fetchTerms();
   }, [isOpen]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user) return;
     setIsSaving(true);
     
-    // Persist in localStorage for simulation
-    localStorage.setItem("dacribel_terms", terms);
+    try {
+      const { error } = await supabase
+        .from("settings")
+        .upsert({ 
+          key: "terms_conditions", 
+          value: { content: terms },
+          updated_by: user.id,
+          updated_at: new Date().toISOString()
+        });
 
-    // Simulate API call delay
-    setTimeout(() => {
-      setIsSaving(false);
+      if (error) throw error;
       onClose();
-    }, 1500);
+    } catch (err) {
+      console.error("Error saving terms:", err);
+      alert("Error al guardar los términos");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (

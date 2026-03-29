@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { supabase } from "@/lib/supabase";
 
 interface UserTermsBottomSheetProps {
   isOpen: boolean;
@@ -14,15 +15,23 @@ export const UserTermsBottomSheet = ({ isOpen, onClose }: UserTermsBottomSheetPr
   const [terms, setTerms] = useState("");
 
   useEffect(() => {
-    if (isOpen) {
-      const savedTerms = localStorage.getItem("dacribel_terms");
-      if (savedTerms) {
-        setTerms(savedTerms);
-      } else {
-        setTerms("Aún no se han configurado los términos y condiciones.");
+    const fetchTerms = async () => {
+      if (isOpen) {
+        const { data, error } = await supabase
+          .from("settings")
+          .select("value")
+          .eq("key", "terms_conditions")
+          .maybeSingle();
+        
+        if (data?.value) {
+          setTerms(data.value.content || "");
+        } else {
+          setTerms(t("terms_not_configured") || "Aún no se han configurado los términos y condiciones.");
+        }
       }
-    }
-  }, [isOpen]);
+    };
+    fetchTerms();
+  }, [isOpen, t]);
 
   return (
     <AnimatePresence>
