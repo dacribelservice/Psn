@@ -140,6 +140,14 @@ Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un dise
   - **Loading Failsafe**: Implementación de un `timeout` de 10 segundos y un `setLoading(false)` obligatorio en `AuthContext.tsx` para evitar que la pantalla se quede cargando si la consulta de perfil es lenta o falla silenciosamente.
   - **Retry Logic**: Añadido sistema de hasta 3 reintentos antes de realizar un `signOut` de seguridad para limpiar sesiones corruptas.
 - **Auditoría de Navegación**: Confirmación de la correcta redirección de Administradores hacia el panel de inventario.
-- **Mantenimiento**: Limpieza de archivos temporales (`login.md`).
+---
 
-> **Siguiente Paso Crítico**: Pruebas de integración para la FASE 5: Automatización de Pagos Cripto.
+## 🚀 ÚLTIMA INTEGRACIÓN (29/03/2026 - Sesión de Tarde - XI)
+- **Auth Context Optimization**:
+  - **Deduplicación de Peticiones**: Implementación de un `Ref` (`fetchingUserId`) para evitar múltiples cargas simultáneas del mismo perfil (prevención de condiciones de carrera entre `checkSession` y `onAuthStateChange`).
+  - **Ajuste de Timeouts**: Incremento del tiempo de espera de seguridad de 10s a **20s** para soportar redes inestables o refrescos de token en paralelo durante operaciones de escritura.
+  - **Protección de Montaje**: Uso de `isMounted` para prevenir fugas de memoria y errores de actualización de estado en componentes desmontados.
+- **Admin UI & Consistencia Visual**:
+  - **Dynamic Admin Avatar**: Refactorización de `AdminHeader.tsx` para eliminar el avatar estático y mostrar dinámicamente el `avatar_url` real del usuario logueado.
+  - **Fix de Keys en React**: Corrección de advertencias en `ProfileMenu.tsx` añadiendo claves únicas a elementos estáticos y reestructurando `AnimatePresence` para eliminar el uso de fragmentos inválidos.
+- **GitHub**: Respaldo completo de la estabilidad de la sesión sincronizado con el repositorio (`main`).

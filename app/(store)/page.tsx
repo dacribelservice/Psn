@@ -11,6 +11,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { inventoryService, type Category, type Product } from "@/services/inventory";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 
 export default function StorePage() {
   const router = useRouter();
@@ -41,6 +42,49 @@ export default function StorePage() {
       }
     };
     loadData();
+
+    // REALTIME: Listen for category updates
+    const catChannel = supabase
+      .channel('categories-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'categories' },
+        (payload) => {
+          console.log('Realtime Category update:', payload);
+          if (payload.eventType === 'INSERT') {
+            setCategories(prev => [...prev, payload.new as Category].sort((a,b) => a.display_order - b.display_order));
+          } else if (payload.eventType === 'UPDATE') {
+            setCategories(prev => prev.map(c => c.id === payload.new.id ? payload.new as Category : c).sort((a,b) => a.display_order - b.display_order));
+          } else if (payload.eventType === 'DELETE') {
+            setCategories(prev => prev.filter(c => c.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    // REALTIME: Listen for product updates
+    const prodChannel = supabase
+      .channel('products-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'products' },
+        (payload) => {
+          console.log('Realtime Product update:', payload);
+          if (payload.eventType === 'INSERT') {
+            setProducts(prev => [payload.new as Product, ...prev]);
+          } else if (payload.eventType === 'UPDATE') {
+            setProducts(prev => prev.map(p => p.id === payload.new.id ? payload.new as Product : p));
+          } else if (payload.eventType === 'DELETE') {
+            setProducts(prev => prev.filter(p => p.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(catChannel);
+      supabase.removeChannel(prodChannel);
+    };
   }, []);
 
   const handleProceedToPayment = (selectedAmount: number, productId: string) => {
@@ -243,7 +287,7 @@ export default function StorePage() {
               {language === 'es' ? 'Tarjetas de Regalo' : 'Gift Cards'}
             </h3>
           </div>
-          <div className="grid grid-cols-4 gap-6 md:gap-14 max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-12 lg:gap-16 max-w-5xl mx-auto px-4">
             {categories.map((cat) => (
               <div 
                 key={cat.id} 
@@ -253,7 +297,7 @@ export default function StorePage() {
                   setIsProductSheetOpen(true);
                 }}
               >
-                <div className="w-16 h-16 md:w-36 md:h-36 rounded-full bg-[#191b23] flex items-center justify-center mb-4 md:mb-6 ring-2 ring-white/5 group-hover:ring-primary/60 transition-all duration-500 overflow-hidden shadow-2xl group-hover:shadow-primary/20 group-hover:-translate-y-2">
+                <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-[#191b23] flex items-center justify-center mb-4 md:mb-6 ring-2 ring-white/5 group-hover:ring-primary/60 transition-all duration-500 overflow-hidden shadow-2xl group-hover:shadow-primary/20 group-hover:-translate-y-2">
                   {cat.image_url ? (
                     <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                   ) : (
@@ -262,12 +306,12 @@ export default function StorePage() {
                     </span>
                   )}
                 </div>
-                <span className="text-on-surface font-black text-[8px] md:text-sm tracking-widest group-hover:text-primary transition-colors text-center uppercase">{cat.name}</span>
+                <span className="text-on-surface font-black text-[10px] md:text-sm tracking-widest group-hover:text-primary transition-colors text-center uppercase">{cat.name}</span>
               </div>
             ))}
             {loading && [1,2,3,4].map(i => (
               <div key={i} className="animate-pulse flex flex-col items-center">
-                <div className="w-16 h-16 md:w-36 md:h-36 rounded-full bg-white/5 mb-4"></div>
+                <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-white/5 mb-4"></div>
                 <div className="h-4 w-20 bg-white/5 rounded"></div>
               </div>
             ))}
