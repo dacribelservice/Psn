@@ -5,6 +5,7 @@ export interface Category {
   name: string;
   slug: string;
   display_order: number;
+  image_url?: string;
 }
 
 export interface Product {

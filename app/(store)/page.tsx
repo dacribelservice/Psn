@@ -254,9 +254,13 @@ export default function StorePage() {
                 }}
               >
                 <div className="w-16 h-16 md:w-36 md:h-36 rounded-full bg-[#191b23] flex items-center justify-center mb-4 md:mb-6 ring-2 ring-white/5 group-hover:ring-primary/60 transition-all duration-500 overflow-hidden shadow-2xl group-hover:shadow-primary/20 group-hover:-translate-y-2">
-                  <span className="material-symbols-outlined text-4xl text-primary opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all">
-                    {cat.slug.includes('gift') ? 'card_giftcard' : 'sports_esports'}
-                  </span>
+                  {cat.image_url ? (
+                    <img src={cat.image_url} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                  ) : (
+                    <span className="material-symbols-outlined text-4xl text-primary opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-all">
+                      {cat.slug.includes('gift') ? 'card_giftcard' : 'sports_esports'}
+                    </span>
+                  )}
                 </div>
                 <span className="text-on-surface font-black text-[8px] md:text-sm tracking-widest group-hover:text-primary transition-colors text-center uppercase">{cat.name}</span>
               </div>

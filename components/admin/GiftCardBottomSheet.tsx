@@ -22,8 +22,13 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
 
   useEffect(() => {
     const fetchCats = async () => {
-      const { data } = await supabase.from('categories').select('*');
-      setCategories(data || []);
+      try {
+        const { data, error } = await supabase.from('categories').select('*').order('name');
+        if (error) throw error;
+        setCategories(data || []);
+      } catch (err) {
+        console.error("Error fetching categories for giftcard:", err);
+      }
     };
     if (isOpen) fetchCats();
   }, [isOpen]);
@@ -97,7 +102,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100]"
           />
 
           <div className="fixed inset-0 flex items-end sm:items-center justify-center pointer-events-none z-[110] p-0 sm:p-4">
@@ -106,7 +111,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-sm bg-[#e9e9e9] dark:bg-[#1e1e1e] rounded-t-[2.5rem] sm:rounded-[2.5rem] flex flex-col shadow-2xl overflow-hidden pointer-events-auto border border-white/5 max-h-[90vh]"
+              className="relative w-full max-w-sm bg-gray-100 dark:bg-[#1e1e1e] rounded-t-[2.5rem] sm:rounded-[2.5rem] flex flex-col shadow-2xl pointer-events-auto border border-black/5 dark:border-white/5 max-h-[90vh]"
             >
               <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/5 shrink-0">
                 <div className="w-8" />
@@ -118,33 +123,49 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                 </button>
               </div>
 
-              <div className="p-6 flex flex-col space-y-5 overflow-y-auto no-scrollbar pb-10">
+              <div className="p-6 flex flex-col space-y-5 overflow-visible pb-10 content-scroll rounded-b-[2.5rem]">
                 {/* Platform Selector */}
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] ml-1">PLATAFORMA</label>
                   <div className="relative">
                     <button 
                       onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                      className="w-full flex items-center justify-between bg-gray-300/40 dark:bg-[#30334a] border border-black/5 dark:border-white/5 rounded-xl py-3.5 px-5 outline-none text-gray-900 dark:text-white font-bold text-sm shadow-inner"
+                      className="w-full flex items-center justify-between bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 outline-none text-gray-900 dark:text-white font-bold text-sm shadow-sm hover:border-primary/30 transition-all border-dashed"
                     >
-                      <span>{selectedCategory ? selectedCategory.name : "Seleccionar plataforma..."}</span>
-                      <span className={`material-symbols-outlined text-sm transition-transform ${isCategoryOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                      <span className="flex items-center gap-3">
+                        <span className="material-symbols-outlined text-primary text-xl opacity-60">category</span>
+                        {selectedCategory ? selectedCategory.name : "Seleccionar plataforma..."}
+                      </span>
+                      <span className={`material-symbols-outlined text-[20px] transition-transform duration-300 ${isCategoryOpen ? 'rotate-180 text-primary' : 'text-gray-400'}`}>expand_more</span>
                     </button>
+                    
                     <AnimatePresence>
                       {isCategoryOpen && (
-                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-[#30334a] rounded-xl shadow-2xl border border-white/5 overflow-hidden">
-                          <ul className="py-1">
-                            {categories.map((cat) => (
-                              <li key={cat.id}>
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }} 
+                          animate={{ opacity: 1, y: 0, scale: 1 }} 
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }} 
+                          className="absolute z-[150] left-0 right-0 mt-2 bg-white dark:bg-[#252833] rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/5 dark:border-white/10 overflow-hidden"
+                        >
+                          <div className="max-h-48 overflow-y-auto no-scrollbar py-2">
+                            {categories.length > 0 ? (
+                              categories.map((cat) => (
                                 <button 
+                                  key={cat.id}
                                   onClick={() => { setSelectedCategory(cat); setIsCategoryOpen(false); }}
-                                  className="w-full text-left px-5 py-3 hover:bg-primary/10 text-gray-900 dark:text-white font-black text-xs uppercase transition-colors"
+                                  className="w-full text-left px-5 py-3.5 hover:bg-primary/10 text-gray-900 dark:text-white font-black text-[11px] uppercase transition-colors flex items-center gap-3 group"
                                 >
+                                  <div className="w-1.5 h-1.5 rounded-full bg-primary/20 group-hover:bg-primary transition-colors" />
                                   {cat.name}
                                 </button>
-                              </li>
-                            ))}
-                          </ul>
+                              ))
+                            ) : (
+                              <div className="px-5 py-8 text-center text-balance">
+                                <span className="material-symbols-outlined text-gray-300 dark:text-white/10 text-3xl mb-2">error</span>
+                                <p className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase italic">No hay categorías disponibles</p>
+                              </div>
+                            )}
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -157,7 +178,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                     type="number"
                     value={value || ""}
                     onChange={(e) => setValue(Number(e.target.value))}
-                    className="w-full bg-gray-300/40 dark:bg-[#30334a] border border-black/5 dark:border-white/5 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-black text-xl shadow-inner outline-none"
+                    className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 text-gray-900 dark:text-white font-black text-xl shadow-inner outline-none focus:ring-1 focus:ring-primary/30 transition-all"
                     placeholder="25"
                   />
                 </div>
@@ -168,7 +189,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                     value={codesText}
                     onChange={(e) => setCodesText(e.target.value)}
                     rows={4}
-                    className="w-full bg-gray-300/40 dark:bg-[#30334a] border border-black/5 dark:border-white/5 rounded-xl py-4 px-5 text-gray-900 dark:text-white font-mono text-sm shadow-inner outline-none resize-none"
+                    className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 text-gray-900 dark:text-white font-mono text-sm shadow-inner outline-none resize-none focus:ring-1 focus:ring-primary/30 transition-all"
                     placeholder="C4F5-G67T-H99L..."
                   />
                 </div>
@@ -176,7 +197,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                 <button 
                   onClick={handleCreate}
                   disabled={loading}
-                  className="w-full bg-[#f2b92f] text-black font-black py-4 rounded-xl shadow-2xl hover:brightness-110 active:scale-95 transition-all transform uppercase text-[11px] disabled:opacity-50"
+                  className="w-full bg-[#f2b92f] text-black font-black py-5 rounded-2xl shadow-[0_20px_40px_rgba(242,185,47,0.3)] hover:brightness-110 active:scale-95 transition-all transform uppercase text-[11px] disabled:opacity-50 mt-4"
                 >
                   {loading ? "CARGANDO..." : "CARGAR INVENTARIO"}
                 </button>
