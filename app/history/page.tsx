@@ -102,8 +102,12 @@ export default function HistoryPage() {
                 </div>
               </div>
               <div className="flex flex-col z-10">
-                <p className="text-headline-sm text-white tracking-tight leading-none mb-2">Netflix Gift Card</p>
-                <p className="text-label-sm text-white/20 uppercase tracking-widest leading-none">12 Oct 2023</p>
+                <p className="text-headline-sm text-white tracking-tight leading-none mb-2">
+                  {transactions.length > 0 ? transactions[0].product : (language === 'es' ? 'Ninguna' : 'None')}
+                </p>
+                <p className="text-label-sm text-white/20 uppercase tracking-widest leading-none">
+                  {transactions.length > 0 ? transactions[0].date : '---'}
+                </p>
               </div>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all"></div>
             </div>
@@ -118,7 +122,9 @@ export default function HistoryPage() {
                   <span className="material-symbols-outlined text-emerald-400 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                 </div>
               </div>
-              <p className="text-2xl md:text-4xl font-display font-black text-white z-10">24</p>
+              <p className="text-2xl md:text-4xl font-display font-black text-white z-10">
+                {transactions.filter(t => t.status === 'Completed').length.toString().padStart(2, '0')}
+              </p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-emerald-500/10 rounded-full blur-[80px] group-hover:bg-emerald-500/20 transition-all"></div>
             </div>
 
@@ -132,7 +138,9 @@ export default function HistoryPage() {
                   <span className="material-symbols-outlined text-primary text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>schedule</span>
                 </div>
               </div>
-              <p className="text-2xl md:text-4xl font-display font-black text-white z-10">02</p>
+              <p className="text-2xl md:text-4xl font-display font-black text-white z-10">
+                {transactions.filter(t => t.status === 'Pending').length.toString().padStart(2, '0')}
+              </p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-[80px] group-hover:bg-primary/20 transition-all"></div>
             </div>
 
@@ -146,7 +154,9 @@ export default function HistoryPage() {
                   <span className="material-symbols-outlined text-white/40 text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>confirmation_number</span>
                 </div>
               </div>
-              <p className="text-2xl md:text-4xl font-display font-black text-white z-10">840</p>
+              <p className="text-2xl md:text-4xl font-display font-black text-white z-10">
+                {transactions.filter(t => t.status === 'Completed').length.toString().padStart(2, '0')}
+              </p>
               <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-white/5 rounded-full blur-[80px] group-hover:bg-white/10 transition-all"></div>
             </div>
           </div>
@@ -249,13 +259,13 @@ export default function HistoryPage() {
             </table>
             <div className="px-6 py-6 bg-surface-container-high/20 flex justify-between items-center text-on-surface">
               <p className="text-[0.6875rem] text-secondary-fixed-dim">
-                {language === 'es' ? 'Mostrando 5 de 26 transacciones' : 'Showing 5 of 26 transactions'}
+                {language === 'es' 
+                  ? `Mostrando ${transactions.length} transacciones` 
+                  : `Showing ${transactions.length} transactions`}
               </p>
               <div className="flex gap-2">
                 <button className="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center opacity-50"><span className="material-symbols-outlined text-sm">chevron_left</span></button>
                 <button className="w-8 h-8 rounded-lg bg-[#f7be34] flex items-center justify-center text-[#402d00] font-bold text-xs">1</button>
-                <button className="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-xs hover:bg-[#282a32]">2</button>
-                <button className="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-xs hover:bg-[#282a32]">3</button>
                 <button className="w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center hover:bg-[#282a32]"><span className="material-symbols-outlined text-sm">chevron_right</span></button>
               </div>
             </div>

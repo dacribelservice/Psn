@@ -3,6 +3,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
+import { supabase } from "@/lib/supabase";
 
 interface NotificationsPopupProps {
   isOpen: boolean;
@@ -10,7 +11,50 @@ interface NotificationsPopupProps {
 }
 
 export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const [criticalItems, setCriticalItems] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchCriticalInventory = async () => {
+      try {
+        setLoading(true);
+        // Usamos la misma lógica que en el dashboard de inventario
+        const { data: products, error } = await supabase
+          .from('products')
+          .select('name, id');
+        
+        if (error) throw error;
+
+        // Para cada producto, contar códigos disponibles
+        const itemsWithStock = await Promise.all((products || []).map(async (p: any) => {
+          const { count } = await supabase
+            .from('inventory_codes')
+            .select('*', { count: 'exact', head: true })
+            .eq('product_id', p.id)
+            .eq('status', 'available');
+          
+          return {
+            label: p.name,
+            icon: p.name.toLowerCase().includes('xbox') ? "videogame_asset" : "sports_esports",
+            count: count || 0
+          };
+        }));
+
+        // Filtrar solo los que tienen poco stock (<= 5)
+        const lowStock = itemsWithStock.filter(item => item.count <= 5);
+        setCriticalItems(lowStock);
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCriticalInventory();
+  }, [isOpen]);
 
   return (
     <AnimatePresence>
@@ -55,38 +99,47 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
             </div>
 
             {/* Modal Content - Compact List */}
-            <div className="px-4 py-2">
-              {[
-                { label: "PlayStation $10 usa", icon: "sports_esports", count: 3 },
-                { label: "XBOX $5 usa", icon: "videogame_asset", count: 5 },
-                { label: "PlayStation $3 col", icon: "sports_esports", count: 1 },
-              ].map((item, idx) => (
-                <div key={idx} className="flex flex-col">
-                  <div className="flex items-center justify-between py-2.5 group cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-primary/30 transition-all">
-                        <span className="material-symbols-outlined text-primary text-[16px]">
-                          {item.icon}
-                        </span>
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-white text-[11px] mb-0.5 tracking-tight">{item.label}</h3>
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(247,190,52,0.4)]"></span>
-                          <span className="text-[9px] text-primary/80 font-black uppercase tracking-tighter">
-                            {t("low_stock")}
+            <div className="px-4 py-2 min-h-[100px] flex flex-col justify-center">
+              {loading ? (
+                <div className="py-8 text-center">
+                  <span className="text-[10px] font-black text-white/20 uppercase animate-pulse">Cargando...</span>
+                </div>
+              ) : criticalItems.length === 0 ? (
+                <div className="py-8 text-center flex flex-col items-center gap-2">
+                  <span className="material-symbols-outlined text-emerald-400/30 text-3xl">check_circle</span>
+                  <span className="text-[10px] font-black text-white/20 uppercase">{t("all_good") || (language === 'es' ? 'Todo al día' : 'Everything ok')}</span>
+                </div>
+              ) : (
+                criticalItems.slice(0, 3).map((item: any, idx: number) => (
+                  <div key={idx} className="flex flex-col">
+                    <div className="flex items-center justify-between py-2.5 group cursor-pointer">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-primary/30 transition-all">
+                          <span className="material-symbols-outlined text-primary text-[16px]">
+                            {item.icon}
                           </span>
                         </div>
+                        <div>
+                          <h3 className="font-bold text-white text-[11px] mb-0.5 tracking-tight truncate max-w-[100px]">{item.label}</h3>
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(247,190,52,0.4)]"></span>
+                            <span className="text-[9px] text-primary/80 font-black uppercase tracking-tighter">
+                              {t("low_stock")}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-black text-primary text-base leading-none tracking-tighter">{item.count}</p>
+                        <p className="uppercase tracking-widest font-black text-white/20 text-[7px]">
+                          {t("units")}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-black text-primary text-base leading-none tracking-tighter">{item.count}</p>
-                      <p className="uppercase tracking-widest font-black text-white/20 text-[7px]">{t("units")}</p>
-                    </div>
+                    {idx < criticalItems.length - 1 && idx < 2 && <div className="h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>}
                   </div>
-                  {idx < 2 && <div className="h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>}
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* Modal Footer */}

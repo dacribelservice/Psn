@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { DeleteAccountModal } from "../ui/DeleteAccountModal";
 
 interface ProfileMenuProps {
   isOpen: boolean;
@@ -17,7 +18,8 @@ interface ProfileMenuProps {
 
 export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, onTermsClick }: ProfileMenuProps) => {
   const { language, setLanguage, t } = useLanguage();
-  const { user, role, signOut } = useAuth();
+  const { user, role, signOut, deleteAccount } = useAuth();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
 
   const menuItems = [
     { label: t("my_profile"), icon: "person", href: "#", isProfile: true },
@@ -131,7 +133,10 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
               <div className="h-[1px] bg-white/5 my-1.5 mx-3" />
               
               {role !== "admin" && (
-                <button className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-red-400 font-bold hover:bg-red-500/10 transition-all active:scale-95 group w-full text-left">
+                <button 
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-red-400 font-bold hover:bg-red-500/10 transition-all active:scale-95 group w-full text-left"
+                >
                   <span className="material-symbols-outlined text-red-500 text-[18px]">delete_forever</span>
                   <span className="text-[11px] tracking-tight">{t("delete_account")}</span>
                 </button>
@@ -184,6 +189,16 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
           </motion.div>
         </>
       )}
+      
+      <DeleteAccountModal 
+        isOpen={isDeleteModalOpen} 
+        onClose={() => setIsDeleteModalOpen(false)} 
+        onConfirm={async () => {
+          await deleteAccount();
+          setIsDeleteModalOpen(false);
+          onClose();
+        }}
+      />
     </AnimatePresence>
   );
 };

@@ -24,6 +24,7 @@ interface AuthContextType {
   signUp: (email: string, password?: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => void;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -161,8 +162,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const deleteAccount = async () => {
+    console.log("Account deletion requested...");
+    try {
+      // Call RPC to delete public data (and handle foreign keys if applicable)
+      const { error } = await supabase.rpc('delete_user_self');
+      if (error) {
+        console.error("Delete account RPC error:", error.message);
+        throw error;
+      }
+      
+      // If success, signOut (which clears local state and session)
+      console.log("Profile deleted, signing out...");
+      signOut();
+    } catch (err) {
+      console.error("Critical error while deleting account:", err);
+      throw err;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, role: user?.role || null, loading, signIn, signUp, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, role: user?.role || null, loading, signIn, signUp, signInWithGoogle, signOut, deleteAccount }}>
       {children}
     </AuthContext.Provider>
   );
