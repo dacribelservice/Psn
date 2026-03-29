@@ -103,17 +103,24 @@ export const ProductBottomSheet = ({
                      {categoryProducts.map((prod) => {
                         const amountMatch = prod.name.match(/\$(\d+)/);
                         const label = amountMatch ? `$${amountMatch[1]}` : prod.name;
+                        const isOutOfStock = (prod.stock || 0) <= 0;
+                        
                         return (
                           <button 
                             key={prod.id}
-                            onClick={() => setSelectedProduct(prod)}
-                            className={`min-w-[50px] px-4 h-11 rounded-full font-black text-[13px] transition-all flex-shrink-0 flex items-center justify-center ${
+                            onClick={() => !isOutOfStock && setSelectedProduct(prod)}
+                            className={`min-w-[50px] px-4 h-11 rounded-full font-black text-[13px] transition-all flex-shrink-0 flex items-center justify-center relative ${
                               selectedProduct?.id === prod.id
                               ? 'bg-[#f7be34] text-[#402d00] shadow-[0_10px_20px_rgba(247,190,52,0.2)] scale-110 border-2 border-white/50' 
-                              : 'bg-black/5 text-black/40 hover:bg-black/10'
+                              : isOutOfStock 
+                                ? 'bg-black/5 text-black/20 cursor-not-allowed opacity-50'
+                                : 'bg-black/5 text-black/40 hover:bg-black/10'
                             }`}
                           >
                             {label}
+                            {isOutOfStock && (
+                              <span className="absolute -top-1 -right-1 text-[6px] bg-red-500 text-white px-1 rounded-full font-black">SOLDOUT</span>
+                            )}
                           </button>
                         );
                      })}
@@ -159,12 +166,20 @@ export const ProductBottomSheet = ({
                   <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">Total a pagar</p>
                   <p className="text-2xl font-black text-[#11131b] tracking-tighter">${(unitPrice * quantity).toFixed(2)} <span className="text-[11px] text-[#f7be34] uppercase font-black">USDT</span></p>
                </div>
-               <button 
-                  onClick={() => onProceed?.(unitPrice * quantity, selectedProduct?.id || '')}
-                  className="bg-[#f7be34] text-[#402d00] font-black py-4 px-8 rounded-xl shadow-[0_15px_30px_rgba(247,190,52,0.25)] hover:scale-105 active:scale-95 transition-all uppercase tracking-[0.05em] text-[11px]"
-               >
-                  Pagar ahora
-               </button>
+                <button 
+                  onClick={() => {
+                    if ((selectedProduct?.stock || 0) <= 0) return;
+                    onProceed?.(unitPrice * quantity, selectedProduct?.id || '');
+                  }}
+                  disabled={(selectedProduct?.stock || 0) <= 0}
+                  className={`font-black py-4 px-8 rounded-xl transition-all uppercase tracking-[0.05em] text-[11px] ${
+                    (selectedProduct?.stock || 0) <= 0
+                    ? 'bg-black/10 text-black/20 cursor-not-allowed shadow-none'
+                    : 'bg-[#f7be34] text-[#402d00] shadow-[0_15px_30px_rgba(247,190,52,0.25)] hover:scale-105 active:scale-95'
+                  }`}
+                >
+                  {(selectedProduct?.stock || 0) <= 0 ? 'Agotado' : 'Pagar ahora'}
+                </button>
             </div>
           </motion.div>
         </>

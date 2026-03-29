@@ -4,13 +4,29 @@ import React, { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
   const { language, setLanguage } = useLanguage();
-  const { signIn, signInWithGoogle, loading } = useAuth();
+  const { user, signIn, signInWithGoogle, loading, role } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // Redirect if already logged in
+  React.useEffect(() => {
+    console.log("LoginPage: Effect triggered", { hasUser: !!user, loading, role });
+    if (user && !loading) {
+      // MASTER FIX: Use hard redirect for admin to ensure cookie sync and use precise route
+      const target = role === 'admin' ? "/admin/inventory" : "/";
+      console.log("MASTER REDIRECT: Going to", target);
+      
+      // We use window.location.href instead of router.push for the FIRST login
+      // to force a full cookie sync with the middleware
+      window.location.href = target;
+    }
+  }, [user, loading, role]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,80 +90,82 @@ export default function LoginPage() {
           </div>
 
           {/* Credentials Form */}
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <label className="block text-[10px] font-bold text-secondary uppercase tracking-[0.2em] ml-1">
-                {language === "es" ? "CORREO ELECTRÓNICO" : "EMAIL ADDRESS"}
-              </label>
-              <div className="relative group input-glow rounded-xl overflow-hidden transition-all text-left">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span className="material-symbols-outlined text-secondary/40 text-lg">mail</span>
-                </div>
-                <input 
-                  className="w-full bg-surface-container-low/50 border-none py-4 pl-12 pr-4 text-on-surface placeholder:text-secondary/30 focus:ring-0 text-sm outline-none" 
-                  placeholder="name@vault.com" 
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-center ml-1">
-                <label className="block text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">
-                  {language === "es" ? "CONTRASEÑA" : "PASSWORD"}
+          <div className="relative z-[100]">
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div className="space-y-2">
+                <label className="block text-[10px] font-bold text-secondary uppercase tracking-[0.2em] ml-1">
+                  {language === "es" ? "CORREO ELECTRÓNICO" : "EMAIL ADDRESS"}
                 </label>
-                <Link 
-                  className="text-[10px] font-bold text-primary-container hover:text-primary transition-colors uppercase tracking-[0.1em]" 
-                  href="/forgot-password"
-                >
-                  {language === "es" ? "¿OLVIDASTE?" : "FORGOT?"}
-                </Link>
-              </div>
-              <div className="relative group input-glow rounded-xl overflow-hidden transition-all text-left">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span className="material-symbols-outlined text-secondary/40 text-lg">lock</span>
+                <div className="relative group input-glow rounded-xl overflow-hidden transition-all text-left">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="material-symbols-outlined text-secondary/40 text-lg">mail</span>
+                  </div>
+                  <input 
+                    className="w-full bg-surface-container-low/50 border-none py-4 pl-12 pr-4 text-on-surface placeholder:text-secondary/30 focus:ring-0 text-sm outline-none" 
+                    placeholder="name@vault.com" 
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
                 </div>
-                <input 
-                  className="w-full bg-surface-container-low/50 border-none py-4 pl-12 pr-12 text-on-surface placeholder:text-secondary/30 focus:ring-0 text-sm outline-none" 
-                  placeholder="••••••••" 
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer hover:text-primary transition-colors"
-                >
-                  <span className="material-symbols-outlined text-secondary/40 text-lg">
-                    {showPassword ? "visibility_off" : "visibility"}
-                  </span>
-                </button>
               </div>
-            </div>
 
-            <button 
-              className="w-full bg-gradient-to-b from-[#f2b92f] to-[#d49e1a] hover:brightness-110 active:scale-[0.98] transition-all duration-200 text-[#402d00] font-headline font-extrabold py-4 rounded-xl shadow-[0_8px_20px_rgba(242,185,47,0.2)] mt-4 disabled:opacity-50 flex items-center justify-center gap-2" 
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-[#402d00]/30 border-t-[#402d00] rounded-full animate-spin" />
-              ) : (
-                language === "es" ? "Iniciar Sesión" : "Login Now"
-              )}
-            </button>
-          </form>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center ml-1">
+                  <label className="block text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">
+                    {language === "es" ? "CONTRASEÑA" : "PASSWORD"}
+                  </label>
+                  <Link 
+                    className="text-[10px] font-bold text-primary-container hover:text-primary transition-colors uppercase tracking-[0.1em] relative z-[110]" 
+                    href="/forgot-password"
+                  >
+                    {language === "es" ? "¿OLVIDASTE?" : "FORGOT?"}
+                  </Link>
+                </div>
+                <div className="relative group input-glow rounded-xl overflow-hidden transition-all text-left">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="material-symbols-outlined text-secondary/40 text-lg">lock</span>
+                  </div>
+                  <input 
+                    className="w-full bg-surface-container-low/50 border-none py-4 pl-12 pr-12 text-on-surface placeholder:text-secondary/30 focus:ring-0 text-sm outline-none" 
+                    placeholder="••••••••" 
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button 
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer hover:text-primary transition-colors z-[110]"
+                  >
+                    <span className="material-symbols-outlined text-secondary/40 text-lg">
+                      {showPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <button 
+                className="w-full bg-gradient-to-b from-[#f2b92f] to-[#d49e1a] hover:brightness-110 active:scale-[0.98] transition-all duration-200 text-[#402d00] font-headline font-extrabold py-4 rounded-xl shadow-[0_8px_20px_rgba(242,185,47,0.2)] mt-4 disabled:opacity-50 flex items-center justify-center gap-2 relative z-[110]" 
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-[#402d00]/30 border-t-[#402d00] rounded-full animate-spin" />
+                ) : (
+                  language === "es" ? "Iniciar Sesión" : "Login Now"
+                )}
+              </button>
+            </form>
+          </div>
 
           <div className="mt-8 text-center">
             <p className="text-sm text-secondary/60">
               {language === "es" ? "¿No tienes una cuenta?" : "Don't have an account?"}
               <Link 
-                className="text-[#f2b92f] font-bold hover:brightness-110 transition-colors ml-1 underline decoration-[#f2b92f]/30 underline-offset-4" 
+                className="relative z-[100] cursor-pointer text-[#f2b92f] font-bold hover:brightness-110 transition-colors ml-1 underline decoration-[#f2b92f]/30 underline-offset-4" 
                 href="/register"
               >
                 {language === "es" ? "Crear cuenta" : "Create account"}

@@ -10,9 +10,12 @@ interface ProductCardProps {
   language: string;
 }
 
-export const ProductCard = ({ image, title, denom, price, language }: ProductCardProps) => {
+export const ProductCard = ({ image, title, denom, price, language, stock = 0, onClick }: ProductCardProps & { stock?: number, onClick?: () => void }) => {
+  const isOutOfStock = stock <= 0;
+  
   return (
-    <div className="glass-card p-7 rounded-[2.5rem] hover:border-primary/50 transition-all group hover:-translate-y-2 shadow-xl hover:shadow-primary/10">
+    <div className={`glass-card p-7 rounded-[2.5rem] transition-all group ${isOutOfStock ? 'opacity-60 cursor-not-allowed contrast-75' : 'hover:border-primary/50 hover:-translate-y-2 cursor-pointer'} shadow-xl hover:shadow-primary/10`}>
+
       <div className="flex items-center gap-5 mb-8">
         <div className="w-16 h-16 bg-[#191b23] rounded-2xl flex items-center justify-center p-2 ring-1 ring-white/5 group-hover:ring-primary/40 transition-all shadow-inner">
           <img
@@ -35,8 +38,20 @@ export const ProductCard = ({ image, title, denom, price, language }: ProductCar
           </span>
           <span className="text-3xl font-black text-on-surface tracking-tighter">{price}</span>
         </div>
-        <button className="bg-primary/10 text-primary p-5 rounded-2xl group-hover:bg-primary group-hover:text-[#402d00] transition-all shadow-lg active:scale-90">
-          <span className="material-symbols-outlined font-black">shopping_bag</span>
+        <button 
+          onClick={(e) => {
+            if (isOutOfStock) return;
+            e.stopPropagation();
+            onClick?.();
+          }}
+          disabled={isOutOfStock}
+          className={`${isOutOfStock ? 'bg-white/5 text-white/20' : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-[#402d00]'} p-5 rounded-2xl transition-all shadow-lg active:scale-90 flex items-center justify-center min-w-[56px]`}
+        >
+          {isOutOfStock ? (
+            <span className="text-[10px] font-black uppercase tracking-tighter">{language === 'es' ? 'Agotado' : 'Sold Out'}</span>
+          ) : (
+            <span className="material-symbols-outlined font-black">shopping_bag</span>
+          )}
         </button>
       </div>
     </div>

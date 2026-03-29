@@ -4,15 +4,24 @@ import React, { useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const router = useRouter();
   const { language, setLanguage } = useLanguage();
-  const { signUp, signInWithGoogle, loading } = useAuth();
+  const { user, signUp, signInWithGoogle, loading, role } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (user && !loading) {
+      router.push(role === 'admin' ? "/admin" : "/");
+    }
+  }, [user, loading, router, role]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,7 +179,7 @@ export default function RegisterPage() {
             <p className="text-sm text-secondary/60">
               {language === "es" ? "¿Ya tienes cuenta?" : "Already have an account?"}
               <Link 
-                className="text-[#f2b92f] font-bold hover:brightness-110 transition-colors ml-1 underline decoration-[#f2b92f]/30 underline-offset-4 cursor-pointer" 
+                className="relative z-[100] cursor-pointer text-[#f2b92f] font-bold hover:brightness-110 transition-colors ml-1 underline decoration-[#f2b92f]/30 underline-offset-4" 
                 href="/login"
               >
                 {language === "es" ? "Iniciar sesión" : "Login"}

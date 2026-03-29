@@ -12,6 +12,8 @@ interface UserProfile {
   role: UserRole;
   full_name?: string;
   avatar_url?: string;
+  balance?: number;
+  vip_level?: string;
 }
 
 interface AuthContextType {
@@ -59,31 +61,54 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+  const fetchProfile = async (userId: string, attempts = 0): Promise<void> => {
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-    if (data && !error) {
-      setUser(data as UserProfile);
+      if (error) throw error;
+
+      if (data) {
+        setUser(data as UserProfile);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.warn(`Intento ${attempts + 1} de carga de perfil fallido.`);
+      
+      if (attempts < 2) { // 3 intentos en total (0, 1, 2)
+        await new Promise(res => setTimeout(res, 1000)); // Esperar 1s
+        return fetchProfile(userId, attempts + 1);
+      } else {
+        console.error("FAIL SAFE: No se pudo recuperar el perfil. Limpiando sesión corrupta...");
+        await signOut(); // Forzar salida si el perfil no carga tras 3 intentos
+      }
     }
-    setLoading(false);
   };
 
   const signIn = async (email: string, password?: string) => {
+    console.log("AuthContext: signIn initiated for", email);
     setLoading(true);
-    // Note: In development/simulation, we might not need password if just testing UI
-    // but here we implement the REAL Supabase logic.
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password: password || "tempPassword123", // Simulated default for testing if not provided
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: password || "",
+      });
 
-    if (error) {
+      if (error) {
+        console.error("AuthContext: Login error:", error.message);
+        setLoading(false);
+        throw error;
+      }
+
+      console.log("AuthContext: Login successful, waiting for profile...");
+      // Profile will be fetched by onAuthStateChange, but we ensure loading remains true
+      // until profiles is ready.
+    } catch (err) {
       setLoading(false);
-      throw error;
+      throw err;
     }
   };
 
@@ -91,7 +116,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
-      password: password || "tempPassword123",
+      password: password || "",
       options: {
         data: {
           full_name: email.split("@")[0],
@@ -115,9 +140,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    localStorage.removeItem("dacribel_auth_user"); // Clear legacy simulation cache
-    router.push("/login");
+    console.log("signOut initiated...");
+    try {
+      // Clear legacy cache first
+      localStorage.clear(); 
+      sessionStorage.clear();
+      
+      // Perform signOut - non-blocking if it takes too long
+      supabase.auth.signOut().then(({ error }) => {
+        if (error) console.error("Supabase signOut error:", error);
+        else console.log("Supabase session cleared.");
+      });
+
+      console.log("Refreshing state and redirecting...");
+      // Forcing a hard refresh to wipe all React context and states
+      window.location.replace("/");
+    } catch (err) {
+      console.error("FATAL signOut error:", err);
+      window.location.href = "/";
+    }
   };
 
   return (

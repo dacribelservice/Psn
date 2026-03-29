@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -13,8 +15,35 @@ interface EditProfileModalProps {
   };
 }
 
-export const EditProfileModal = ({ isOpen, onClose, currentUser }: EditProfileModalProps) => {
-  const [name, setName] = useState(currentUser?.name || "Ereogan Aysel");
+export const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
+  const { user } = useAuth();
+  const [name, setName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.full_name || user.email.split('@')[0]);
+    }
+  }, [user, isOpen]);
+
+  const handleSave = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ full_name: name })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      onClose();
+    } catch (err) {
+      console.error("Error updating profile:", err);
+      alert("Error al actualizar el perfil");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -52,9 +81,9 @@ export const EditProfileModal = ({ isOpen, onClose, currentUser }: EditProfileMo
               {/* Avatar Section */}
               <div className="relative flex flex-col items-center">
                 <div className="relative group">
-                  <div className="w-32 h-32 rounded-full ring-4 ring-primary/20 overflow-hidden shadow-2xl bg-[#33343d] flex items-center justify-center">
-                    {currentUser?.avatar ? (
-                      <img src={currentUser.avatar} alt="Profile" className="w-full h-full object-cover" />
+                  <div className="w-32 h-32 rounded-full ring-4 ring-primary/20 overflow-hidden shadow-2xl bg-[#0a0b14] flex items-center justify-center">
+                    {user?.avatar_url ? (
+                      <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
                       <span className="material-symbols-outlined text-[#d3c5ad] !text-[64px]">person</span>
                     )}
@@ -95,9 +124,11 @@ export const EditProfileModal = ({ isOpen, onClose, currentUser }: EditProfileMo
                 Cancelar
               </button>
               <button 
-                className="bg-gradient-to-b from-[#ffd98d] to-[#f2b92f] px-8 py-3 rounded-xl font-headline font-black text-[#402d00] shadow-[0_8px_20px_-6px_rgba(242,185,47,0.4)] hover:brightness-110 active:scale-[0.98] transition-all text-sm uppercase tracking-widest"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="bg-gradient-to-b from-[#ffd98d] to-[#f2b92f] px-8 py-3 rounded-xl font-headline font-black text-[#402d00] shadow-[0_8px_20px_-6px_rgba(242,185,47,0.4)] hover:brightness-110 active:scale-[0.98] transition-all text-sm uppercase tracking-widest disabled:opacity-50"
               >
-                Guardar
+                {isSaving ? "Guardando..." : "Guardar"}
               </button>
             </div>
           </motion.div>

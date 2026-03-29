@@ -159,3 +159,22 @@ Dacribel es un ecommerce de alta gama diseÃ±ado para la automatizaciÃ³n total. E
 - **Estado**: Flujo E2E de compras (Tienda -> Checkout Backend -> Inventario Historial) totalmente finalizado.
 
 > **Siguiente Paso CrÃ­tico**: FASE 6 - Dashboard Financiero del Administrador: Mostrar grÃ¡ficos de ganancias en tiempo real en la pÃ¡gina principal del admin consumiendo de la tabla orders.
+
+---
+
+## ?? ÚLTIMA INTEGRACIÓN (28/03/2026 - Auditoría y Plan Final - VIII)
+- **Estado de Autenticación**: Login, Registro y Roles 100% operativos con Supabase Auth y redirección inteligente (Admin -> /admin, User -> /).
+- **Dashboard en Tiempo Real**: Implementación de Supabase Realtime en AdminFinancesPage.
+- **Validación de Inventario**: Lógica de 'Agotado' integrada en Storefront.
+- **Descarte**: Se ha eliminado oficialmente el Sistema de Afiliados.
+
+> **Siguiente Paso Crítico**: Iniciar FASE 5: Automatización de Pagos.
+
+---
+
+## ?? ÚLTIMA INTEGRACIÓN (28/03/2026 - Corrección Navegación Admin - IX)
+- **Fix Redirección Automática**: Se modificó el middleware.ts para forzar que los administradores sean redirigidos al Dashboard (/admin/inventory) al intentar acceder al Home (/), evitando que visualicen pantallas de usuario por error.
+- **Consistencia de Sesión**: Asegurada la verificación del rol en el punto de entrada principal para una experiencia 100% administrativa.
+
+> **Siguiente Paso Crítico**: Iniciar FASE 5: Automatización de Pagos.
+
