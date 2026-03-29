@@ -150,4 +150,24 @@ Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un dise
 - **Admin UI & Consistencia Visual**:
   - **Dynamic Admin Avatar**: Refactorización de `AdminHeader.tsx` para eliminar el avatar estático y mostrar dinámicamente el `avatar_url` real del usuario logueado.
   - **Fix de Keys en React**: Corrección de advertencias en `ProfileMenu.tsx` añadiendo claves únicas a elementos estáticos y reestructurando `AnimatePresence` para eliminar el uso de fragmentos inválidos.
-- **GitHub**: Respaldo completo de la estabilidad de la sesión sincronizado con el repositorio (`main`).
+---
+
+## 🚀 ÚLTIMA INTEGRACIÓN (29/03/2026 - Realtime & Mobile UI - XII)
+- **Supabase Realtime Integration**:
+  - **Live Updates**: Habilitada la suscripción en tiempo real a las tablas `categories` y `products`. Ahora las categorías aparecen, se editan o se eliminan automáticamente en la pantalla del usuario sin necesidad de recargar (F5).
+  - **DB Publication**: Configuración de `supabase_realtime` en Postgres para incluir las tablas del inventario.
+- **Responsive Storefront (Mobile-First)**:
+  - **Dynamic Grid**: Implementación de cuadrícula inteligente (PC: 4 cols, Tablet: 3 cols, Celular: 2 cols).
+  - **Optimización Móvil**: Incremento del tamaño de los círculos de categoría a **w-28 (112px)** y reducción del `gap` para una apariencia más compacta y premium en dispositivos táctiles.
+- **GitHub**: Respaldo completo de la lógica de sincronización y ajustes visuales.
+
+---
+
+## 🚀 ÚLTIMA INTEGRACIÓN (29/03/2026 - Financial Accuracy & Regions - XIII)
+- **Admin Inventory: Financial Accuracy & Region Management**:
+  - **Financial Persistence**: Migración de la base de datos para añadir `face_value` (valor nominal), `usd_rate` (tasa de compra) y `region` a la tabla `inventory_codes`.
+  - **Stock-Based Logic**: Refactorización de la lógica en `AdminInventoryPage` para que los contadores de inversión reflejen únicamente el inventario **disponible**. Cuando se vende un código, el "Total Invertido" se descuenta automáticamente para mostrar el capital activo.
+  - **Refactor GiftCard UI**: Rediseño del `GiftCardBottomSheet` para ser más compacto, con cabezal y footer de acción fijos y contenido scrollable (Fix del botón "salido").
+  - **Region Selector**: Integración de un selector de regiones de primer nivel con banderas animadas (FlagCDN) y guardado automático en la base de datos.
+  - **Visibilidad Table**: Adición de la columna "Región" en la tabla de inventario administrativo con íconos visuales de banderas.
+- **GitHub**: Respaldo de la migración de esquema y optimizaciones financieras.

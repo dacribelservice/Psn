@@ -42,11 +42,12 @@ export default function AdminInventoryPage() {
     if (user) fetchData();
   }, [user]);
 
-  // Derived Metrics
-  const totalInvertedUSDT = products.reduce((acc, item) => acc + (item.price * (item.stock || 0)), 0);
-  const totalInvertedCOP = totalInvertedUSDT * 4000;
+  // Derived Metrics (Active Inventory Investment)
+  const activeCodes = codes.filter(c => c.status === 'available');
+  const totalInvertedUSDT = activeCodes.reduce((acc, item) => acc + (item.face_value || item.product?.price || 0), 0);
+  const totalInvertedCOP = activeCodes.reduce((acc, item) => acc + ((item.face_value || item.product?.price || 0) * (item.usd_rate || 4000)), 0);
   const criticalItems = products.filter(item => (item.stock || 0) <= 5).map(item => ({ name: item.name, stock: item.stock || 0 }));
-  const activeCodesCount = codes.filter(c => c.status === 'available').length;
+  const activeCodesCount = activeCodes.length;
 
   const metrics = [
     { label: t("total_invested"), value: totalInvertedUSDT.toLocaleString(), sub: `$${totalInvertedCOP.toLocaleString()} COP`, unit: "USDT", icon: "payments", color: "primary" },
@@ -148,6 +149,7 @@ export default function AdminInventoryPage() {
                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Producto</th>
                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Precio</th>
                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
+                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Región</th>
                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Código</th>
                     </tr>
                  </thead>
@@ -164,6 +166,23 @@ export default function AdminInventoryPage() {
                              <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase ${item.status === 'available' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-500'}`}>
                                 {item.status}
                              </span>
+                          </td>
+                          <td className="px-8 py-6">
+                             <div className="flex items-center gap-2">
+                                <img 
+                                   src={`https://flagcdn.com/w40/${
+                                      item.region === 'USA' ? 'us' : 
+                                      item.region === 'Colombia' ? 'co' : 
+                                      item.region === 'Brazil' ? 'br' : 
+                                      item.region === 'Argentina' ? 'ar' : 
+                                      item.region === 'Turkia' ? 'tr' : 
+                                      item.region === 'India' ? 'in' : 'un'
+                                   }.png`} 
+                                   className="w-5 h-3.5 object-cover rounded-sm border border-white/10" 
+                                   alt={item.region} 
+                                />
+                                <span className="text-[10px] font-black text-white/60 uppercase">{item.region || 'Global'}</span>
+                             </div>
                           </td>
                           <td className="px-8 py-6">
                              <code className="text-xs font-mono text-white/40 group-hover:text-primary transition-colors">{item.code}</code>
