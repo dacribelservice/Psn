@@ -38,16 +38,21 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <motion.div
+          key="profile-menu-container"
+          className="fixed inset-0 z-[60]"
+        >
           <motion.div
+            key="profile-menu-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[60] bg-black/5 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/5 backdrop-blur-sm"
           />
 
           <motion.div
+            key="profile-menu-panel"
             initial={{ opacity: 0, scale: 0.95, y: -10, x: 10, originX: 1, originY: 0 }}
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10, x: 10 }}
@@ -97,7 +102,7 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
                 
                 return isAction ? (
                   <button
-                    key={idx}
+                    key={`menu-${idx}`}
                     onClick={() => {
                       if (item.isBanners && onBannersClick) {
                         onBannersClick();
@@ -117,7 +122,7 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
                   </button>
                 ) : (
                   <Link
-                    key={idx}
+                    key={`menu-${idx}`}
                     href={item.href}
                     onClick={onClose}
                     className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-white/80 font-bold hover:bg-white/5 hover:text-white transition-all active:scale-95 group"
@@ -130,10 +135,11 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
                 );
               })}
               
-              <div className="h-[1px] bg-white/5 my-1.5 mx-3" />
+              <div key="divider-nav" className="h-[1px] bg-white/5 my-1.5 mx-3" />
               
               {role !== "admin" && (
                 <button 
+                  key="btn-delete"
                   onClick={() => setIsDeleteModalOpen(true)}
                   className="flex items-center gap-2.5 py-2 px-3 rounded-lg text-red-400 font-bold hover:bg-red-500/10 transition-all active:scale-95 group w-full text-left"
                 >
@@ -142,6 +148,7 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
                 </button>
               )}
               <button 
+                key="btn-logout"
                 onClick={() => {
                   signOut();
                 }}
@@ -187,7 +194,7 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
               </div>
             </div>
           </motion.div>
-        </>
+        </motion.div>
       )}
       
       <DeleteAccountModal 

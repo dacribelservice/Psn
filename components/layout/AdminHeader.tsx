@@ -8,8 +8,10 @@ import { NotificationsPopup } from "./NotificationsPopup";
 import { BannersModal } from "../ui/BannersModal";
 import { EditProfileModal } from "../ui/EditProfileModal";
 import { AdminTermsModal } from "../admin/AdminTermsModal";
+import { useAuth } from "@/context/AuthContext";
 
 export const AdminHeader = () => {
+  const { user } = useAuth();
   const { t } = useLanguage();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -68,7 +70,7 @@ export const AdminHeader = () => {
             <img
               alt="Admin Avatar"
               className="w-full h-full object-cover"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZh39ZD51iNoZ1Jt-MXXm4hzMzLzHFq7Lx6p8WuVzeucNwy-dMOvT719lQKnP83e6JsjCBSa5Tiy_SAq_CuhNq1m1p9mSoPgocqzsHSu_Vn3s8N_A5gqG4-wrPlx8W1Qxk20Rss6U083pCeo9GblLCr3kVq6ZOsiKscjS34HDmPz8fAIXT6MzKK80_S4yXVsMmqobApinfoYrrE5fX8FwIQVIFHdspS0-S5OV7AO7XTZiOoh9xPZR_5NKCrbisKieKcU_d4xOFfV6z"
+              src={user?.avatar_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuDpvdosY8hXR9RcE-AlZ6LYfaccSRjHhhfArF6dJqIfH3op9RoqWHH6MvnDylbgMGnM9UyUjd-R1tXBQWsA0wx69orgeUqgk9IUjg1tjr1774Yzgn6S5zXzkTRhrlIF9KkBpaezh61xMqIkHQTssjjpqu9_4bQE4FzFkBHoqPKFz_CfORnjqqaddZ9i0aJZY-Lx9e-Vba1A0VowKb2Tkb94Pyqw4bXPhvlWSvF2oletob-NnR06Y1Fc1mKNQGFocI-2IfJz20MT8LK0"}
             />
           </button>
         </div>

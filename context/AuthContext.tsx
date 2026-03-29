@@ -32,15 +32,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const fetchingUserId = React.useRef<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Check initial session
+    // Deduplicated session check
+    let isMounted = true;
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
+      if (session && isMounted) {
         await fetchProfile(session.user.id);
-      } else {
+      } else if (!session && isMounted) {
         setLoading(false);
       }
     };
@@ -50,7 +53,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`AuthContext: onAuthStateChange event: ${event}`, { session_user_id: session?.user?.id });
+      if (!isMounted) return;
+
       if (session) {
+        // If we already have this user and didn't sign out/in, skip re-fetch unless it's a forced refresh
+        if (user?.id === session.user.id && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+           setLoading(false);
+           return;
+        }
         await fetchProfile(session.user.id);
       } else {
         setUser(null);
@@ -59,16 +69,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [user?.id]); // Adding user.id as dependency for safety, or leave empty if using isMounted
 
   const fetchProfile = async (userId: string, attempts = 0): Promise<void> => {
+    // Deduplication: Don't fetch the same ID if already in progress
+    if (fetchingUserId.current === userId && attempts === 0) {
+      console.log(`AuthContext: [DEBUG] fetchProfile already in progress for ${userId}, skipping redundant call.`);
+      return;
+    }
+    
+    fetchingUserId.current = userId;
     console.log(`AuthContext: [DEBUG] fetchProfile starting for ${userId} (Attempt ${attempts})`);
     
-    // Safety timeout to prevent infinite loading if Supabase hangs
+    // Safety timeout increased to 20s
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Supabase request timeout")), 10000)
+      setTimeout(() => reject(new Error("Supabase request timeout")), 20000)
     );
 
     try {
@@ -108,6 +126,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error("FAIL SAFE: No se pudo recuperar el perfil tras 3 intentos. Limpiando sesión corrupta...");
         setLoading(false); // Ensure loading is cleared regardless
         await signOut(); // Forzar salida si el perfil no carga tras 3 intentos
+      }
+    } finally {
+      // Release lock if we succeeded or if we failed after all retries
+      if (user || attempts >= 2) {
+        fetchingUserId.current = null;
       }
     }
   };
