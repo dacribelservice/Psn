@@ -171,3 +171,17 @@ Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un dise
   - **Region Selector**: Integración de un selector de regiones de primer nivel con banderas animadas (FlagCDN) y guardado automático en la base de datos.
   - **Visibilidad Table**: Adición de la columna "Región" en la tabla de inventario administrativo con íconos visuales de banderas.
 - **GitHub**: Respaldo de la migración de esquema y optimizaciones financieras.
+
+---
+
+## 🚀 ÚLTIMA INTEGRACIÓN (29/03/2026 - Regions & Inventory Intelligence - XIV)
+- **Storefront: Region Selection**:
+  - **Dynamic Filtering**: Implementación de un selector de regiones (USA, Colombia, Global, etc.) en el `ProductBottomSheet` del cliente. Ahora el sistema filtra automáticamente las denominaciones disponibles basado en la región seleccionada.
+  - **Premium UI**: Integración de banderas animadas y efectos de transición para la selección de países.
+- **Admin Inventory: Advanced Monitoring**:
+  - **Product Details ("Detalles del Vault")**: Adición del campo `Detalle` en la carga de inventario administrativa, permitiendo personalizar la información técnica que ve el cliente final.
+  - **Live Summary Card**: Nuevo panel de cálculo en tiempo real que suma **Total de Códigos**, **Inversión en USDT** e **Inversión Estimada en COP** antes de cargar el inventario.
+  - **Custom Stock Alerts**: Migración de la base de datos para añadir `stock_alert_threshold` por producto. El Dashboard de administración ahora dispara alertas basadas en el número específico definido por el usuario (ej. avisar cuando queden 3 tarjetas de $10 USA).
+- **Backend & Logic**:
+  - **Multi-Metadata persistence**: Sincronización de descripción, región y umbrales de alerta entre el panel de carga y la tabla de productos.
+- **GitHub**: Backup completo de la lógica de filtrado regional y alertas personalizadas.

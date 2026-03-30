@@ -20,13 +20,33 @@ export const ProductBottomSheet = ({
   allProducts,
 }: ProductBottomSheetProps) => {
   const [quantity, setQuantity] = useState(1);
+  const [selectedRegion, setSelectedRegion] = useState("USA");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
   
-  const categoryProducts = allProducts.filter(p => p.category_id === category?.id);
+  const regions = [
+    { name: "Global", code: "un", flag: "https://flagcdn.com/w40/un.png" },
+    { name: "USA", code: "us", flag: "https://flagcdn.com/w40/us.png" },
+    { name: "Colombia", code: "co", flag: "https://flagcdn.com/w40/co.png" },
+    { name: "Brazil", code: "br", flag: "https://flagcdn.com/w40/br.png" },
+    { name: "Argentina", code: "ar", flag: "https://flagcdn.com/w40/ar.png" },
+    { name: "Turkia", code: "tr", flag: "https://flagcdn.com/w40/tr.png" },
+    { name: "India", code: "in", flag: "https://flagcdn.com/w40/in.png" },
+  ];
+
+  const categoryProducts = allProducts.filter(p => 
+    p.category_id === category?.id && 
+    (p as any).region === selectedRegion
+  );
 
   React.useEffect(() => {
-    if (categoryProducts.length > 0 && !selectedProduct) {
-      setSelectedProduct(categoryProducts[0]);
+    if (categoryProducts.length > 0) {
+      // If current selected product is NOT in the new list, pick first available
+      if (!selectedProduct || !categoryProducts.find(p => p.id === selectedProduct.id)) {
+        setSelectedProduct(categoryProducts[0]);
+      }
+    } else {
+      setSelectedProduct(null);
     }
   }, [categoryProducts, selectedProduct]);
 
@@ -85,15 +105,44 @@ export const ProductBottomSheet = ({
                      <span className="font-black text-[#11131b] text-base tracking-tight">{category.name}</span>
                   </div>
                   
-                  <button className="flex items-center space-x-2 px-2.5 py-1.5 bg-white rounded-full hover:bg-[#f7be34]/10 transition-all shadow-sm active:scale-95 group border border-black/[0.03]">
-                     <img 
-                      alt="USA Flag" 
-                      className="w-3.5 h-2.5 rounded-sm object-cover" 
-                      src="https://upload.wikimedia.org/wikipedia/en/a/a4/Flag_of_the_United_States.svg" 
-                     />
-                     <span className="text-[11px] font-black text-[#11131b]">USA</span>
-                     <span className="material-symbols-outlined text-[14px] text-black/20 group-hover:text-[#f7be34] transition-colors">expand_more</span>
-                  </button>
+                  <div className="relative">
+                    <button 
+                      onClick={() => setIsRegionDropdownOpen(!isRegionDropdownOpen)}
+                      className="flex items-center space-x-2 px-2.5 py-1.5 bg-white rounded-full hover:bg-black/5 transition-all shadow-sm active:scale-95 group border border-black/[0.03]"
+                    >
+                      <img 
+                        alt={selectedRegion} 
+                        className="w-3.5 h-2.5 rounded-sm object-cover" 
+                        src={regions.find(r => r.name === selectedRegion)?.flag} 
+                      />
+                      <span className="text-[11px] font-black text-[#11131b]">{selectedRegion}</span>
+                      <span className={`material-symbols-outlined text-[14px] text-black/20 group-hover:text-[#f7be34] transition-transform duration-300 ${isRegionDropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                    </button>
+
+                    <AnimatePresence>
+                      {isRegionDropdownOpen && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 5, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                          className="absolute right-0 mt-2 w-32 bg-white rounded-2xl shadow-xl border border-black/5 z-[150] overflow-hidden"
+                        >
+                          <div className="max-h-48 overflow-y-auto no-scrollbar py-1">
+                            {regions.map((r) => (
+                              <button 
+                                key={r.code}
+                                onClick={() => { setSelectedRegion(r.name); setIsRegionDropdownOpen(false); }}
+                                className="w-full flex items-center space-x-2 px-3 py-2.5 hover:bg-black/5 transition-colors text-left"
+                              >
+                                <img src={r.flag} className="w-4 h-3 object-cover rounded-sm" alt={r.name} />
+                                <span className="text-[10px] font-black text-black/60 uppercase">{r.name}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                </div>
 
                {/* Denominations */}
@@ -151,13 +200,13 @@ export const ProductBottomSheet = ({
                   </div>
                </div>
 
-               {/* Description */}
-               <div className="px-1">
-                  <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-1">Detalles del vault</p>
-                  <p className="text-black/60 text-sm leading-relaxed font-medium">
-                    {selectedProduct?.description || `Tarjeta digital original para ${category.name} USA. Entrega inmediata y segura.`}
-                  </p>
-               </div>
+                {/* Description */}
+                <div className="px-1">
+                   <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-1">Detalles del vault</p>
+                   <p className="text-black/60 text-sm leading-relaxed font-bold bg-black/5 p-4 rounded-2xl border border-black/[0.02]">
+                     {selectedProduct?.description || `Tarjeta digital disponible para ${category.name} ${selectedRegion}. Entrega inmediata y segura.`}
+                   </p>
+                </div>
             </div>
 
             {/* Total & Action */}

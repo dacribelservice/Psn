@@ -46,7 +46,7 @@ export default function AdminInventoryPage() {
   const activeCodes = codes.filter(c => c.status === 'available');
   const totalInvertedUSDT = activeCodes.reduce((acc, item) => acc + (item.face_value || item.product?.price || 0), 0);
   const totalInvertedCOP = activeCodes.reduce((acc, item) => acc + ((item.face_value || item.product?.price || 0) * (item.usd_rate || 4000)), 0);
-  const criticalItems = products.filter(item => (item.stock || 0) <= 5).map(item => ({ name: item.name, stock: item.stock || 0 }));
+  const criticalItems = products.filter(item => (item.stock || 0) <= (item.stock_alert_threshold || 5)).map(item => ({ name: item.name, stock: item.stock || 0 }));
   const activeCodesCount = activeCodes.length;
 
   const metrics = [

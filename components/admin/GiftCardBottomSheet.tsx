@@ -22,6 +22,8 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
   const [exchangeRate, setExchangeRate] = useState(4000); // Tasa por defecto
   const [selectedRegion, setSelectedRegion] = useState("Global");
   const [isRegionOpen, setIsRegionOpen] = useState(false);
+  const [lowStockAlert, setLowStockAlert] = useState(5);
+  const totalCodes = codesText.split("\n").filter(c => c.trim() !== "").length;
 
   const regions = [
     { name: "Global", code: "un", flag: "https://flagcdn.com/w40/un.png" },
@@ -62,7 +64,10 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
         .select('*')
         .eq('name', productName)
         .eq('category_id', selectedCategory.id)
+        .eq('region', selectedRegion)
         .single();
+
+      const productDescription = description || `Tarjeta digital original para ${selectedCategory.name} ${selectedRegion}. Entrega inmediata y segura.`;
 
       if (pError && pError.code === 'PGRST116') {
         const { data: newProd, error: iError } = await supabase
@@ -71,13 +76,31 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
             name: productName, 
             price: value, 
             category_id: selectedCategory.id,
-            description: description || `Gift Card de ${selectedCategory.name} por $${value}`
+            region: selectedRegion,
+            description: productDescription,
+            stock_alert_threshold: lowStockAlert
           }])
           .select()
           .single();
         if (iError) throw iError;
         product = newProd;
-      } else if (pError) throw pError;
+      } else if (pError) {
+        throw pError;
+      } else {
+        // If product exists, check if we should update the description if it's new
+        if (description && product.description !== description) {
+          await supabase
+            .from('products')
+            .update({ description, stock_alert_threshold: lowStockAlert })
+            .eq('id', product.id);
+        } else {
+          // At least update the alert threshold
+          await supabase
+            .from('products')
+            .update({ stock_alert_threshold: lowStockAlert })
+            .eq('id', product.id);
+        }
+      }
 
       // 2. Insert Codes
       const codes = codesText.split("\n").filter(c => c.trim() !== "");
@@ -265,14 +288,57 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                 </div>
 
                 <div className="space-y-2">
+                  <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] ml-1">DETALLE</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 text-gray-900 dark:text-white font-medium text-xs shadow-inner outline-none resize-none focus:ring-1 focus:ring-primary/30 transition-all placeholder:text-gray-300 dark:placeholder:text-white/10"
+                    placeholder="Información adicional del producto..."
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] ml-1">CODIGOS (UNO POR LÍNEA)</label>
                   <textarea
                     value={codesText}
                     onChange={(e) => setCodesText(e.target.value)}
                     rows={4}
-                    className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 text-gray-900 dark:text-white font-mono text-sm shadow-inner outline-none resize-none focus:ring-1 focus:ring-primary/30 transition-all"
+                    className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 text-gray-900 dark:text-white font-mono text-xs shadow-inner outline-none resize-none focus:ring-1 focus:ring-primary/30 transition-all"
                     placeholder="C4F5-G67T-H99L..."
                   />
+                </div>
+
+                {/* Summary Card */}
+                <div className="bg-[#2a2d3a] rounded-2xl p-5 shadow-inner border border-white/5 space-y-3">
+                   <div className="flex justify-between items-center">
+                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">TOTAL CÓDIGOS</span>
+                      <span className="text-sm font-black text-primary">{totalCodes}</span>
+                   </div>
+                   <div className="flex justify-between items-center border-t border-white/5 pt-3">
+                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">TOTAL INVERSIÓN (USDT)</span>
+                      <span className="text-sm font-black text-primary">{(totalCodes * value).toLocaleString()} USDT</span>
+                   </div>
+                   <div className="flex justify-between items-center border-t border-white/5 pt-3">
+                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">TOTAL ESTIMADO (COP)</span>
+                      <span className="text-sm font-black text-primary">{(totalCodes * value * exchangeRate).toLocaleString()} COP</span>
+                   </div>
+                </div>
+
+                {/* Low Stock Alert */}
+                <div className="space-y-3 pt-2">
+                   <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] ml-1">ALERTA DE STOCK BAJO</label>
+                   <div className="flex items-center gap-4">
+                      <div className="w-20 bg-[#2a2d3a] rounded-xl overflow-hidden border border-white/5 shadow-inner">
+                         <input 
+                            type="number"
+                            value={lowStockAlert}
+                            onChange={(e) => setLowStockAlert(Number(e.target.value))}
+                            className="w-full bg-transparent py-3 px-2 text-center text-primary font-black outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                         />
+                      </div>
+                      <span className="text-[11px] font-bold text-gray-400 dark:text-white/40 italic">Avisar</span>
+                   </div>
                 </div>
               </div>
 
