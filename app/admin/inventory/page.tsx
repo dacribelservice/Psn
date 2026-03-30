@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
@@ -10,6 +11,7 @@ import { inventoryService } from "@/services/inventory";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
+import { AdminBottomNav } from "@/components/layout/AdminBottomNav";
 
 export default function AdminInventoryPage() {
   const { t } = useLanguage();
@@ -267,47 +269,55 @@ export default function AdminInventoryPage() {
             {/* Mobile Adaptive Cards - Intelligently adapted for small screens */}
             <div className="lg:hidden space-y-4 px-2">
                {filteredCodes.map((item, idx) => (
-                  <div key={idx} className="bg-[#191b23] p-5 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden group">
+                  <div key={idx} className="bg-[#191b23] p-6 rounded-[2.2rem] border border-white/5 shadow-xl relative overflow-hidden group">
                      {/* Flag & Region floating */}
-                     <div className="absolute top-5 right-5 flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5">
-                        <img 
-                           src={`https://flagcdn.com/w40/${
-                              item.region === 'USA' ? 'us' : 
-                              item.region === 'Colombia' ? 'co' : 
-                              item.region === 'Brazil' ? 'br' : 
-                              item.region === 'Argentina' ? 'ar' : 
-                              item.region === 'Turkia' ? 'tr' : 
-                              item.region === 'India' ? 'in' : 'un'
-                           }.png`} 
-                           className="w-4 h-2.5 object-cover rounded-sm" 
-                           alt={item.region} 
-                        />
-                        <span className="text-[9px] font-black text-white/60 uppercase">{item.region || 'Global'}</span>
+                     <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5">
+                           <img 
+                              src={`https://flagcdn.com/w40/${
+                                 item.region === 'USA' ? 'us' : 
+                                 item.region === 'Colombia' ? 'co' : 
+                                 item.region === 'Brazil' ? 'br' : 
+                                 item.region === 'Argentina' ? 'ar' : 
+                                 item.region === 'Turkia' ? 'tr' : 
+                                 item.region === 'India' ? 'in' : 'un'
+                              }.png`} 
+                              className="w-4 h-2.5 object-cover rounded-sm" 
+                              alt={item.region} 
+                           />
+                           <span className="text-[9px] font-black text-white/60 uppercase">{item.region || 'Global'}</span>
+                        </div>
+                        <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase ${item.status === 'available' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-500'}`}>
+                            {item.status}
+                        </span>
                      </div>
 
                      <div className="flex flex-col gap-4">
                         <div className="flex flex-col">
-                           <span className="text-label-sm text-white/30 uppercase mb-1">Producto</span>
-                           <h4 className="text-sm font-black text-white leading-none uppercase">{item.product?.name}</h4>
+                           <span className="text-[9px] font-black text-white/20 uppercase mb-1 tracking-[0.2em]">Producto</span>
+                           <h4 className="text-[13px] font-black text-white leading-none uppercase tracking-tight">{item.product?.name}</h4>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        {/* Financial Triple Grid */}
+                        <div className="grid grid-cols-3 gap-2 py-4 px-4 bg-white/[0.02] rounded-2xl border border-white/5">
                            <div className="flex flex-col">
-                              <span className="text-label-sm text-white/30 uppercase mb-1">Estado</span>
-                              <span className={`w-fit px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${item.status === 'available' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-500'}`}>
-                                 {item.status}
-                              </span>
+                              <span className="text-[8px] font-black text-white/20 uppercase mb-1 tracking-wider">Costo</span>
+                              <span className="text-[11px] font-black text-white/40">${item.product?.cost_price || '0'}</span>
                            </div>
-                           <div className="flex flex-col">
-                              <span className="text-label-sm text-white/30 uppercase mb-1">Precio</span>
-                              <span className="text-base font-black text-primary">${item.product?.price}us</span>
+                           <div className="flex flex-col border-x border-white/5 px-3">
+                              <span className="text-[8px] font-black text-primary uppercase mb-1 tracking-wider">Precio</span>
+                              <span className="text-sm font-black text-primary">${item.product?.sale_price || item.product?.price}</span>
+                           </div>
+                           <div className="flex flex-col items-end">
+                              <span className="text-[8px] font-black text-white/20 uppercase mb-1 tracking-wider">Valor</span>
+                              <span className="text-[11px] font-black text-white/40">${item.product?.face_value || item.product?.price}</span>
                            </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-4 mt-2 border-t border-white/5">
+                        <div className="flex items-center justify-between pt-2">
                            <div className="flex flex-col">
-                              <span className="text-label-sm text-white/30 uppercase mb-1">Código</span>
-                              <code className="text-[11px] font-mono text-primary font-bold">{item.code}</code>
+                              <span className="text-[9px] font-black text-white/20 uppercase mb-1 tracking-[0.2em]">Código</span>
+                              <code className="text-[11px] font-mono text-white/30 group-hover:text-primary transition-all">{item.code}</code>
                            </div>
                            <button 
                               onClick={() => handleDeleteCode(item.id)}
@@ -417,6 +427,20 @@ export default function AdminInventoryPage() {
         cancelText="Cancelar"
         type="danger"
       />
+
+      <AdminBottomNav />
+
+      {/* Floating Action Button for Mobile */}
+      <motion.button
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setIsGiftCardSheetOpen(true)}
+        className="fixed bottom-28 right-6 w-16 h-16 bg-[#f2b92f] text-black rounded-full flex items-center justify-center shadow-[0_15px_40px_rgba(242,185,47,0.4)] z-[45] lg:hidden"
+      >
+        <span className="material-symbols-outlined text-3xl font-black">add</span>
+      </motion.button>
     </div>
   );
 }

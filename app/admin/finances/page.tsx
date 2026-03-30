@@ -5,6 +5,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { AdminHeader } from "@/components/layout/AdminHeader";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { supabase } from "@/lib/supabase";
+import { AdminBottomNav } from "@/components/layout/AdminBottomNav";
 
 const StatCard = ({ label, value, sub, trend, icon, hasSelector, color = "primary" }: any) => (
   <div className="bg-[#191b23] p-6 rounded-[2.5rem] flex flex-col justify-between h-40 md:h-48 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_30px_60px_rgba(0,0,0,0.5)] border border-white/5">
@@ -366,6 +367,7 @@ export default function AdminFinancesPage() {
            )}
         </section>
       </main>
+       <AdminBottomNav />
     </div>
   );
 }

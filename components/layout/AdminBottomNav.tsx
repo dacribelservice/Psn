@@ -1,40 +1,40 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
-export const BottomNav = () => {
-  const pathname = usePathname();
+export const AdminBottomNav = () => {
   const { t } = useLanguage();
+  const pathname = usePathname();
 
-  const navItems = [
-    { label: t("store"), icon: "home", href: "/" },
-    { label: t("orders"), icon: "history", href: "/history" },
+  const menuItems = [
+    { label: t("finances"), icon: "account_balance", href: "/admin/finances" },
+    { label: t("inventory"), icon: "inventory_2", href: "/admin/inventory" },
   ];
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => pathname.startsWith(href);
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 md:hidden z-[100] w-fit">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 lg:hidden z-[100] w-fit">
       <motion.div 
         initial={{ y: 40, opacity: 0, scale: 0.9 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}
         className="flex items-center gap-1 bg-[#1c1e26]/90 backdrop-blur-3xl p-1.5 rounded-full border border-white/5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] ring-1 ring-white/10"
       >
-        {navItems.map((item, idx) => {
+        {menuItems.map((item, idx) => {
           const active = isActive(item.href);
           return (
             <Link 
               key={idx} 
               href={item.href} 
-              className="relative px-6 py-3 rounded-full outline-none transition-all active:scale-95 group overflow-hidden"
+              className="relative px-5 py-3 rounded-full outline-none transition-all active:scale-95 group overflow-hidden"
             >
               {active && (
                 <motion.div 
-                  layoutId="user-active-pill"
+                  layoutId="admin-active-pill"
                   className="absolute inset-0 bg-gradient-to-b from-[#f2b92f] to-[#d4a025] shadow-[0_5px_15px_rgba(242,185,47,0.4)]"
                   transition={{ type: "spring", bounce: 0.25, duration: 0.5 }}
                 />
