@@ -46,7 +46,7 @@ export default function LoginPage() {
           <img 
             alt="DACRIBEL Logo" 
             className="h-auto object-contain w-[240px]" 
-            src="https://lh3.googleusercontent.com/aida/ADBb0uhlAiU1opdlk2irfPaVF4hn1ccgOW-zSG0zP-2VTSS0fHxdfiqO4EyZfLPQfAIghU3jK3VBdglySg_zUWuuqBhyBqZtRwTrWVEtpiVcb3ZOxeu3LpeA5lludD6HiDNrnVZld2JC8Haxv9hlfXbqLvS9R7DVYv1dv-pIfchKI3gmBr0x8_kP5CCIbm1-h1b7ecV1aSikLgV4M6D191M1gUNOzNgztX0DuUdxU4kLvLYhpr3Fj6wRA-RQv1NIpHxIpRlNM0VDeQ6yLTA" 
+            src="/Logos/dacribel.png" 
           />
         </div>
 

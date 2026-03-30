@@ -24,11 +24,11 @@ export const AdminSidebar = () => {
   return (
     <aside className="fixed left-0 top-0 bottom-0 z-40 h-full w-64 hidden lg:flex flex-col bg-[#191b23] border-r border-white/5">
       <div className="p-6 flex flex-col h-full">
-        <div className="mb-10">
+        <div className="mb-8">
           <img
             alt="Dacribel Logo"
-            className="h-12 w-auto object-contain"
-            src="https://lh3.googleusercontent.com/aida/ADBb0uj5p-4GtknURpd5gNSxR4Z4lAt9udSnfL-1yy-Jq7duIjogDvqP6tClCfHjJMotirByytz1cgkkgCAthcl6r3RcODgBzuPLZ6umjCoo7SZz3BkaseBNpq9wVzfH6CLN-49trldqBRfLNPB0zfS_Z8xHVr-CsUu3q2GZuMdzshMhhapC1Dx8TbgxyZHGM7S1mT4OWSSIE1cXZOr1lG0Ud2lpuD2mjuZLtDpR6OAp8ptfShtxCfSZZHm394TBIsoGxfUTo6xSbXoDfDs"
+            className="h-10 w-auto object-contain"
+            src="/Logos/dacribel.png"
           />
         </div>
 

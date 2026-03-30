@@ -202,3 +202,23 @@ Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un dise
     *   **Acciones CRUD:** Adición de la columna "Acciones" con funcionalidad de **Eliminar** para códigos individuales, permitiendo una limpieza precisa del stock.
     *   **Diseño Adaptativo Móvil:** Implementación de un layout basado en **Tarjetas (Cards)** para dispositivos móviles. La tabla ahora se transforma "inteligentemente" en una vista vertical compacta, asegurando que toda la información y acciones sean accesibles en pantallas pequeñas.
 *   **GitHub**: Backup completo de la lógica de banners y limpieza visual del storefront.
+
+---
+
+### Sesión XVI: Optimización Financiera y UX Premium (Sesión Actual)
+
+*   **Dashboard de Finanzas (Lógica & Precisión):**
+    *   **Inversión Real:** Refactorización de las métricas para que el "Costo Total" refleje la inversión en el inventario disponible (`inventory_codes` con status `available`), independiente de las ventas realizadas.
+    *   **Tendencias Dinámicas:** Implementación de cálculo de porcentajes automáticos (Mes actual vs Mes anterior) para Ingresos y Ganancias.
+    *   **Rendimiento Diario:** Comparativa de ventas en tiempo real contra el día anterior (Hoy vs Ayer).
+*   **Rediseño de Interfaz "StatCard":**
+    *   **Estética Minimalista:** Eliminación de elementos circulares invasivos, reemplazados por un diseño de cristal pulido (`backdrop-blur-3xl`) con auras de fondo dinámicas.
+    *   **Integración de COP:** Inclusión de la conversión automática de USDT a **Pesos Colombianos (COP)** en color verde neón para todas las métricas administrativas.
+    *   **Iconografía Corregida:** Flechas de tendencia con lógica de color (Verde/Rojo) y resplandor (glow) premium.
+*   **Uniformidad de Diseño:**
+    *   **Inventario Sincronizado:** Réplica del nuevo sistema de tarjetas en el panel de inventario, incluyendo la adaptación de la tarjeta de "Inventario Crítico" para mantener las alertas de stock bajo.
+*   **Refinamiento Storefront:**
+    *   **ProductBottomSheet:** Reducción de tamaño en los selectores de denominación, eliminación de sombras externas excesivas y corrección de recortes visuales para dispositivos móviles.
+*   **Estándares de Código:**
+    *   **TypeScript Fixes:** Corrección de errores de tipado ("rojos") en el flujo de selección de productos.
+*   **GitHub**: Respaldo completo de la sesión sincronizado con el repositorio (`main`).

@@ -22,7 +22,9 @@ export const Header = () => {
     <>
       <header className="fixed top-0 left-0 right-0 h-16 bg-[#11131b]/80 backdrop-blur-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-50 border-b border-white/5 flex items-center justify-between px-4 lg:px-12 lg:ml-64">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-black text-primary tracking-tighter md:hidden">Dacribel</h1>
+          <div className="md:hidden">
+            <img alt="Dacribel" className="h-8 w-8 object-contain" src="/Logos/D.png" />
+          </div>
         </div>
 
         <div className="flex items-center gap-6">
