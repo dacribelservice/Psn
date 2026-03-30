@@ -52,7 +52,21 @@ const translations = {
     sell_status: 'Estado de Venta',
     sold: 'Vendido',
     review_all: 'Revisar todo',
-    units: 'Unidades'
+    units: 'Unidades',
+    pay_now: 'Pagar ahora',
+    out_of_stock: 'Agotado',
+    login: 'Iniciar Sesión',
+    orders_empty: 'No tienes pedidos aún',
+    orders_loading: 'Cargando tus pedidos...',
+    about_dacribel: 'LO QUE DEBES SABER SOBRE NOSOTROS',
+    category_label: 'Categoría',
+    select_product: 'Seleccionar Producto',
+    denomination: 'Denominación',
+    in_stock: 'En Stock',
+    unit_cost: 'Costo Unitario',
+    product_details: 'Detalles del Producto',
+    total_to_pay: 'Total a Pagar',
+    no_stock: 'No hay stock disponible'
   },
   en: {
     store: 'Store',
@@ -92,7 +106,21 @@ const translations = {
     sell_status: 'Sell Status',
     sold: 'Sold',
     review_all: 'Review All',
-    units: 'Units'
+    units: 'Units',
+    pay_now: 'Pay now',
+    out_of_stock: 'Out of stock',
+    login: 'Login',
+    orders_empty: 'No orders yet',
+    orders_loading: 'Loading your orders...',
+    about_dacribel: 'WHAT YOU SHOULD KNOW ABOUT US',
+    category_label: 'Category',
+    select_product: 'Select Product',
+    denomination: 'Denomination',
+    in_stock: 'In Stock',
+    unit_cost: 'Unit Cost',
+    product_details: 'Product Details',
+    total_to_pay: 'Total to Pay',
+    no_stock: 'No stock available'
   }
 };
 

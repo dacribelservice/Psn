@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Category, Product } from "@/services/inventory";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ProductBottomSheetProps {
   isOpen: boolean;
@@ -19,6 +22,9 @@ export const ProductBottomSheet = ({
   category,
   allProducts,
 }: ProductBottomSheetProps) => {
+  const { user } = useAuth();
+  const router = useRouter();
+  const { t } = useLanguage();
   const [quantity, setQuantity] = useState(1);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -122,8 +128,8 @@ export const ProductBottomSheet = ({
             <div className="flex items-center justify-between px-6 py-5 shrink-0">
                <div className="w-8 h-8" /> {/* Spacer */}
                 <div className="text-center">
-                   <span className="block text-[9px] font-black text-black/20 uppercase tracking-[0.3em] mb-0.5">Categoría</span>
-                   <h2 className="text-lg font-black text-[#11131b] uppercase tracking-tighter">Seleccionar Producto</h2>
+                   <span className="block text-[9px] font-black text-black/20 uppercase tracking-[0.3em] mb-0.5">{t("category_label")}</span>
+                   <h2 className="text-lg font-black text-[#11131b] uppercase tracking-tighter">{t("select_product")}</h2>
                 </div>
                <button 
                 onClick={onClose}
@@ -198,18 +204,25 @@ export const ProductBottomSheet = ({
                </div>
 
                 <div>
-                  <div className="flex justify-between items-center mb-3 pr-2">
-                    <span className="block text-[11px] font-black text-black/30 uppercase tracking-[0.25em] ml-1">Denominación</span>
-                    {selectedProduct && (
-                      <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border transition-all duration-300 ${
-                         ((selectedProduct?.stock || 0) - quantity) > 0 
-                         ? 'text-emerald-600 bg-emerald-100/50 border-emerald-200' 
-                         : 'text-red-600 bg-red-100/50 border-red-200'
-                      }`}>
-                        {Math.max(0, (selectedProduct?.stock || 0) - quantity)} EN STOCK
-                      </span>
-                    )}
-                  </div>
+                  <div className="flex items-center justify-between px-2">
+                   <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em]">{t("denomination")}</p>
+                   {selectedProduct && (
+                     <div className={`px-4 py-1.5 rounded-full border shadow-sm animate-in fade-in zoom-in duration-300 transition-colors ${
+                        ((selectedProduct?.stock || 0) - quantity) > 0 
+                        ? 'bg-[#e7f9f4] border-teal-500/10' 
+                        : 'bg-red-500/10 border-red-500/10'
+                     }`}>
+                        <p className={`text-[9px] font-black uppercase tracking-[0.1em] flex items-center gap-1.5 ${
+                          ((selectedProduct?.stock || 0) - quantity) > 0 ? 'text-[#00a676]' : 'text-red-500'
+                        }`}>
+                           <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                             ((selectedProduct?.stock || 0) - quantity) > 0 ? 'bg-[#00a676]' : 'bg-red-500'
+                           }`}></span>
+                           {Math.max(0, (selectedProduct?.stock || 0) - quantity)} {t("in_stock")}
+                        </p>
+                     </div>
+                   )}
+                </div>
                   <div className="flex space-x-3 overflow-x-auto py-2 pb-4 custom-scrollbar-light scroll-smooth">
                      {categoryProducts.length > 0 ? categoryProducts.map((prod) => {
                         const amountMatch = prod.name.match(/\$(\d+)/);
@@ -230,20 +243,19 @@ export const ProductBottomSheet = ({
                         );
                      }) : (
                         <div className="w-full py-4 text-center bg-black/5 rounded-2xl border border-dashed border-black/10">
-                           <span className="text-[10px] font-black text-black/30 uppercase">No hay stock disponible</span>
+                           <span className="text-[10px] font-black text-black/30 uppercase">{t("no_stock")}</span>
                         </div>
                      )}
                   </div>
                </div>
 
-               {/* Quantity & Unit Cost */}
-               <div className="flex items-center justify-between px-2">
-                  <div>
-                     <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">Costo unitario</p>
-                     <p className="text-2xl font-black text-[#11131b] tracking-tighter">${unitPrice.toFixed(2)} <span className="text-[11px] text-[#f7be34] uppercase font-black">USDT</span></p>
-                  </div>
-                  
-                  <div className="flex items-center justify-between bg-black/5 p-1 rounded-full w-32 border border-black/[0.03]">
+                <div className="flex items-center justify-between px-1">
+                   <div>
+                      <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-1">{t("unit_cost")}</p>
+                      <p className="text-3xl font-black text-[#11131b] tracking-tighter">${unitPrice.toFixed(2)} <span className="text-[11px] text-[#f7be34] uppercase font-black">USDT</span></p>
+                   </div>
+                      
+                   <div className="flex items-center bg-white/40 p-1.5 rounded-full border border-black/[0.03] shadow-inner gap-4">
                         <button 
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
                           disabled={quantity <= 1 || (selectedProduct?.stock || 0) === 0}
@@ -264,7 +276,7 @@ export const ProductBottomSheet = ({
 
                 {/* Description */}
                 <div className="px-1">
-                   <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-1">Detalles del vault</p>
+                   <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-1">{t("product_details")}</p>
                    <p className="text-black/60 text-sm leading-relaxed font-bold bg-black/5 p-4 rounded-2xl border border-black/[0.02]">
                      {selectedProduct?.description || `Tarjeta digital disponible para ${category.name} ${selectedRegion}. Entrega inmediata y segura.`}
                    </p>
@@ -274,11 +286,16 @@ export const ProductBottomSheet = ({
             {/* Total & Action */}
             <div className="mt-4 p-6 bg-white/50 backdrop-blur-xl flex items-center justify-between shrink-0">
                <div>
-                  <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">Total a pagar</p>
+                  <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">{t("total_to_pay")}</p>
                   <p className="text-2xl font-black text-[#11131b] tracking-tighter">${(unitPrice * quantity).toFixed(2)} <span className="text-[11px] text-[#f7be34] uppercase font-black">USDT</span></p>
                </div>
                 <button 
                   onClick={() => {
+                    if (!user) {
+                      router.push("/login");
+                      onClose();
+                      return;
+                    }
                     if ((selectedProduct?.stock || 0) <= 0) return;
                     onProceed?.(unitPrice * quantity, selectedProduct?.id || '');
                   }}
@@ -289,7 +306,7 @@ export const ProductBottomSheet = ({
                     : 'bg-[#f7be34] text-[#402d00] shadow-[0_15px_30px_rgba(247,190,52,0.25)] hover:scale-105 active:scale-95'
                   }`}
                 >
-                  {(selectedProduct?.stock || 0) <= 0 ? 'Agotado' : 'Pagar ahora'}
+                  {(selectedProduct?.stock || 0) <= 0 ? (t("out_of_stock") || 'Agotado') : (t("pay_now") || 'Pagar ahora')}
                 </button>
             </div>
           </motion.div>

@@ -5,6 +5,8 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { UserTermsBottomSheet } from "@/components/ui/UserTermsBottomSheet";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -15,6 +17,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   // Redirect if already logged in
   React.useEffect(() => {
@@ -25,14 +29,22 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert(language === "es" ? "Las contraseñas no coinciden" : "Passwords do not match");
+    setError(null);
+
+    if (password.length < 6) {
+      setError(language === "es" ? "La contraseña debe tener al menos 6 caracteres." : "Password should be at least 6 characters.");
       return;
     }
+
+    if (password !== confirmPassword) {
+      setError(language === "es" ? "Las contraseñas no coinciden." : "Passwords do not match.");
+      return;
+    }
+
     try {
       await signUp(email, password);
     } catch (error: any) {
-      alert(error.message || (language === "es" ? "Error al registrarse. Prueba de nuevo." : "Sign up error. Please try again."));
+      setError(error.message || (language === "es" ? "Error al registrarse. Prueba de nuevo." : "Sign up error. Please try again."));
     }
   };
 
@@ -84,6 +96,27 @@ export default function RegisterPage() {
             </span>
             <div className="h-[1px] flex-1 bg-secondary/10"></div>
           </div>
+
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                animate={{ opacity: 1, height: "auto", marginBottom: 20 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3">
+                  <span className="material-symbols-outlined text-red-500 text-lg">error</span>
+                  <p className="text-red-500 text-[10px] font-bold uppercase tracking-wider text-left flex-1 leading-relaxed">
+                    {error}
+                  </p>
+                  <button onClick={() => setError(null)} className="text-red-500/40 hover:text-red-500 transition-colors">
+                    <span className="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Credentials Form */}
           <form className="space-y-5" onSubmit={handleSubmit}>
@@ -221,11 +254,19 @@ export default function RegisterPage() {
 
         {/* Footer Links */}
         <div className="mt-8 flex justify-center gap-6 opacity-40 hover:opacity-100 transition-opacity duration-500">
-          <Link className="text-[10px] font-bold uppercase tracking-widest hover:text-primary-container" href="/terms">
+          <button 
+            onClick={() => setIsTermsOpen(true)}
+            className="text-[10px] font-bold uppercase tracking-widest hover:text-primary transition-all cursor-pointer"
+          >
             {language === "es" ? "Términos y condiciones" : "Terms & Conditions"}
-          </Link>
+          </button>
         </div>
       </main>
+
+      <UserTermsBottomSheet 
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+      />
     </div>
   );
 }
