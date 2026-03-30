@@ -14,12 +14,14 @@ interface GiftCardBottomSheetProps {
 export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBottomSheetProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(0); // Face Value (Denomination)
+  const [costPrice, setCostPrice] = useState(0); // What it costs me
+  const [salePrice, setSalePrice] = useState(0); // What client pays
   const [description, setDescription] = useState("");
   const [codesText, setCodesText] = useState("");
   const [loading, setLoading] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [exchangeRate, setExchangeRate] = useState(4000); // Tasa por defecto
+  const [exchangeRate, setExchangeRate] = useState(3650); // Tasa por defecto
   const [selectedRegion, setSelectedRegion] = useState("Global");
   const [isRegionOpen, setIsRegionOpen] = useState(false);
   const [lowStockAlert, setLowStockAlert] = useState(5);
@@ -74,7 +76,10 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
           .from('products')
           .insert([{ 
             name: productName, 
-            price: value, 
+            price: value, // Backward compatibility
+            face_value: value,
+            cost_price: costPrice,
+            sale_price: salePrice,
             category_id: selectedCategory.id,
             region: selectedRegion,
             description: productDescription,
@@ -87,19 +92,17 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
       } else if (pError) {
         throw pError;
       } else {
-        // If product exists, check if we should update the description if it's new
-        if (description && product.description !== description) {
-          await supabase
-            .from('products')
-            .update({ description, stock_alert_threshold: lowStockAlert })
-            .eq('id', product.id);
-        } else {
-          // At least update the alert threshold
-          await supabase
-            .from('products')
-            .update({ stock_alert_threshold: lowStockAlert })
-            .eq('id', product.id);
-        }
+        // Update prices if they changed
+        await supabase
+          .from('products')
+          .update({ 
+            face_value: value,
+            cost_price: costPrice,
+            sale_price: salePrice,
+            description, 
+            stock_alert_threshold: lowStockAlert 
+          })
+          .eq('id', product.id);
       }
 
       // 2. Insert Codes
@@ -211,14 +214,38 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] ml-1">VALOR (DENOM.)</label>
+                    <input
+                      type="number"
+                      value={value || ""}
+                      onChange={(e) => setValue(Number(e.target.value))}
+                      className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 text-gray-900 dark:text-white font-black text-lg shadow-inner outline-none focus:ring-1 focus:ring-primary/30 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      placeholder="100"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] ml-1 text-primary">PRECIO CLIENTE</label>
+                    <input
+                      type="number"
+                      value={salePrice || ""}
+                      onChange={(e) => setSalePrice(Number(e.target.value))}
+                      className="w-full bg-white dark:bg-black/20 border border-primary/20 dark:border-primary/5 rounded-2xl py-4 px-5 text-primary font-black text-lg shadow-inner outline-none focus:ring-1 focus:ring-primary/30 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      placeholder="96"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] ml-1">VALOR USD</label>
+                  <label className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.2em] ml-1">COSTO GIFT CARD (USDT)</label>
                   <input
                     type="number"
-                    value={value || ""}
-                    onChange={(e) => setValue(Number(e.target.value))}
-                    className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 text-gray-900 dark:text-white font-black text-xl shadow-inner outline-none focus:ring-1 focus:ring-primary/30 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                    placeholder="25"
+                    value={costPrice || ""}
+                    onChange={(e) => setCostPrice(Number(e.target.value))}
+                    className="w-full bg-white dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 text-gray-900 dark:text-white font-black text-lg shadow-inner outline-none focus:ring-1 focus:ring-primary/30 transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    placeholder="91"
                   />
                 </div>
 
@@ -237,7 +264,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                     />
                   </div>
                   <p className="text-[10px] font-bold text-gray-400 dark:text-white/40 ml-1 italic">
-                    Costo estimado: <span className="text-gray-900 dark:text-white/80">{(value * exchangeRate).toLocaleString()} COP</span>
+                    Costo en COP: <span className="text-gray-900 dark:text-white/80">{(costPrice * exchangeRate).toLocaleString()} COP</span>
                   </p>
                 </div>
 
@@ -312,17 +339,28 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                 {/* Summary Card */}
                 <div className="bg-[#2a2d3a] rounded-2xl p-5 shadow-inner border border-white/5 space-y-3">
                    <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">TOTAL CÓDIGOS</span>
-                      <span className="text-sm font-black text-primary">{totalCodes}</span>
+                      <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">TOTAL CÓDIGOS</span>
+                      <span className="text-sm font-black text-[#f2b92f]">{totalCodes}</span>
                    </div>
-                   <div className="flex justify-between items-center border-t border-white/5 pt-3">
-                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">TOTAL INVERSIÓN (USDT)</span>
-                      <span className="text-sm font-black text-primary">{(totalCodes * value).toLocaleString()} USDT</span>
-                   </div>
-                   <div className="flex justify-between items-center border-t border-white/5 pt-3">
-                      <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">TOTAL ESTIMADO (COP)</span>
-                      <span className="text-sm font-black text-primary">{(totalCodes * value * exchangeRate).toLocaleString()} COP</span>
-                   </div>
+                    <div className="flex justify-between items-center border-t border-white/5 pt-3">
+                       <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">TOTAL INVERSIÓN</span>
+                       <span className="text-sm font-black text-[#f2b92f]">{(totalCodes * costPrice).toFixed(1)} USDT</span>
+                    </div>
+                    <div className="flex justify-between items-center border-t border-white/5 pt-3">
+                       <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">VENTA ESTIMADA</span>
+                       <span className="text-sm font-black text-[#f2b92f]">{(totalCodes * salePrice).toFixed(1)} USDT</span>
+                    </div>
+                    <div className="flex justify-between items-start border-t border-white/5 pt-3">
+                       <span className="text-[10px] font-black text-white/40 uppercase tracking-widest mt-1">GANANCIA ESTIMADA</span>
+                       <div className="flex flex-col items-end">
+                          <span className={`text-sm font-black ${((salePrice - costPrice) * totalCodes) >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                             {((salePrice - costPrice) * totalCodes).toFixed(1)} USDT
+                          </span>
+                          <span className={`text-[10px] font-bold italic ${((salePrice - costPrice) * totalCodes) >= 0 ? 'text-emerald-400/60' : 'text-red-400/60'}`}>
+                             ≈ {(((salePrice - costPrice) * totalCodes) * exchangeRate).toLocaleString()} COP
+                          </span>
+                       </div>
+                    </div>
                 </div>
 
                 {/* Low Stock Alert */}

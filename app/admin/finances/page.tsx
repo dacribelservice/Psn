@@ -7,35 +7,38 @@ import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { supabase } from "@/lib/supabase";
 
 const StatCard = ({ label, value, sub, trend, icon, hasSelector, color = "primary" }: any) => (
-  <div className="bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-none">
+  <div className="bg-[#191b23] p-6 rounded-[2.5rem] flex flex-col justify-between h-40 md:h-48 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_30px_60px_rgba(0,0,0,0.5)] border border-white/5">
     <div className="flex justify-between items-start z-10 w-full">
       <div className="flex flex-col gap-1.5 flex-1">
-        <span className="text-label-sm text-white/30 uppercase">{label}</span>
-        {hasSelector && (
-          <div className="relative w-fit">
-            <select className="appearance-none bg-white/5 border border-white/5 rounded-lg px-3 py-1 text-label-sm text-primary hover:bg-white/10 transition-all focus:outline-none pr-8">
-              <option>Junio</option>
-              <option>Mayo</option>
-              <option>Abril</option>
-            </select>
-            <span className="material-symbols-outlined absolute right-1.5 top-1/2 -translate-y-1/2 text-sm text-primary pointer-events-none">keyboard_arrow_down</span>
+        <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{label}</span>
+      </div>
+      <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
+        <span className="material-symbols-outlined text-[18px] text-white/40 group-hover:text-primary transition-colors">{icon}</span>
+      </div>
+    </div>
+    
+    <div className="z-10 flex items-center gap-6">
+      {/* Circle with number as requested: 'circulos y en el centro el numero negro' */}
+      <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shrink-0 shadow-2xl ${color === 'primary' ? 'bg-[#f2b92f]' : color === 'emerald' ? 'bg-emerald-400' : 'bg-red-400'}`}>
+        <span className="text-black font-black text-base md:text-lg leading-tight text-center">
+          {value.split(' ')[0]}
+        </span>
+      </div>
+      
+      <div className="flex-1">
+        <div className="text-[10px] font-black text-white/20 uppercase mb-1 tracking-widest">{sub}</div>
+        <div className="text-sm md:text-base font-black text-white flex items-baseline gap-1.5 leading-none">
+          {value.includes('USDT') ? 'USDT' : value.split(' ')[1] || ''}
+        </div>
+        {trend && (
+          <div className="flex items-center text-[10px] text-green-400 mt-2 font-black uppercase tracking-tighter">
+            <span className="material-symbols-outlined text-[10px] mr-1">trending_up</span> {trend}
           </div>
         )}
       </div>
-      <span className="material-symbols-outlined text-[18px] opacity-20 group-hover:opacity-40 transition-opacity">{icon}</span>
     </div>
-    <div className="z-10 mt-auto">
-      {sub && <div className="text-label-sm text-white/20 uppercase mb-1">{sub}</div>}
-      <div className="text-xl md:text-2xl font-display text-white flex items-baseline gap-1.5 leading-none">
-        {value}
-      </div>
-      {trend && (
-        <div className="flex items-center text-label-sm text-green-400 mt-2 font-black">
-          <span className="material-symbols-outlined text-[12px] mr-1">trending_up</span> {trend}
-        </div>
-      )}
-    </div>
-    <div className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full blur-[80px] opacity-10 ${color === 'error' ? 'bg-red-500' : 'bg-primary'}`}></div>
+    
+    <div className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full blur-[80px] opacity-10 ${color === 'error' ? 'bg-red-500' : color === 'emerald' ? 'bg-emerald-500' : 'bg-primary'}`}></div>
   </div>
 );
 
@@ -44,10 +47,12 @@ export default function AdminFinancesPage() {
 
   const [metrics, setMetrics] = useState({
     totalIncome: 0,
+    totalCost: 0,
+    totalProfit: 0,
     todaySales: 0,
     completedOrders: 0,
     totalUsers: 0,
-    monthlyChartData: [] as { month: string, amount: number }[]
+    monthlyChartData: [] as { month: string, amount: number, profit: number }[]
   });
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,9 +62,13 @@ export default function AdminFinancesPage() {
   useEffect(() => {
     const fetchData = async () => {
       // 1. Traer Órdenes
+      // 1. Traer Órdenes con info de productos para el costo
       const { data: ordersData } = await supabase
         .from('orders')
-        .select('id, amount, status, created_at, user_id')
+        .select(`
+          *,
+          product:products(name, cost_price, sale_price)
+        `)
         .order('created_at', { ascending: false });
 
       // 2. Traer Perfiles (para los correos)
@@ -76,6 +85,7 @@ export default function AdminFinancesPage() {
 
         // 3. Calcular las Métricas Reales
         let total = 0;
+        let totalCost = 0;
         let todayTotal = 0;
         let completed = 0;
 
@@ -86,9 +96,10 @@ export default function AdminFinancesPage() {
            const isCompleted = o.status?.toLowerCase() === 'completed';
            
            if (isCompleted) {
-             total += amt;
-             completed++;
-           }
+              total += amt;
+              totalCost += Number(o.product?.cost_price || 0);
+              completed++;
+            }
            
            if (o.created_at.startsWith(today)) todayTotal += amt;
 
@@ -102,25 +113,33 @@ export default function AdminFinancesPage() {
            }
         });
 
-        // 4. Agrupar Ventas por Mes para el Gráfico
         const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-        const monthlySummary: { [key: string]: number } = {};
+        const monthlySummary: { [key: string]: { amount: number, profit: number } } = {};
         
         ordersData.forEach((o: any) => {
           if (o.status?.toLowerCase() === 'completed') {
             const date = new Date(o.created_at);
             const monthKey = monthNames[date.getMonth()];
-            monthlySummary[monthKey] = (monthlySummary[monthKey] || 0) + Number(o.amount);
+            if (!monthlySummary[monthKey]) monthlySummary[monthKey] = { amount: 0, profit: 0 };
+            
+            const amt = Number(o.amount) || 0;
+            const cost = Number(o.product?.cost_price || 0);
+            
+            monthlySummary[monthKey].amount += amt;
+            monthlySummary[monthKey].profit += (amt - cost);
           }
         });
 
         const historyData = monthNames.map(m => ({
           month: m,
-          amount: monthlySummary[m] || 0
+          amount: monthlySummary[m]?.amount || 0,
+          profit: monthlySummary[m]?.profit || 0
         }));
 
         setMetrics({
           totalIncome: total,
+          totalCost: totalCost,
+          totalProfit: (total - totalCost),
           todaySales: todayTotal,
           completedOrders: completed,
           totalUsers: profilesData.length,
@@ -169,10 +188,10 @@ export default function AdminFinancesPage() {
       <main className="flex-1 lg:ml-64 mt-16 p-4 md:p-8 space-y-8 overflow-x-hidden">
         {/* Metrics Grid */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          <StatCard label="INGRESOS TOTALES" value={`${metrics.totalIncome.toLocaleString()} USDT`} trend="+12.5%" icon="payments" />
-          <StatCard label="VENTAS DE HOY" value={`${metrics.todaySales.toLocaleString()} USDT`} trend="+5.2%" icon="point_of_sale" />
-          <StatCard label="V. COMPLETADAS" value={`${metrics.completedOrders} EXITOSAS`} icon="check_circle" hasSelector />
-          <StatCard label="CLIENTES REGISTRADOS" value={`${metrics.totalUsers} USUARIOS`} icon="group" />
+          <StatCard label="INGRESOS TOTALES" value={`${metrics.totalIncome.toLocaleString()} USDT`} trend="+12.5%" icon="payments" color="primary" sub="VENTAS BRUTAS" />
+          <StatCard label="GANANCIA NETA" value={`${metrics.totalProfit.toLocaleString()} USDT`} trend="+32.1%" icon="trending_up" color="emerald" sub="MARGEN DE BENEFICIO" />
+          <StatCard label="COSTO TOTAL" value={`${metrics.totalCost.toLocaleString()} USDT`} icon="money_off" color="error" sub="INVERSIÓN EN STOCK" />
+          <StatCard label="VENTAS DE HOY" value={`${metrics.todaySales.toLocaleString()} USDT`} icon="point_of_sale" color="primary" sub="RENDIMIENTO DIARIO" />
         </section>
 
         {/* Dynamic Line Chart Section (Step 4.2) */}

@@ -92,7 +92,7 @@ export const ProductBottomSheet = ({
 
   if (!category) return null;
 
-  const unitPrice = selectedProduct?.price || 0;
+  const unitPrice = selectedProduct?.sale_price || selectedProduct?.price || 0;
 
   return (
     <AnimatePresence>

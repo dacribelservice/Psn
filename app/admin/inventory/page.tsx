@@ -9,6 +9,7 @@ import { GiftCardBottomSheet } from "@/components/admin/GiftCardBottomSheet";
 import { inventoryService } from "@/services/inventory";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
+import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 
 export default function AdminInventoryPage() {
   const { t } = useLanguage();
@@ -19,6 +20,10 @@ export default function AdminInventoryPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [codes, setCodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Confirmation Modal State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [codeToDelete, setCodeToDelete] = useState<string | null>(null);
 
   // Filter States
   const [filterPlatform, setFilterPlatform] = useState("Todos");
@@ -36,7 +41,7 @@ export default function AdminInventoryPage() {
 
       const { data: realCodes } = await supabase
         .from('inventory_codes')
-        .select('*, product:products(name, price, category_id, region)')
+        .select('*, product:products(name, price, face_value, cost_price, sale_price, category_id, region)')
         .order('created_at', { ascending: false });
       
       setCodes(realCodes || []);
@@ -47,12 +52,18 @@ export default function AdminInventoryPage() {
     }
   };
 
-  const handleDeleteCode = async (id: string) => {
-    if (!confirm("¿Estás seguro de eliminar este código?")) return;
+  const handleDeleteCode = (id: string) => {
+    setCodeToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!codeToDelete) return;
     try {
-      const { error } = await supabase.from('inventory_codes').delete().eq('id', id);
+      const { error } = await supabase.from('inventory_codes').delete().eq('id', codeToDelete);
       if (error) throw error;
       fetchData();
+      setCodeToDelete(null);
     } catch (err) {
       console.error("Error deleting code:", err);
       alert("Error al eliminar el código");
@@ -65,20 +76,20 @@ export default function AdminInventoryPage() {
 
   // Derived Metrics (Active Inventory Investment)
   const activeCodes = codes.filter(c => c.status === 'available');
-  const totalInvertedUSDT = activeCodes.reduce((acc, item) => acc + (item.face_value || item.product?.price || 0), 0);
-  const totalInvertedCOP = activeCodes.reduce((acc, item) => acc + ((item.face_value || item.product?.price || 0) * (item.usd_rate || 4000)), 0);
+  const totalInvertedUSDT = activeCodes.reduce((acc, item) => acc + (item.product?.cost_price || 0), 0);
+  const totalInvertedCOP = activeCodes.reduce((acc, item) => acc + ((item.product?.cost_price || 0) * (item.usd_rate || 4000)), 0);
   const criticalItems = products.filter(item => (item.stock || 0) <= (item.stock_alert_threshold || 5)).map(item => ({ name: item.name, stock: item.stock || 0 }));
   const activeCodesCount = activeCodes.length;
 
   const filteredCodes = codes.filter(item => {
     const matchPlatform = filterPlatform === "Todos" || item.product?.category_id === filterPlatform;
     const matchCountry = filterCountry === "Todos" || item.region === filterCountry;
-    const matchValue = filterValue === "Todos" || item.product?.price?.toString() === filterValue;
+    const matchValue = filterValue === "Todos" || (item.product?.face_value?.toString() === filterValue || item.product?.price?.toString() === filterValue);
     return matchPlatform && matchCountry && matchValue;
   });
 
   const availableCountries = Array.from(new Set(codes.map(c => c.region).filter(Boolean)));
-  const availableValues = Array.from(new Set(codes.map(c => c.product?.price?.toString()).filter(Boolean))).sort((a,b) => Number(a) - Number(b));
+  const availableValues = Array.from(new Set(codes.map(c => (c.product?.face_value || c.product?.price)?.toString()).filter(Boolean))).sort((a,b) => Number(a) - Number(b));
 
   const metrics = [
     { label: t("total_invested"), value: totalInvertedUSDT.toLocaleString(), sub: `$${totalInvertedCOP.toLocaleString()} COP`, unit: "USDT", icon: "payments", color: "primary" },
@@ -318,24 +329,32 @@ export default function AdminInventoryPage() {
            <div className="hidden lg:block bg-[#191b23] rounded-[2.5rem] overflow-hidden shadow-2xl">
               <table className="w-full border-separate border-spacing-0">
                  <thead>
-                    <tr className="bg-white/5">
-                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Producto</th>
-                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Precio</th>
-                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
-                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Región</th>
-                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Código</th>
-                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-right">Acciones</th>
-                    </tr>
+                     <tr className="bg-white/5">
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Producto</th>
+                        <th className="px-8 py-6 text-label-sm text-[#f2b92f]/50 uppercase text-left">Costo</th>
+                        <th className="px-8 py-6 text-label-sm text-primary uppercase text-left">Precio</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Valor</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Región</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Código</th>
+                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-right">Acciones</th>
+                     </tr>
                  </thead>
                  <tbody className="divide-y divide-white/5">
                     {filteredCodes.map((item, idx) => (
                        <tr key={idx} className="group hover:bg-white/5 transition-all">
-                          <td className="px-8 py-6 font-bold text-white text-sm">
-                             {item.product?.name}
-                          </td>
-                          <td className="px-8 py-6">
-                             <span className="text-lg font-black text-primary">${item.product?.price}</span>
-                          </td>
+                           <td className="px-8 py-6 font-bold text-white text-sm">
+                              {item.product?.name}
+                           </td>
+                           <td className="px-8 py-6">
+                              <span className="text-sm font-black text-white/40">{item.product?.cost_price || '0'}</span>
+                           </td>
+                           <td className="px-8 py-6">
+                              <span className="text-lg font-black text-primary">${item.product?.sale_price || item.product?.price}</span>
+                           </td>
+                           <td className="px-8 py-6">
+                              <span className="text-sm font-black text-white/40">${item.product?.face_value || item.product?.price}</span>
+                           </td>
                           <td className="px-8 py-6">
                              <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase ${item.status === 'available' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-500'}`}>
                                 {item.status}
@@ -386,6 +405,17 @@ export default function AdminInventoryPage() {
         isOpen={isGiftCardSheetOpen} 
         onClose={() => setIsGiftCardSheetOpen(false)} 
         onSuccess={fetchData} 
+      />
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => { setIsDeleteModalOpen(false); setCodeToDelete(null); }}
+        onConfirm={confirmDelete}
+        title="¿Eliminar código?"
+        message="Esta acción no se puede deshacer. El código desaparecerá permanentemente del inventario."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        type="danger"
       />
     </div>
   );
