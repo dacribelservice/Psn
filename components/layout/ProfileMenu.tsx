@@ -40,7 +40,7 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
       {isOpen && (
         <motion.div
           key="profile-menu-container"
-          className="fixed inset-0 z-[60]"
+          className="fixed inset-0 z-[1000]"
         >
           <motion.div
             key="profile-menu-backdrop"
@@ -57,7 +57,7 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10, x: 10 }}
             transition={{ type: "spring", damping: 25, stiffness: 350 }}
-            className="fixed top-14 right-4 z-[70] w-[230px] bg-[#1a1c2e]/95 backdrop-blur-2xl text-white rounded-[1.25rem] shadow-[0_15px_40px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col font-headline border border-white/5"
+            className="fixed top-14 right-4 z-[1001] w-[230px] bg-[#1a1c2e]/95 backdrop-blur-2xl text-white rounded-[1.25rem] shadow-[0_15px_40px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col font-headline border border-white/5"
           >
             <div className="px-4 pt-5 pb-4 flex flex-col items-start gap-0.5 border-b border-white/5 bg-white/5 shadow-[inset_0_2px_15px_rgba(255,255,255,0.02)]">
               <div className="flex items-center justify-between w-full mb-2">

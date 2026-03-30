@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 
 export default function CheckoutProcessingPage() {
   const router = useRouter();
@@ -13,8 +14,12 @@ export default function CheckoutProcessingPage() {
 
   const method = searchParams.get("method")?.toUpperCase() || "BEP20-USDT";
   const amount = searchParams.get("amount") || "22.37";
+  const productId = searchParams.get("productId");
   const networkName = method.includes("BEP20") ? "Binance Smart Chain (BEP20)" : "TRON (TRC20)";
   const walletAddress = method.includes("BEP20") ? "0x7C187c1Fc9A9C96E5B" : "T9yD6vE6A7L8M9N1O2P";
+
+  const [validationStatus, setValidationStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -144,7 +149,28 @@ export default function CheckoutProcessingPage() {
               Cancelar Orden
             </button>
             <button 
-              onClick={() => setIsValidating(true)}
+              onClick={async () => {
+                setIsValidating(true);
+                setValidationStatus("loading");
+                
+                try {
+                  // Simulate network delay for premium feel
+                  await new Promise(r => setTimeout(r, 3000));
+                  
+                  const { data: orderId, error: rpcError } = await supabase.rpc('process_checkout', {
+                    p_product_id: productId,
+                    p_amount: parseFloat(amount),
+                    p_method: method
+                  });
+
+                  if (rpcError) throw rpcError;
+                  
+                  setValidationStatus("success");
+                } catch (err: any) {
+                  setValidationStatus("error");
+                  setErrorMessage(err.message || "Error al validar el pago");
+                }
+              }}
               className="flex-1 py-6 bg-surface-container-highest border border-white/5 text-on-surface font-black text-[11px] rounded-[1.25rem] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest shadow-xl"
             >
               Validar Pago
@@ -182,7 +208,15 @@ export default function CheckoutProcessingPage() {
                   </svg>
                   {/* Inner Core Icon */}
                   <div className="absolute flex items-center justify-center">
-                    <span className="material-symbols-outlined text-[#f2b92f] text-3xl font-bold animate-pulse">hourglass_top</span>
+                    <span className={`material-symbols-outlined text-3xl font-bold ${
+                      validationStatus === "success" ? "text-green-500" : 
+                      validationStatus === "error" ? "text-red-500" : 
+                      "text-[#f2b92f] animate-pulse"
+                    }`}>
+                      {validationStatus === "success" ? "check_circle" : 
+                       validationStatus === "error" ? "error" : 
+                       "hourglass_top"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -190,19 +224,36 @@ export default function CheckoutProcessingPage() {
               {/* Content Area */}
               <div className="space-y-4">
                 <h2 className="text-white font-extrabold text-2xl tracking-tight font-headline">
-                  Estamos validando tu pago
+                  {validationStatus === "loading" && "Validando tu pago..."}
+                  {validationStatus === "success" && "¡Pago verificado!"}
+                  {validationStatus === "error" && "Error de validación"}
                 </h2>
+                
                 <p className="text-[#c3c4e2] text-sm leading-relaxed max-w-[240px] mx-auto opacity-90">
-                  Procesando tu solicitud de forma segura. <br/> 
-                  <span className="text-xs opacity-70 mt-1 block font-medium">Esto solo tomará unos segundos.</span>
+                  {validationStatus === "loading" && "Procesando tu solicitud de forma segura. Esto solo tomará unos segundos."}
+                  {validationStatus === "success" && "Tu orden ha sido procesada con éxito. Ya puedes ver tu código en el historial."}
+                  {validationStatus === "error" && (errorMessage || "No pudimos confirmar tu pago. Por favor intenta de nuevo.")}
                 </p>
+
                 <div className="pt-6">
-                  <button 
-                    onClick={() => router.push('/history')}
-                    className="w-full bg-[#f2b92f] text-[#402d00] font-black py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(242,185,47,0.3)] uppercase tracking-widest text-[11px]"
-                  >
-                    Ir al historial
-                  </button>
+                  {validationStatus === "success" ? (
+                    <button 
+                      onClick={() => router.push('/history')}
+                      className="w-full bg-green-500 text-white font-black py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(34,197,94,0.3)] uppercase tracking-widest text-[11px]"
+                    >
+                      Ir al historial
+                    </button>
+                  ) : validationStatus === "error" ? (
+                    <button 
+                      onClick={() => {
+                        setIsValidating(false);
+                        setValidationStatus("idle");
+                      }}
+                      className="w-full bg-red-500 text-white font-black py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(239,68,68,0.3)] uppercase tracking-widest text-[11px]"
+                    >
+                      Intentar de nuevo
+                    </button>
+                  ) : null}
                 </div>
               </div>
 

@@ -66,7 +66,7 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[60] bg-black/5"
+            className="fixed inset-0 z-[1000] bg-black/5"
           />
 
           {/* Compact Inventory Notification Modal */}
@@ -75,7 +75,7 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10, x: -10 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="fixed top-16 right-16 z-[70] w-full max-w-[260px] bg-[#1a1c2e]/95 backdrop-blur-2xl rounded-[1.25rem] border border-white/5 shadow-[0_30px_60px_rgba(0,0,0,0.6)] overflow-hidden font-headline"
+            className="fixed top-16 right-16 z-[1001] w-full max-w-[260px] bg-[#1a1c2e]/95 backdrop-blur-2xl rounded-[1.25rem] border border-white/5 shadow-[0_30px_60px_rgba(0,0,0,0.6)] overflow-hidden font-headline"
           >
             {/* Modal Header */}
             <div className="px-4 pt-5 pb-3 flex items-center justify-between border-b border-white/5">
