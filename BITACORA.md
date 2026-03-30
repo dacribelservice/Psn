@@ -36,8 +36,6 @@ Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un dise
 ### ⚙️ FASE 6: Admin Dashboard & Settings
 - [x] Fase 6. a) Panel de Administración (Rediseño de Inventario y Gestión de Stock).
 - [x] Fase 6. b) Editor de Términos y Condiciones (Admin) y Visor de Lectura (User).
-- [ ] Fase 6. c) Gestión de Afiliados integrada (Descartado temporalmente).
-- [ ] Fase 6. d) Logs de seguridad y monitoreo de pagos.
 
 ---
 

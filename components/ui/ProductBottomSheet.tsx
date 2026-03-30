@@ -82,12 +82,12 @@ export const ProductBottomSheet = ({
   // Handle selectedProduct change specifically to reset quantity
   React.useEffect(() => {
     if (selectedProduct) {
-       setQuantity(selectedProduct.stock > 0 ? 1 : 0);
+      setQuantity((selectedProduct.stock || 0) > 0 ? 1 : 0);
     }
   }, [selectedProduct?.id]);
 
   if (selectedProduct && quantity > (selectedProduct.stock || 0)) {
-    setQuantity(selectedProduct?.stock || 0);
+    setQuantity(selectedProduct.stock || 0);
   }
 
   if (!category) return null;
@@ -219,9 +219,9 @@ export const ProductBottomSheet = ({
                           <button 
                             key={prod.id}
                             onClick={() => setSelectedProduct(prod)}
-                            className={`min-w-[50px] px-4 h-11 rounded-full font-black text-[13px] transition-all flex-shrink-0 flex items-center justify-center relative ${
+                            className={`min-w-[45px] px-3 h-9 rounded-full font-black text-[11px] transition-all flex-shrink-0 flex items-center justify-center relative ${
                               selectedProduct?.id === prod.id
-                              ? 'bg-[#f7be34] text-[#402d00] shadow-[0_10px_20px_rgba(247,190,52,0.25)] scale-110 border-2 border-white/50' 
+                              ? 'bg-[#f7be34] text-[#402d00]' 
                               : 'bg-black/5 text-black/40 hover:bg-black/10'
                             }`}
                           >

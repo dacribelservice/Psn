@@ -13,6 +13,101 @@ import { useAuth } from "@/context/AuthContext";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import { AdminBottomNav } from "@/components/layout/AdminBottomNav";
 
+const StatCard = ({ label, value, sub, secondaryValue, icon, color = "primary", children }: any) => {
+  return (
+    <div className="bg-[#191b23]/60 backdrop-blur-3xl p-5 md:p-6 rounded-[2.5rem] flex flex-col justify-between h-auto min-h-[160px] relative overflow-hidden group hover:bg-[#1e202f]/80 transition-all duration-500 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5 ring-1 ring-white/5">
+      <div className="flex justify-between items-start z-10 w-full mb-4">
+        <div className="flex flex-col gap-1.5 flex-1">
+          <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{label}</span>
+          <span className={`text-[9px] font-bold ${color === 'red' ? 'text-red-400/40' : 'text-primary/40'} uppercase tracking-widest leading-none drop-shadow-sm`}>{sub}</span>
+        </div>
+        <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 shadow-inner group-hover:border-primary/20 transition-colors">
+          <span className={`material-symbols-outlined text-[20px] ${color === 'red' ? 'text-red-400/60 group-hover:text-red-400' : 'text-primary/60 group-hover:text-primary'} transition-all duration-500 group-hover:scale-110 drop-shadow-[0_0_12px_rgba(242,185,47,0.3)]`}>{icon}</span>
+        </div>
+      </div>
+      
+      <div className="z-10 mt-auto flex flex-col gap-1">
+         {children ? children : (
+           <>
+             <div className="flex items-baseline gap-2">
+                <span className="text-2xl md:text-3xl font-display text-white tracking-tight drop-shadow-lg">
+                  {value}
+                </span>
+                {label !== "CÓDIGOS ACTIVOS" && <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">USDT</span>}
+             </div>
+             
+             {secondaryValue && (
+               <div className="flex items-center justify-between mt-0.5">
+                  <span className="text-[13px] font-display text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)] flex items-center gap-1.5">
+                    ${secondaryValue} <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest">COP</span>
+                  </span>
+               </div>
+             )}
+             {label === "CÓDIGOS ACTIVOS" && (
+                <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">Sincronizado</div>
+             )}
+           </>
+         )}
+      </div>
+      
+      {/* Aura de fondo dinámica */}
+      <div className={`absolute -right-10 -bottom-10 w-32 h-32 rounded-full blur-[80px] opacity-10 transition-all duration-700 group-hover:opacity-20 ${color === 'red' ? 'bg-red-500' : 'bg-primary'}`}></div>
+    </div>
+  );
+};
+
+const FilterDropdown = ({ label, options, value, onChange, prefix, icon }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((o: any) => o.value === value) || { label: `${prefix}: Todas`, value: "Todos" };
+
+  return (
+    <div className="relative z-[60]">
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between bg-[#1e202f] text-white/70 text-[10px] h-11 font-black uppercase px-4 sm:pl-6 sm:pr-4 rounded-full border border-white/5 hover:border-primary/30 hover:text-white transition-all cursor-pointer min-w-fit sm:min-w-[170px] shadow-lg ring-1 ring-white/5"
+      >
+        <div className="flex items-center gap-2 overflow-hidden mr-1 sm:mr-2">
+           {icon && <span className="material-symbols-outlined text-primary text-[18px] shrink-0">{icon}</span>}
+           <span className="truncate hidden sm:inline">{selectedOption.label}</span>
+        </div>
+        <span className={`material-symbols-outlined text-primary text-[16px] transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>keyboard_arrow_down</span>
+      </div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <div className="fixed inset-0 z-[65]" onClick={() => setIsOpen(false)} />
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 5, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              className="absolute left-0 mt-2 bg-[#191b23]/95 backdrop-blur-3xl border border-white/10 rounded-xl sm:rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.6)] z-[70] overflow-hidden py-2 ring-1 ring-white/10 min-w-[200px]"
+            >
+              {options.map((opt: any) => (
+                <div
+                  key={opt.value}
+                  onClick={() => {
+                    onChange(opt.value);
+                    setIsOpen(false);
+                  }}
+                  className={`px-6 py-3 text-[10px] font-black uppercase transition-colors cursor-pointer flex items-center justify-between ${
+                    value === opt.value 
+                      ? 'bg-primary text-black font-black' 
+                      : 'text-white/40 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  {opt.label}
+                  {value === opt.value && <span className="material-symbols-outlined text-sm">check</span>}
+                </div>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
 export default function AdminInventoryPage() {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -90,8 +185,37 @@ export default function AdminInventoryPage() {
     return matchPlatform && matchCountry && matchValue;
   });
 
-  const availableCountries = Array.from(new Set(codes.map(c => c.region).filter(Boolean)));
-  const availableValues = Array.from(new Set(codes.map(c => (c.product?.face_value || c.product?.price)?.toString()).filter(Boolean))).sort((a,b) => Number(a) - Number(b));
+  // Inteligent Relational Filters Logic
+  const availableCountries = Array.from(new Set(
+    codes
+      .filter(c => filterPlatform === "Todos" || c.product?.category_id === filterPlatform)
+      .map(c => c.region)
+      .filter(Boolean)
+  )).sort();
+
+  const availableValues = Array.from(new Set(
+    codes
+      .filter(c => (filterPlatform === "Todos" || c.product?.category_id === filterPlatform) && 
+                   (filterCountry === "Todos" || c.region === filterCountry))
+      .map(c => (c.product?.face_value || c.product?.price)?.toString())
+      .filter(Boolean)
+  )).sort((a,b) => Number(a) - Number(b));
+
+  // Options for custom dropdowns
+  const platformOptions = [
+    { label: "Plataforma: Todas", value: "Todos" },
+    ...categories.map(cat => ({ label: cat.name, value: cat.id }))
+  ];
+
+  const countryOptions = [
+    { label: "País: Todos", value: "Todos" },
+    ...availableCountries.map(c => ({ label: c, value: c }))
+  ];
+
+  const valueOptions = [
+    { label: "Valor: Todos", value: "Todos" },
+    ...availableValues.map(v => ({ label: `$${v}`, value: v }))
+  ];
 
   const metrics = [
     { label: t("total_invested"), value: totalInvertedUSDT.toLocaleString(), sub: `$${totalInvertedCOP.toLocaleString()} COP`, unit: "USDT", icon: "payments", color: "primary" },
@@ -106,39 +230,54 @@ export default function AdminInventoryPage() {
       <AdminHeader />
 
       <main className="flex-1 lg:ml-64 mt-16 p-4 md:p-8 space-y-8 overflow-x-hidden">
-        {/* Metrics Section */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {metrics.map((item, idx) => (
-            <div key={idx} className={`bg-[#191b23] p-6 rounded-[2rem] flex flex-col justify-between h-36 md:h-44 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-none`}>
-               <div className="flex justify-between items-start z-10 w-full">
-                  <span className={`text-label-sm uppercase ${item.color === 'red' ? 'text-red-400' : 'text-white/30'}`}>{item.label}</span>
-                  <span className={`material-symbols-outlined text-[18px] opacity-20 group-hover:opacity-40 transition-opacity`}>{item.icon}</span>
-               </div>
-               
-               <div className="z-10 mt-auto">
-                 {item.alerts ? (
-                    <div className="space-y-1.5">
-                      {item.alerts.length > 0 ? item.alerts.map((alert, i) => (
-                        <div key={i} className="flex justify-between items-center bg-white/5 px-2.5 py-1.5 rounded-xl">
-                          <span className="text-label-sm text-white/40 truncate mr-2">{alert.name}</span>
-                          <span className="text-label-sm text-red-400 whitespace-nowrap">STOCK: {alert.stock}</span>
-                        </div>
-                      )) : (
-                        <div className="text-label-sm text-green-400 uppercase">Sin alertas</div>
-                      )}
-                    </div>
-                 ) : (
-                   <>
-                    <div className="text-label-sm text-white/20 uppercase mb-1">{item.sub}</div>
-                    <div className="text-xl md:text-2xl font-display text-white flex items-baseline gap-1.5 leading-none">
-                      {item.value} <span className="text-[14px] font-black text-primary uppercase">{item.unit || ""}</span>
-                    </div>
-                   </>
-                 )}
-               </div>
-               <div className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full blur-[80px] opacity-10 ${item.color === 'red' ? 'bg-red-500' : 'bg-primary'}`}></div>
+        {/* Metrics Grid */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2 md:px-0">
+          <StatCard 
+            label="TOTAL INVERTIDO" 
+            value={totalInvertedUSDT.toLocaleString()} 
+            secondaryValue={totalInvertedCOP.toLocaleString()}
+            icon="payments" 
+            color="primary" 
+            sub="CAPITAL EN STOCK" 
+          />
+          
+          <StatCard 
+            label="VENTAS DIARIAS" 
+            value="0" 
+            secondaryValue="0"
+            icon="point_of_sale" 
+            color="primary" 
+            sub="RECAUDO HOY" 
+          />
+
+          <StatCard 
+            label="INVENTARIO CRÍTICO" 
+            icon="warning" 
+            color={criticalItems.length > 0 ? "red" : "primary"} 
+            sub="ALERTA DE STOCK"
+          >
+            <div className="space-y-1.5 max-h-[80px] overflow-y-auto pr-1">
+              {criticalItems.length > 0 ? criticalItems.slice(0, 2).map((alert, i) => (
+                <div key={i} className="flex justify-between items-center bg-white/5 px-2.5 py-1.5 rounded-xl border border-white/5">
+                  <span className="text-[9px] font-black text-white/40 truncate mr-2 uppercase tracking-tighter">{alert.name}</span>
+                  <span className="text-[9px] font-black text-red-400 whitespace-nowrap">STOCK: {alert.stock}</span>
+                </div>
+              )) : (
+                <div className="text-[11px] font-black text-green-400 uppercase flex items-center gap-2">
+                  <span className="material-symbols-outlined text-sm">check_circle</span>
+                  Suficiente Stock
+                </div>
+              )}
             </div>
-          ))}
+          </StatCard>
+
+          <StatCard 
+            label="CÓDIGOS ACTIVOS" 
+            value={activeCodesCount.toString()} 
+            icon="sync" 
+            color="primary" 
+            sub="STOCK DISPONIBLE" 
+          />
         </section>
 
         {/* Stock Summary */}
@@ -208,50 +347,36 @@ export default function AdminInventoryPage() {
 
                {/* Premium Filters Group */}
                <div className="flex flex-wrap items-center gap-3">
-                  {/* Platform Filter */}
-                  <div className="relative group">
-                     <select 
-                        value={filterPlatform}
-                        onChange={(e) => setFilterPlatform(e.target.value)}
-                        className="appearance-none bg-[#1e202f] text-white/70 text-label-sm font-black uppercase pl-6 pr-12 py-3 rounded-full border border-white/5 hover:border-primary/30 hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer min-w-[140px]"
-                     >
-                        <option value="Todos">Plataforma: Todas</option>
-                        {categories.map(cat => (
-                           <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                     </select>
-                     <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none text-[18px]">keyboard_arrow_down</span>
-                  </div>
+                  <FilterDropdown 
+                    prefix="Plataforma"
+                    icon="sports_esports"
+                    options={platformOptions}
+                    value={filterPlatform}
+                    onChange={(val: any) => {
+                      setFilterPlatform(val);
+                      setFilterCountry("Todos");
+                      setFilterValue("Todos");
+                    }}
+                  />
 
-                  {/* Country Filter */}
-                  <div className="relative group">
-                     <select 
-                        value={filterCountry}
-                        onChange={(e) => setFilterCountry(e.target.value)}
-                        className="appearance-none bg-[#1e202f] text-white/70 text-label-sm font-black uppercase pl-6 pr-12 py-3 rounded-full border border-white/5 hover:border-primary/30 hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer min-w-[140px]"
-                     >
-                        <option value="Todos">País: Todos</option>
-                        {availableCountries.map(country => (
-                           <option key={country} value={country}>{country}</option>
-                        ))}
-                     </select>
-                     <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none text-[18px]">keyboard_arrow_down</span>
-                  </div>
+                  <FilterDropdown 
+                    prefix="País"
+                    icon="public"
+                    options={countryOptions}
+                    value={filterCountry}
+                    onChange={(val: any) => {
+                      setFilterCountry(val);
+                      setFilterValue("Todos");
+                    }}
+                  />
 
-                  {/* Value Filter */}
-                  <div className="relative group">
-                     <select 
-                        value={filterValue}
-                        onChange={(e) => setFilterValue(e.target.value)}
-                        className="appearance-none bg-[#1e202f] text-white/70 text-label-sm font-black uppercase pl-6 pr-12 py-3 rounded-full border border-white/5 hover:border-primary/30 hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer min-w-[120px]"
-                     >
-                        <option value="Todos">Valor: Todos</option>
-                        {availableValues.map(val => (
-                           <option key={val} value={val}>${val}</option>
-                        ))}
-                     </select>
-                     <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none text-[18px]">keyboard_arrow_down</span>
-                  </div>
+                  <FilterDropdown 
+                    prefix="Valor"
+                    icon="payments"
+                    options={valueOptions}
+                    value={filterValue}
+                    onChange={(val: any) => setFilterValue(val)}
+                  />
 
                   {/* Reset Filter Button */}
                   {(filterPlatform !== "Todos" || filterCountry !== "Todos" || filterValue !== "Todos") && (

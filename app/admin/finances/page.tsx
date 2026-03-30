@@ -7,41 +7,52 @@ import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { supabase } from "@/lib/supabase";
 import { AdminBottomNav } from "@/components/layout/AdminBottomNav";
 
-const StatCard = ({ label, value, sub, trend, icon, hasSelector, color = "primary" }: any) => (
-  <div className="bg-[#191b23] p-6 rounded-[2.5rem] flex flex-col justify-between h-40 md:h-48 relative overflow-hidden group hover:brightness-110 transition-all shadow-[0_30px_60px_rgba(0,0,0,0.5)] border border-white/5">
-    <div className="flex justify-between items-start z-10 w-full">
-      <div className="flex flex-col gap-1.5 flex-1">
-        <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{label}</span>
-      </div>
-      <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center">
-        <span className="material-symbols-outlined text-[18px] text-white/40 group-hover:text-primary transition-colors">{icon}</span>
-      </div>
-    </div>
-    
-    <div className="z-10 flex items-center gap-6">
-      {/* Circle with number as requested: 'circulos y en el centro el numero negro' */}
-      <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center shrink-0 shadow-2xl ${color === 'primary' ? 'bg-[#f2b92f]' : color === 'emerald' ? 'bg-emerald-400' : 'bg-red-400'}`}>
-        <span className="text-black font-black text-base md:text-lg leading-tight text-center">
-          {value.split(' ')[0]}
-        </span>
+const StatCard = ({ label, value, sub, trend, icon, color = "primary" }: any) => {
+  // Parsing value to ensure it's a number for COP calculation
+  const numericVal = typeof value === 'string' ? parseFloat(value.replace(/[^\d.]/g, '')) : value;
+  const copVal = (numericVal || 0) * 3650;
+  
+  return (
+    <div className="bg-[#191b23]/60 backdrop-blur-3xl p-6 rounded-[2.5rem] flex flex-col justify-between h-auto min-h-[160px] relative overflow-hidden group hover:bg-[#1e202f]/80 transition-all duration-500 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5 ring-1 ring-white/5">
+      <div className="flex justify-between items-start z-10 w-full mb-4">
+        <div className="flex flex-col gap-1.5 flex-1">
+          <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{label}</span>
+          <span className="text-[9px] font-bold text-primary/40 uppercase tracking-widest leading-none drop-shadow-sm">{sub}</span>
+        </div>
+        <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 shadow-inner group-hover:border-primary/20 transition-colors">
+          <span className="material-symbols-outlined text-[20px] text-primary/60 group-hover:text-primary transition-all duration-500 group-hover:scale-110 drop-shadow-[0_0_12px_rgba(242,185,47,0.3)]">{icon}</span>
+        </div>
       </div>
       
-      <div className="flex-1">
-        <div className="text-[10px] font-black text-white/20 uppercase mb-1 tracking-widest">{sub}</div>
-        <div className="text-sm md:text-base font-black text-white flex items-baseline gap-1.5 leading-none">
-          {value.includes('USDT') ? 'USDT' : value.split(' ')[1] || ''}
-        </div>
-        {trend && (
-          <div className="flex items-center text-[10px] text-green-400 mt-2 font-black uppercase tracking-tighter">
-            <span className="material-symbols-outlined text-[10px] mr-1">trending_up</span> {trend}
-          </div>
-        )}
+      <div className="z-10 mt-auto flex flex-col gap-1">
+         <div className="flex items-baseline gap-2">
+            <span className="text-2xl md:text-3xl font-display text-white tracking-tight drop-shadow-lg">
+              {Number(numericVal || 0).toLocaleString()}
+            </span>
+            <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">USDT</span>
+         </div>
+         
+         <div className="flex items-center justify-between mt-0.5">
+            <span className="text-[13px] font-display text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)] flex items-center gap-1.5">
+              ${Number(copVal).toLocaleString()} <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest">COP</span>
+            </span>
+            
+            {trend && (
+              <div className={`flex items-center px-2 py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-tighter ${trend.includes('+') ? 'text-green-400 shadow-[0_0_10px_rgba(74,222,128,0.1)]' : 'text-red-400'}`}>
+                <span className="material-symbols-outlined text-[12px] mr-1">
+                  {trend.includes('+') ? 'trending_up' : 'trending_down'}
+                </span> 
+                {trend}
+              </div>
+            )}
+         </div>
       </div>
+      
+      {/* Dynamic Background Aura */}
+      <div className={`absolute -right-10 -bottom-10 w-32 h-32 rounded-full blur-[80px] opacity-10 transition-all duration-700 group-hover:opacity-20 ${color === 'error' ? 'bg-red-500' : color === 'emerald' ? 'bg-emerald-500' : 'bg-primary'}`}></div>
     </div>
-    
-    <div className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full blur-[80px] opacity-10 ${color === 'error' ? 'bg-red-500' : color === 'emerald' ? 'bg-emerald-500' : 'bg-primary'}`}></div>
-  </div>
-);
+  );
+};
 
 export default function AdminFinancesPage() {
   const { t } = useLanguage();
@@ -53,84 +64,116 @@ export default function AdminFinancesPage() {
     todaySales: 0,
     completedOrders: 0,
     totalUsers: 0,
+    incomeTrend: "+0.0%",
+    profitTrend: "+0.0%",
+    dailyTrend: "+0.0%",
     monthlyChartData: [] as { month: string, amount: number, profit: number }[]
   });
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-
   useEffect(() => {
     const fetchData = async () => {
-      // 1. Traer Órdenes
-      // 1. Traer Órdenes con info de productos para el costo
-      const { data: ordersData } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          product:products(name, cost_price, sale_price)
-        `)
-        .order('created_at', { ascending: false });
+      try {
+        setLoading(true);
+        // 1. Traer Órdenes
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('orders')
+          .select('*, product:products(name, cost_price, sale_price)')
+          .order('created_at', { ascending: false });
 
-      // 2. Traer Perfiles (para los correos)
-      const { data: profilesData } = await supabase
-        .from('profiles')
-        .select('id, email');
+        // 2. Traer Perfiles
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email');
 
-      if (ordersData && profilesData) {
-        // Crear un diccionario rápido de perfiles para no hacer loops pesados
-        const profileMap = profilesData.reduce((acc: any, curr: any) => {
+        // 3. Traer Inversión en Inventario (Códigos disponibles)
+        const { data: inventoryCodes, error: inventoryError } = await supabase
+          .from('inventory_codes')
+          .select('id, product:products(cost_price)')
+          .eq('status', 'available');
+
+        if (ordersError) console.error("Error fetching orders:", ordersError);
+        if (profilesError) console.error("Error fetching profiles:", profilesError);
+        if (inventoryError) console.error("Error fetching inventory codes:", inventoryError);
+
+        // --- Procesar Perfiles ---
+        const profileMap = (profilesData || []).reduce((acc: any, curr: any) => {
           acc[curr.id] = curr.email;
           return acc;
         }, {});
 
-        // 3. Calcular las Métricas Reales
+        // --- Calcular Métricas de Órdenes ---
         let total = 0;
-        let totalCost = 0;
+        let totalCostOfSales = 0;
         let todayTotal = 0;
-        let completed = 0;
-
+        let completedCount = 0;
         const today = new Date().toISOString().split('T')[0];
-
-        const formattedOrders = ordersData.map((o: any) => {
-           const amt = Number(o.amount) || 0;
-           const isCompleted = o.status?.toLowerCase() === 'completed';
-           
-           if (isCompleted) {
-              total += amt;
-              totalCost += Number(o.product?.cost_price || 0);
-              completed++;
-            }
-           
-           if (o.created_at.startsWith(today)) todayTotal += amt;
-
-           return {
-             email: profileMap[o.user_id] || "Usuario Desconocido",
-             id: `#ORD-${o.id.substring(0, 6).toUpperCase()}`,
-             amount: amt.toFixed(2),
-             status: o.status,
-             hash: o.id.substring(0, 8),
-             active: o.status === 'pending'
-           }
-        });
-
         const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
         const monthlySummary: { [key: string]: { amount: number, profit: number } } = {};
-        
-        ordersData.forEach((o: any) => {
-          if (o.status?.toLowerCase() === 'completed') {
+
+        const formattedOrders = (ordersData || []).map((o: any) => {
+          const amt = Number(o.amount) || 0;
+          const isCompleted = o.status?.toLowerCase() === 'completed';
+          
+          if (isCompleted) {
+            total += amt;
+            totalCostOfSales += Number(o.product?.cost_price || 0);
+            completedCount++;
+
             const date = new Date(o.created_at);
             const monthKey = monthNames[date.getMonth()];
             if (!monthlySummary[monthKey]) monthlySummary[monthKey] = { amount: 0, profit: 0 };
-            
-            const amt = Number(o.amount) || 0;
-            const cost = Number(o.product?.cost_price || 0);
-            
             monthlySummary[monthKey].amount += amt;
-            monthlySummary[monthKey].profit += (amt - cost);
+            monthlySummary[monthKey].profit += (amt - Number(o.product?.cost_price || 0));
+          }
+          
+          if (o.created_at.startsWith(today)) todayTotal += amt;
+
+          return {
+            email: profileMap[o.user_id] || "Usuario Desconocido",
+            id: `#ORD-${o.id.substring(0, 6).toUpperCase()}`,
+            amount: amt.toFixed(2),
+            status: o.status,
+            hash: o.id.substring(0, 8),
+            active: o.status === 'pending'
           }
         });
+        // --- Calcular Tendencias Mensuales ---
+        const currentMonthIdx = new Date().getMonth();
+        const prevMonthIdx = currentMonthIdx === 0 ? 11 : currentMonthIdx - 1;
+        
+        const currentMonthKey = monthNames[currentMonthIdx];
+        const prevMonthKey = monthNames[prevMonthIdx];
 
+        const calcTrendStr = (current: number, prev: number) => {
+          if (prev <= 0) return current > 0 ? "+100%" : "+0.0%";
+          const diff = ((current - prev) / prev) * 100;
+          return `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%`;
+        };
+
+        const incomeTrend = calcTrendStr(monthlySummary[currentMonthKey]?.amount || 0, monthlySummary[prevMonthKey]?.amount || 0);
+        const profitTrend = calcTrendStr(monthlySummary[currentMonthKey]?.profit || 0, monthlySummary[prevMonthKey]?.profit || 0);
+
+        // --- Calcular Tendencia Diaria (Ventas Hoy vs Ayer) ---
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+        const yesterdayTotal = (ordersData || []).reduce((acc: number, o: any) => {
+          if (o.created_at.startsWith(yesterdayStr) && o.status?.toLowerCase() === 'completed') {
+            return acc + Number(o.amount || 0);
+          }
+          return acc;
+        }, 0);
+
+        const dailyTrendStr = calcTrendStr(todayTotal, yesterdayTotal);
+        // --- Calcular Inversión en Stock ---
+        const currentInventoryInvestment = (inventoryCodes || []).reduce((acc: number, code: any) => 
+          acc + Number(code.product?.cost_price || 0), 0);
+
+        // --- Generar Data para el Gráfico ---
         const historyData = monthNames.map(m => ({
           month: m,
           amount: monthlySummary[m]?.amount || 0,
@@ -139,18 +182,23 @@ export default function AdminFinancesPage() {
 
         setMetrics({
           totalIncome: total,
-          totalCost: totalCost,
-          totalProfit: (total - totalCost),
+          totalCost: currentInventoryInvestment,
+          totalProfit: (total - totalCostOfSales),
           todaySales: todayTotal,
-          completedOrders: completed,
-          totalUsers: profilesData.length,
+          completedOrders: completedCount,
+          totalUsers: profilesData?.length || 0,
+          incomeTrend,
+          profitTrend,
+          dailyTrend: dailyTrendStr,
           monthlyChartData: historyData
         });
         
         setOrders(formattedOrders);
+      } catch (err) {
+        console.error("Error in diagnostics:", err);
+      } finally {
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
 
     fetchData();
@@ -188,11 +236,11 @@ export default function AdminFinancesPage() {
 
       <main className="flex-1 lg:ml-64 mt-16 p-4 md:p-8 space-y-8 overflow-x-hidden">
         {/* Metrics Grid */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          <StatCard label="INGRESOS TOTALES" value={`${metrics.totalIncome.toLocaleString()} USDT`} trend="+12.5%" icon="payments" color="primary" sub="VENTAS BRUTAS" />
-          <StatCard label="GANANCIA NETA" value={`${metrics.totalProfit.toLocaleString()} USDT`} trend="+32.1%" icon="trending_up" color="emerald" sub="MARGEN DE BENEFICIO" />
-          <StatCard label="COSTO TOTAL" value={`${metrics.totalCost.toLocaleString()} USDT`} icon="money_off" color="error" sub="INVERSIÓN EN STOCK" />
-          <StatCard label="VENTAS DE HOY" value={`${metrics.todaySales.toLocaleString()} USDT`} icon="point_of_sale" color="primary" sub="RENDIMIENTO DIARIO" />
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2 md:px-0">
+          <StatCard label="INGRESOS TOTALES" value={metrics.totalIncome} trend={metrics.incomeTrend} icon="payments" color="primary" sub="VENTAS BRUTAS" />
+          <StatCard label="GANANCIA NETA" value={metrics.totalProfit} trend={metrics.profitTrend} icon="trending_up" color="emerald" sub="MARGEN DE BENEFICIO" />
+          <StatCard label="COSTO TOTAL" value={metrics.totalCost} icon="money_off" color="error" sub="INVERSIÓN EN STOCK" />
+          <StatCard label="VENTAS DE HOY" value={metrics.todaySales} trend={metrics.dailyTrend} icon="point_of_sale" color="primary" sub="RENDIMIENTO DIARIO" />
         </section>
 
         {/* Dynamic Line Chart Section (Step 4.2) */}
