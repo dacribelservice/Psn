@@ -185,3 +185,19 @@ Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un dise
 - **Backend & Logic**:
   - **Multi-Metadata persistence**: Sincronización de descripción, región y umbrales de alerta entre el panel de carga y la tabla de productos.
 - **GitHub**: Backup completo de la lógica de filtrado regional y alertas personalizadas.
+
+---
+
+### Sesión XV: Gestión Dinámica de Banners y Consolidación Visual (Sesión Actual)
+
+*   **Refactor de Banners (Admin):**
+    *   **Eliminación de Upload:** Se eliminó el sistema de carga de archivos local, reemplazándolo por una entrada de **URL directa**, optimizando el rendimiento y la flexibilidad de activos externos.
+    *   **Jerarquía de Texto:** Se implementaron dos campos de texto por banner: `subtitle` (texto pequeño superior) e `title` (texto grande principal).
+    *   **Panel CRUD:** Unificación del creador y editor. El listado de "Banners Activos" ahora permite editar y eliminar registros directamente con sincronización inmediata.
+*   **Integración Storefront:**
+    *   **Carrusel Dinámico:** El Hero principal de la tienda ahora consume datos de la tabla `banners` en tiempo real.
+    *   **Diseño Premium:** Se ajustó la escala tipográfica en el `ProductBottomSheet` y se integraron las imágenes reales de las categorías en los selectores circulares.
+*   **Backend:**
+    *   **Nueva Tabla `banners`:** Creación de la estructura en Supabase con RLS (Row Level Security) para acceso público de lectura y acceso total para administradores.
+    *   **Servicio Extendido:** Actualización de `inventoryService` para incluir métodos de recuperación de banners.
+*   **GitHub**: Backup completo de la lógica de banners y limpieza visual del storefront.

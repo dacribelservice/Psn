@@ -20,11 +20,11 @@ export const ProductBottomSheet = ({
   allProducts,
 }: ProductBottomSheetProps) => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedRegion, setSelectedRegion] = useState("USA");
+  const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
   
-  const regions = [
+  const allRegions = [
     { name: "Global", code: "un", flag: "https://flagcdn.com/w40/un.png" },
     { name: "USA", code: "us", flag: "https://flagcdn.com/w40/us.png" },
     { name: "Colombia", code: "co", flag: "https://flagcdn.com/w40/co.png" },
@@ -34,14 +34,41 @@ export const ProductBottomSheet = ({
     { name: "India", code: "in", flag: "https://flagcdn.com/w40/in.png" },
   ];
 
-  const categoryProducts = allProducts.filter(p => 
-    p.category_id === category?.id && 
-    (p as any).region === selectedRegion
-  );
+  // 1. Filter regions that HAVE stock for this category
+  const availableRegions = React.useMemo(() => {
+    if (!category) return [];
+    const regionsInStock = new Set(
+      allProducts
+        .filter(p => p.category_id === category.id && (p.stock || 0) > 0)
+        .map(p => (p as any).region)
+    );
+    return allRegions.filter(r => regionsInStock.has(r.name));
+  }, [category, allProducts]);
+
+  // 2. Filter products for the selected category AND region that HAVE stock
+  const categoryProducts = React.useMemo(() => {
+    if (!category || !selectedRegion) return [];
+    return allProducts.filter(p => 
+      p.category_id === category.id && 
+      (p as any).region === selectedRegion &&
+      (p.stock || 0) > 0
+    );
+  }, [category, selectedRegion, allProducts]);
+
+  // 3. Auto-select management
+  React.useEffect(() => {
+    if (availableRegions.length > 0) {
+      // If current region is not valid or empty, pick first
+      if (!selectedRegion || !availableRegions.find(r => r.name === selectedRegion)) {
+        setSelectedRegion(availableRegions[0].name);
+      }
+    } else {
+      setSelectedRegion("");
+    }
+  }, [availableRegions, selectedRegion]);
 
   React.useEffect(() => {
     if (categoryProducts.length > 0) {
-      // If current selected product is NOT in the new list, pick first available
       if (!selectedProduct || !categoryProducts.find(p => p.id === selectedProduct.id)) {
         setSelectedProduct(categoryProducts[0]);
       }
@@ -49,6 +76,7 @@ export const ProductBottomSheet = ({
       setSelectedProduct(null);
     }
   }, [categoryProducts, selectedProduct]);
+
 
   if (!category) return null;
 
@@ -81,10 +109,10 @@ export const ProductBottomSheet = ({
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 shrink-0">
                <div className="w-8 h-8" /> {/* Spacer */}
-               <div className="text-center">
-                  <span className="block text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">Categoría</span>
-                  <h2 className="text-2xl font-black text-[#11131b] uppercase tracking-tighter">Seleccionar Producto</h2>
-               </div>
+                <div className="text-center">
+                   <span className="block text-[9px] font-black text-black/20 uppercase tracking-[0.3em] mb-0.5">Categoría</span>
+                   <h2 className="text-lg font-black text-[#11131b] uppercase tracking-tighter">Seleccionar Producto</h2>
+                </div>
                <button 
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 text-black/40 hover:bg-black/10 hover:text-black transition-colors"
@@ -97,30 +125,42 @@ export const ProductBottomSheet = ({
                {/* Platform & Region */}
                <div className="flex items-center justify-between px-2 pt-0">
                   <div className="flex items-center space-x-3">
-                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-black/[0.03]">
-                        <span className="material-symbols-outlined text-2xl text-black/60">
-                          {category.slug.includes('gift') ? 'card_giftcard' : 'sports_esports'}
-                        </span>
-                     </div>
+                      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm border border-black/[0.03] overflow-hidden">
+                         {category.image_url ? (
+                           <img src={category.image_url} alt={category.name} className="w-full h-full object-cover" />
+                         ) : (
+                           <span className="material-symbols-outlined text-xl text-black/60">
+                             {category.slug.includes('gift') ? 'card_giftcard' : 'sports_esports'}
+                           </span>
+                         )}
+                      </div>
                      <span className="font-black text-[#11131b] text-base tracking-tight">{category.name}</span>
                   </div>
                   
-                  <div className="relative">
-                    <button 
-                      onClick={() => setIsRegionDropdownOpen(!isRegionDropdownOpen)}
-                      className="flex items-center space-x-2 px-2.5 py-1.5 bg-white rounded-full hover:bg-black/5 transition-all shadow-sm active:scale-95 group border border-black/[0.03]"
-                    >
-                      <img 
-                        alt={selectedRegion} 
-                        className="w-3.5 h-2.5 rounded-sm object-cover" 
-                        src={regions.find(r => r.name === selectedRegion)?.flag} 
-                      />
-                      <span className="text-[11px] font-black text-[#11131b]">{selectedRegion}</span>
-                      <span className={`material-symbols-outlined text-[14px] text-black/20 group-hover:text-[#f7be34] transition-transform duration-300 ${isRegionDropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
-                    </button>
+                   <div className="relative">
+                    {availableRegions.length > 0 ? (
+                      <button 
+                        onClick={() => setIsRegionDropdownOpen(!isRegionDropdownOpen)}
+                        className="flex items-center space-x-2 px-2.5 py-1.5 bg-white rounded-full hover:bg-black/5 transition-all shadow-sm active:scale-95 group border border-black/[0.03]"
+                      >
+                        <img 
+                          alt={selectedRegion} 
+                          className="w-3.5 h-2.5 rounded-sm object-cover" 
+                          src={availableRegions.find(r => r.name === selectedRegion)?.flag || allRegions.find(r => r.name === "Global")?.flag} 
+                        />
+                        <span className="text-[11px] font-black text-[#11131b]">{selectedRegion || "Sin Stock"}</span>
+                        {availableRegions.length > 1 && (
+                          <span className={`material-symbols-outlined text-[14px] text-black/20 group-hover:text-[#f7be34] transition-transform duration-300 ${isRegionDropdownOpen ? 'rotate-180' : ''}`}>expand_more</span>
+                        )}
+                      </button>
+                    ) : (
+                      <div className="flex items-center space-x-2 px-2.5 py-1.5 bg-black/5 rounded-full opacity-50">
+                        <span className="text-[10px] font-black text-black/40 uppercase">No disp.</span>
+                      </div>
+                    )}
 
                     <AnimatePresence>
-                      {isRegionDropdownOpen && (
+                      {isRegionDropdownOpen && availableRegions.length > 1 && (
                         <motion.div 
                           initial={{ opacity: 0, y: 5, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -128,7 +168,7 @@ export const ProductBottomSheet = ({
                           className="absolute right-0 mt-2 w-32 bg-white rounded-2xl shadow-xl border border-black/5 z-[150] overflow-hidden"
                         >
                           <div className="max-h-48 overflow-y-auto no-scrollbar py-1">
-                            {regions.map((r) => (
+                            {availableRegions.map((r) => (
                               <button 
                                 key={r.code}
                                 onClick={() => { setSelectedRegion(r.name); setIsRegionDropdownOpen(false); }}
@@ -145,34 +185,38 @@ export const ProductBottomSheet = ({
                   </div>
                </div>
 
-               {/* Denominations */}
-               <div>
-                  <span className="block text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-3 ml-1">Denominación</span>
+                <div>
+                  <div className="flex justify-between items-center mb-3 pr-2">
+                    <span className="block text-[11px] font-black text-black/30 uppercase tracking-[0.25em] ml-1">Denominación</span>
+                    {selectedProduct && (
+                      <span className="text-[10px] font-black text-emerald-600 bg-emerald-100/50 px-2.5 py-1 rounded-full border border-emerald-200">
+                        {selectedProduct.stock} EN STOCK
+                      </span>
+                    )}
+                  </div>
                   <div className="flex space-x-3 overflow-x-auto py-2 pb-4 custom-scrollbar-light scroll-smooth">
-                     {categoryProducts.map((prod) => {
+                     {categoryProducts.length > 0 ? categoryProducts.map((prod) => {
                         const amountMatch = prod.name.match(/\$(\d+)/);
                         const label = amountMatch ? `$${amountMatch[1]}` : prod.name;
-                        const isOutOfStock = (prod.stock || 0) <= 0;
                         
                         return (
                           <button 
                             key={prod.id}
-                            onClick={() => !isOutOfStock && setSelectedProduct(prod)}
+                            onClick={() => setSelectedProduct(prod)}
                             className={`min-w-[50px] px-4 h-11 rounded-full font-black text-[13px] transition-all flex-shrink-0 flex items-center justify-center relative ${
                               selectedProduct?.id === prod.id
-                              ? 'bg-[#f7be34] text-[#402d00] shadow-[0_10px_20px_rgba(247,190,52,0.2)] scale-110 border-2 border-white/50' 
-                              : isOutOfStock 
-                                ? 'bg-black/5 text-black/20 cursor-not-allowed opacity-50'
-                                : 'bg-black/5 text-black/40 hover:bg-black/10'
+                              ? 'bg-[#f7be34] text-[#402d00] shadow-[0_10px_20px_rgba(247,190,52,0.25)] scale-110 border-2 border-white/50' 
+                              : 'bg-black/5 text-black/40 hover:bg-black/10'
                             }`}
                           >
                             {label}
-                            {isOutOfStock && (
-                              <span className="absolute -top-1 -right-1 text-[6px] bg-red-500 text-white px-1 rounded-full font-black">SOLDOUT</span>
-                            )}
                           </button>
                         );
-                     })}
+                     }) : (
+                        <div className="w-full py-4 text-center bg-black/5 rounded-2xl border border-dashed border-black/10">
+                           <span className="text-[10px] font-black text-black/30 uppercase">No hay stock disponible</span>
+                        </div>
+                     )}
                   </div>
                </div>
 

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 
 interface BannersModalProps {
   isOpen: boolean;
@@ -9,26 +10,87 @@ interface BannersModalProps {
 }
 
 export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
-  const activeBanners = [
-    {
-      id: 1,
-      title: "Spring Crypto Rewards",
-      url: "/promo/rewards-2024",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuAA7d7-VKP-FzwMe9pVZSPJh3Nf0YIqhphU4mmmdClUeCb0GiQm2Lu6jzl_FTKPOW0ihXvkf3QFg_7YPY3GQyABIwXrzF0UpG8VL5vqJqTGWKb36i476NLlKo69QdnPfg15FdmP3-qEbtbFNImYy4eiM4_-xQK6haY9CuTgSjhdxQKEQXaNJTtVkxwXXOmZem5kHPHsRu3SI1r2Q9xTTCZuS-yGMV1ZFwf4zgzDBUEqreNT09Hx8dGmo9jaiSKzktiud65mPh5pgJ6s"
-    },
-    {
-      id: 2,
-      title: "New Gift Card Arrival",
-      url: "/store/new-arrivals",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDfjfwqWNT5SmG4thbVe-dnBpbJhxsEFYfboN8q4p4MJ1KjKe2KDk-mPrZ3VNBPinikU_qZcQ33Vnc3E3mETrFCMYnYm1J7g12SFgSv6oNOePuuxrS4EDagKqJM9ZBWaCxIfBEMqCpR2cX833dqRPI2hNf0qQJIAFuirBaZp3IbB-P_yBinBoPZim26qsP9R6MMsQpkedG4YnUreXl_82vkrImlQyFth-gwkMhbPxXP0jhy68H0Wz6LQVLcZhf_llc3Vn3UH9N4Ijur"
-    },
-    {
-      id: 3,
-      title: "USDT Flash Sale",
-      url: "/sale/flash-usdt",
-      image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDN6gGyTRHaw0dbqNWHh4L7_nIL3YcZbn8uTp38jaHgLxat6B1O7qh54tuxrryrpEZHhiVzJs0nWS9OQtVAAMBdJW-v-1AZr_NQ3RO0_lPVXPlDuEsG8-t0VXawwH7fHFHsQZKr26HeNDj_3-V1unygZkVd-pre3Cn5LbbjBU9WSvNYjv7F3FmpyAHd-XaMx4TjGZOEApALMul83LjXcDqmg-xK4Y1-m8IBsUXyl0O5Y0I9KC_IR0B-8akVINSUL4xTT2PcZl3AEOz_"
+  const [banners, setBanners] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  
+  // Form states
+  const [imageUrl, setImageUrl] = React.useState("");
+  const [title, setTitle] = React.useState("");
+  const [subtitle, setSubtitle] = React.useState("");
+  const [redirectUrl, setRedirectUrl] = React.useState("");
+
+  const fetchBanners = async () => {
+    const { data, error } = await supabase
+      .from('banners')
+      .select('*')
+      .order('display_order', { ascending: true });
+    if (!error) setBanners(data || []);
+  };
+
+  React.useEffect(() => {
+    if (isOpen) fetchBanners();
+  }, [isOpen]);
+
+  const handleSave = async () => {
+    if (!imageUrl) {
+      alert("Por favor ingresa la URL de la imagen");
+      return;
     }
-  ];
+    setLoading(true);
+    try {
+      const bannerData = {
+        image_url: imageUrl,
+        title,
+        subtitle,
+        redirect_url: redirectUrl,
+      };
+
+      if (editingId) {
+        const { error } = await supabase
+          .from('banners')
+          .update(bannerData)
+          .eq('id', editingId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('banners')
+          .insert([bannerData]);
+        if (error) throw error;
+      }
+
+      // Reset
+      setImageUrl("");
+      setTitle("");
+      setSubtitle("");
+      setRedirectUrl("");
+      setEditingId(null);
+      fetchBanners();
+    } catch (err) {
+      console.error("Error saving banner:", err);
+      alert("Error al guardar el banner");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (banner: any) => {
+    setEditingId(banner.id);
+    setImageUrl(banner.image_url);
+    setTitle(banner.title || "");
+    setSubtitle(banner.subtitle || "");
+    setRedirectUrl(banner.redirect_url || "");
+    // Scroll to top of section
+    const main = document.querySelector('main');
+    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("¿Estás seguro de eliminar este banner?")) return;
+    const { error } = await supabase.from('banners').delete().eq('id', id);
+    if (!error) fetchBanners();
+    else alert("Error al eliminar");
+  };
 
   return (
     <AnimatePresence>
@@ -73,13 +135,51 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                 </div>
                 
                 <div className="space-y-6 bg-[#191b23] p-6 rounded-2xl border border-white/5 shadow-inner">
-                  {/* Upload Area */}
-                  <div className="border-2 border-dashed border-white/10 rounded-2xl p-10 flex flex-col items-center justify-center group hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-[0_0_20px_rgba(242,185,47,0.1)]">
-                      <span className="material-symbols-outlined text-primary text-3xl">upload_file</span>
+                  {/* URL image Input */}
+                  <div className="space-y-2.5">
+                    <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
+                      URL DE LA IMAGEN
+                    </label>
+                    <div className="relative group">
+                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-lg transition-colors group-focus-within:text-primary">
+                        image
+                      </span>
+                      <input 
+                        className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl pl-12 pr-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
+                        placeholder="https://example.com/banner.jpg" 
+                        type="text" 
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                      />
                     </div>
-                    <p className="text-white/60 text-sm font-bold tracking-tight">Arrastra una imagen o haz clic para subir</p>
-                    <p className="text-white/20 text-[10px] mt-1 font-bold uppercase tracking-widest">Recomendado: 1200 × 400px (PNG, JPG)</p>
+                  </div>
+
+                  {/* Text Inputs */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-2.5">
+                      <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
+                        TEXTO SUPERIOR (PEQUEÑO)
+                      </label>
+                      <input 
+                        className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
+                        placeholder="OFERTA DESTACADA" 
+                        type="text" 
+                        value={subtitle}
+                        onChange={(e) => setSubtitle(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2.5">
+                      <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
+                        TEXTO PRINCIPAL (GRANDE)
+                      </label>
+                      <input 
+                        className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
+                        placeholder="EL TÍTULO DEL BANNER" 
+                        type="text" 
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                      />
+                    </div>
                   </div>
 
                   {/* Input Fields */}
@@ -92,18 +192,45 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                         <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-lg transition-colors group-focus-within:text-primary">
                           link
                         </span>
-                        <input 
+                       <input 
                           className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl pl-12 pr-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
-                          placeholder="https://store.crypto/promo/spring-sale" 
+                          placeholder="/promo/mi-oferta" 
                           type="text" 
+                          value={redirectUrl}
+                          onChange={(e) => setRedirectUrl(e.target.value)}
                         />
                       </div>
                     </div>
-                    
-                    <button className="w-full bg-primary text-[#402d00] font-black py-4 rounded-xl shadow-lg shadow-primary/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase text-[11px] tracking-widest">
-                      <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                      Guardar Banner
+                                        <button 
+                      onClick={handleSave}
+                      disabled={loading}
+                      className="w-full bg-primary text-[#402d00] font-black py-4 rounded-xl shadow-lg shadow-primary/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase text-[11px] tracking-widest"
+                    >
+                      {loading ? (
+                        <div className="w-5 h-5 border-2 border-[#402d00]/30 border-t-[#402d00] rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                            {editingId ? 'edit' : 'check_circle'}
+                          </span>
+                          {editingId ? 'Actualizar Banner' : 'Guardar Banner'}
+                        </>
+                      )}
                     </button>
+                    {editingId && (
+                      <button 
+                        onClick={() => {
+                          setEditingId(null);
+                          setImageUrl("");
+                          setTitle("");
+                          setSubtitle("");
+                          setRedirectUrl("");
+                        }}
+                        className="w-full bg-white/5 text-white/40 font-black py-3 rounded-xl hover:bg-white/10 transition-all uppercase text-[10px] tracking-widest"
+                      >
+                        Cancelar Edición
+                      </button>
+                    )}
                   </div>
                 </div>
               </section>
@@ -115,12 +242,17 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                     BANNERS ACTIVOS
                   </span>
                   <span className="text-[9px] font-black text-white/40 bg-white/5 px-2.5 py-1 rounded-full uppercase tracking-widest">
-                    {activeBanners.length} Total
+                    {banners.length} Total
                   </span>
                 </div>
 
-                <div className="space-y-3">
-                  {activeBanners.map((banner) => (
+                 <div className="space-y-3">
+                  {banners.length === 0 && (
+                    <div className="text-center py-10 bg-black/5 rounded-2xl border border-dashed border-white/5">
+                      <p className="text-white/20 text-[10px] font-black uppercase tracking-widest">No hay banners activos</p>
+                    </div>
+                  )}
+                  {banners.map((banner) => (
                     <div 
                       key={banner.id}
                       className="group flex items-center gap-4 bg-[#191b23] p-3.5 rounded-2xl hover:bg-white/[0.03] transition-all border border-white/5 hover:border-white/10 shadow-sm"
@@ -128,19 +260,24 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                       <div className="w-24 h-14 rounded-lg overflow-hidden flex-shrink-0 bg-black/40 ring-1 ring-white/5">
                         <img 
                           className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" 
-                          src={banner.image} 
+                          src={banner.image_url} 
                           alt={banner.title} 
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-xs font-black truncate text-white uppercase tracking-tight">{banner.title}</h4>
-                        <p className="text-[10px] text-white/30 truncate font-bold">{banner.url}</p>
+                        <h4 className="text-xs font-black truncate text-white uppercase tracking-tight">{banner.title || "Sin título"}</h4>
+                        <p className="text-[10px] text-white/30 truncate font-bold">{banner.redirect_url || "Sin enlace"}</p>
                       </div>
                       <div className="flex items-center gap-1.5 pr-1">
-                        <button className="p-2 hover:bg-primary/10 rounded-xl text-white/30 hover:text-primary transition-all">
+                        <button 
+                          onClick={() => handleEdit(banner)}
+                          className="p-2 hover:bg-primary/10 rounded-xl text-white/30 hover:text-primary transition-all"
+                        >
                           <span className="material-symbols-outlined text-[18px]">edit</span>
                         </button>
-                        <button className="p-2 hover:bg-red-500/10 rounded-xl text-white/30 hover:text-red-400 transition-all">
+                        <button 
+                          onClick={() => handleDelete(banner.id)}
+                          className="p-2 hover:bg-red-500/10 rounded-xl text-white/30 hover:text-red-400 transition-all">
                           <span className="material-symbols-outlined text-[18px]">delete</span>
                         </button>
                       </div>

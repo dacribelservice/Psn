@@ -87,5 +87,16 @@ export const inventoryService = {
 
     if (error) throw error;
     return data;
+  },
+
+  async getBanners() {
+    const { data, error } = await supabase
+      .from('banners')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true });
+    
+    if (error) throw error;
+    return data;
   }
 };

@@ -24,21 +24,26 @@ export default function StorePage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [banners, setBanners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingBanners, setLoadingBanners] = useState(true);
 
   React.useEffect(() => {
     const loadData = async () => {
       try {
-        const [cats, prods] = await Promise.all([
+        const [cats, prods, bans] = await Promise.all([
           inventoryService.getCategories(),
-          inventoryService.getStorefrontProducts()
+          inventoryService.getStorefrontProducts(),
+          inventoryService.getBanners()
         ]);
         setCategories(cats);
         setProducts(prods);
+        setBanners(bans);
       } catch (err) {
         console.error("Error loading store data:", err);
       } finally {
         setLoading(false);
+        setLoadingBanners(false);
       }
     };
     loadData();
@@ -81,9 +86,29 @@ export default function StorePage() {
       )
       .subscribe();
 
+    // REALTIME: Listen for banner updates
+    const bannerChannel = supabase
+      .channel('banners-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'banners' },
+        (payload) => {
+          console.log('Realtime Banner update:', payload);
+          if (payload.eventType === 'INSERT') {
+            setBanners(prev => [...prev, payload.new].sort((a,b) => a.display_order - b.display_order));
+          } else if (payload.eventType === 'UPDATE') {
+            setBanners(prev => prev.map(b => b.id === payload.new.id ? payload.new : b).sort((a,b) => a.display_order - b.display_order));
+          } else if (payload.eventType === 'DELETE') {
+            setBanners(prev => prev.filter(b => b.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(catChannel);
       supabase.removeChannel(prodChannel);
+      supabase.removeChannel(bannerChannel);
     };
   }, []);
 
@@ -106,28 +131,9 @@ export default function StorePage() {
     }, 300);
   };
 
-  const banners = [
-    {
-      id: 1,
-      title: "ELDEN RING: SHADOW OF THE ERDTREE",
-      desc: language === 'es' ? 'La expansión más esperada del año. Obtenla ahora al mejor precio.' : 'The most anticipated expansion of the year. Get it now at the best price.',
-      img: "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?q=80&w=2071&auto=format&fit=crop",
-    },
-    {
-      id: 2,
-      title: "GOD OF WAR RAGNARÖK",
-      desc: language === 'es' ? 'Acompaña a Kratos y Atreus en su viaje mítico. Disponible en digital.' : 'Join Kratos and Atreus on their mythical journey. Available in digital.',
-      img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop",
-    },
-    {
-      id: 3,
-      title: "SPIDER-MAN 2",
-      desc: language === 'es' ? 'Balancéate por Nueva York con Peter y Miles. Recarga tus créditos.' : 'Swing through New York with Peter and Miles. Top up your credits.',
-      img: "https://gmedia.playstation.com/is/image/SIEPDC/marvels-spider-man-2-listing-thumb-01-en-01jun23?$facebook$",
-    }
-  ];
 
   const paginate = (newDirection: number) => {
+    if (banners.length === 0) return;
     const nextSlide = (currentSlide + newDirection + banners.length) % banners.length;
     setSlide([nextSlide, newDirection]);
   };
@@ -167,65 +173,67 @@ export default function StorePage() {
 
       <main className="pt-24 px-4 md:px-6 max-w-7xl mx-auto lg:ml-64 lg:px-12 pb-32">
         {/* Premium Manual Banner Carousel */}
-        <section className="relative group rounded-[2rem] md:rounded-[3rem] overflow-hidden aspect-[16/10] md:aspect-[21/9] mb-12 shadow-[0_40px_80px_rgba(0,0,0,0.6)] border border-white/5 bg-black">
+        <section className="relative group rounded-[2rem] md:rounded-[3rem] overflow-hidden aspect-[16/10] md:aspect-[21/9] mb-12 shadow-[0_40px_80px_rgba(0,0,0,0.6)] border border-white/5 bg-black/40">
           <AnimatePresence initial={false} custom={direction}>
-            <motion.div
-              key={currentSlide}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.4 },
-                scale: { duration: 0.6 },
-                filter: { duration: 0.4 }
-              }}
-              className="absolute inset-0"
-            >
-              <img
-                src={banners[currentSlide].img}
-                alt={banners[currentSlide].title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black via-black/40 to-transparent flex flex-col justify-end md:justify-center p-6 md:px-20 pb-12 md:pb-6">
-                <motion.span 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-primary font-black tracking-[0.4em] text-[8px] md:text-[10px] uppercase mb-4 drop-shadow-md select-none"
-                >
-                  {t("featured_offer")}
-                </motion.span>
-                <motion.h2 
-                  initial={{ opacity: 0, y: 30, filter: "blur(5px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                  className="text-3xl md:text-5xl lg:text-7xl font-black text-on-surface mb-4 md:mb-8 leading-tight max-w-3xl drop-shadow-2xl font-headline tracking-tighter"
-                >
-                  {banners[currentSlide].title}
-                </motion.h2>
-                <motion.p 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="text-[#c3c4e2] max-w-sm mb-8 md:mb-12 text-sm md:text-lg font-medium opacity-70 leading-relaxed"
-                >
-                  {banners[currentSlide].desc}
-                </motion.p>
-                <motion.button 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.6, type: "spring" }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-fit bg-gradient-to-b from-primary to-[#f2b92f] text-[#402d00] font-black px-10 md:px-12 py-4 md:py-5 rounded-xl md:rounded-2xl shadow-[0_20px_40px_rgba(242,185,47,0.4)] uppercase tracking-tight text-xs md:text-sm"
-                >
-                  {t("get_credits")}
-                </motion.button>
+            {banners.length > 0 ? (
+              <motion.div
+                key={banners[currentSlide]?.id || currentSlide}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.4 },
+                  scale: { duration: 0.6 },
+                  filter: { duration: 0.4 }
+                }}
+                className="absolute inset-0"
+              >
+                <img
+                  src={banners[currentSlide].image_url}
+                  alt={banners[currentSlide].title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black via-black/40 to-transparent flex flex-col justify-end md:justify-center p-6 md:px-20 pb-12 md:pb-6">
+                  {banners[currentSlide].subtitle && (
+                    <motion.span 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-primary font-black tracking-[0.4em] text-[8px] md:text-[10px] uppercase mb-4 drop-shadow-md select-none"
+                    >
+                      {banners[currentSlide].subtitle}
+                    </motion.span>
+                  )}
+                  <motion.h2 
+                    initial={{ opacity: 0, y: 30, filter: "blur(5px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
+                    className="text-2xl md:text-5xl lg:text-7xl font-black text-on-surface mb-4 md:mb-8 leading-tight max-w-3xl drop-shadow-2xl font-headline tracking-tighter uppercase"
+                  >
+                    {banners[currentSlide].title || "OFERTA ESPECIAL"}
+                  </motion.h2>
+                  
+                  <motion.button 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6, type: "spring" }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => banners[currentSlide].redirect_url && router.push(banners[currentSlide].redirect_url)}
+                    className="w-fit bg-gradient-to-b from-primary to-[#f2b92f] text-[#402d00] font-black px-10 md:px-12 py-4 md:py-5 rounded-xl md:rounded-2xl shadow-[0_20px_40px_rgba(242,185,47,0.4)] uppercase tracking-tight text-xs md:text-sm"
+                  >
+                    {t("get_credits")}
+                  </motion.button>
+                </div>
+              </motion.div>
+            ) : !loadingBanners ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-[#11131b]">
+                <p className="text-white/20 font-black uppercase tracking-[0.3em] text-xs">Cargando ofertas...</p>
               </div>
-            </motion.div>
+            ) : null}
           </AnimatePresence>
 
           {/* Indicators - Premium Pill Style */}
