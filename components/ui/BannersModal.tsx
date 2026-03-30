@@ -11,6 +11,7 @@ interface BannersModalProps {
 
 export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
   const [banners, setBanners] = React.useState<any[]>([]);
+  const [categories, setCategories] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   
@@ -30,8 +31,19 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
     if (!error) setBanners(data || []);
   };
 
+  const fetchCategories = async () => {
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('name', { ascending: true });
+    if (!error) setCategories(data || []);
+  };
+
   React.useEffect(() => {
-    if (isOpen) fetchBanners();
+    if (isOpen) {
+      fetchBanners();
+      fetchCategories();
+    }
   }, [isOpen]);
 
   const handleSave = async () => {
@@ -232,23 +244,31 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                     </div>
                   </div>
 
-                  {/* Input Fields */}
+                  {/* Category Selection */}
                   <div className="space-y-5">
                     <div className="space-y-2.5">
                       <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
-                        ENLACE DE REDIRECCIÓN
+                        VINCULAR A CATEGORÍA (ACCIONAR COMPRA)
                       </label>
                       <div className="relative group">
-                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-lg transition-colors group-focus-within:text-primary">
-                          link
+                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-lg transition-colors group-focus-within:text-primary pointer-events-none">
+                          category
                         </span>
-                       <input 
-                          className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl pl-12 pr-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
-                          placeholder="/promo/mi-oferta" 
-                          type="text" 
+                        <select 
+                          className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl pl-12 pr-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none appearance-none cursor-pointer" 
                           value={redirectUrl}
                           onChange={(e) => setRedirectUrl(e.target.value)}
-                        />
+                        >
+                          <option value="">Selecciona una categoría</option>
+                          {categories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                        <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-white/20 text-lg pointer-events-none">
+                          expand_more
+                        </span>
                       </div>
                     </div>
                                         <button 
@@ -318,7 +338,12 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-xs font-black truncate text-white uppercase tracking-tight">{banner.title_es || "Sin título"}</h4>
-                        <p className="text-[10px] text-white/30 truncate font-bold">{banner.redirect_url || "Sin enlace"}</p>
+                        <div className="flex items-center gap-1.5 overflow-hidden">
+                          <span className="material-symbols-outlined text-[10px] text-primary">link</span>
+                          <span className="text-[10px] text-white/30 truncate font-bold">
+                            {categories.find(c => c.id === banner.redirect_url)?.name || "Categoría no encontrada"}
+                          </span>
+                        </div>
                       </div>
                       <div className="flex items-center gap-1.5 pr-1">
                         <button 

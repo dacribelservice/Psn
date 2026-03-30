@@ -132,6 +132,11 @@ export default function StorePage() {
   };
 
 
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
+  };
+
   const paginate = (newDirection: number) => {
     if (banners.length === 0) return;
     const nextSlide = (currentSlide + newDirection + banners.length) % banners.length;
@@ -185,11 +190,20 @@ export default function StorePage() {
                 exit="exit"
                 transition={{
                   x: { type: "spring", stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.4 },
-                  scale: { duration: 0.6 },
-                  filter: { duration: 0.4 }
+                  opacity: { duration: 0.4 }
                 }}
-                className="absolute inset-0"
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={1}
+                onDragEnd={(e, { offset, velocity }) => {
+                  const swipe = swipePower(offset.x, velocity.x);
+                  if (swipe < -swipeConfidenceThreshold) {
+                    paginate(1);
+                  } else if (swipe > swipeConfidenceThreshold) {
+                    paginate(-1);
+                  }
+                }}
+                className="absolute inset-0 touch-none cursor-grab active:cursor-grabbing"
               >
                 <img
                   src={banners[currentSlide].image_url}
@@ -224,10 +238,17 @@ export default function StorePage() {
                     transition={{ delay: 0.6, type: "spring" }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => banners[currentSlide].redirect_url && router.push(banners[currentSlide].redirect_url)}
-                    className="w-fit bg-gradient-to-b from-primary to-[#f2b92f] text-[#402d00] font-black px-10 md:px-12 py-4 md:py-5 rounded-xl md:rounded-2xl shadow-[0_20px_40px_rgba(242,185,47,0.4)] uppercase tracking-tight text-xs md:text-sm"
+                    onClick={() => {
+                      const categoryId = banners[currentSlide].redirect_url;
+                      const category = categories.find(c => c.id === categoryId);
+                      if (category) {
+                        setSelectedCategory(category);
+                        setIsProductSheetOpen(true);
+                      }
+                    }}
+                    className="w-fit bg-gradient-to-b from-primary to-[#f2b92f] text-[#402d00] font-black px-6 md:px-12 py-3 md:py-5 rounded-xl md:rounded-2xl shadow-[0_20px_40px_rgba(242,185,47,0.4)] uppercase tracking-tight text-[11px] md:text-sm"
                   >
-                    {t("get_credits")}
+                    {language === 'es' ? 'Comprar ahora' : 'Buy now'}
                   </motion.button>
                 </div>
               </motion.div>
