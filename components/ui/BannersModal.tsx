@@ -16,8 +16,10 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
   
   // Form states
   const [imageUrl, setImageUrl] = React.useState("");
-  const [title, setTitle] = React.useState("");
-  const [subtitle, setSubtitle] = React.useState("");
+  const [titleEs, setTitleEs] = React.useState("");
+  const [titleEn, setTitleEn] = React.useState("");
+  const [subtitleEs, setSubtitleEs] = React.useState("");
+  const [subtitleEn, setSubtitleEn] = React.useState("");
   const [redirectUrl, setRedirectUrl] = React.useState("");
 
   const fetchBanners = async () => {
@@ -41,8 +43,10 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
     try {
       const bannerData = {
         image_url: imageUrl,
-        title,
-        subtitle,
+        title_es: titleEs,
+        title_en: titleEn,
+        subtitle_es: subtitleEs,
+        subtitle_en: subtitleEn,
         redirect_url: redirectUrl,
       };
 
@@ -61,8 +65,10 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
 
       // Reset
       setImageUrl("");
-      setTitle("");
-      setSubtitle("");
+      setTitleEs("");
+      setTitleEn("");
+      setSubtitleEs("");
+      setSubtitleEn("");
       setRedirectUrl("");
       setEditingId(null);
       fetchBanners();
@@ -77,8 +83,10 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
   const handleEdit = (banner: any) => {
     setEditingId(banner.id);
     setImageUrl(banner.image_url);
-    setTitle(banner.title || "");
-    setSubtitle(banner.subtitle || "");
+    setTitleEs(banner.title_es || "");
+    setTitleEn(banner.title_en || "");
+    setSubtitleEs(banner.subtitle_es || "");
+    setSubtitleEn(banner.subtitle_en || "");
     setRedirectUrl(banner.redirect_url || "");
     // Scroll to top of section
     const main = document.querySelector('main');
@@ -154,30 +162,72 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                     </div>
                   </div>
 
-                  {/* Text Inputs */}
+                  {/* ES Labels */}
+                  <div className="pt-2 border-t border-white/5 mx-2" />
+                  <div className="flex items-center gap-2 px-2">
+                    <img src="https://flagcdn.com/w40/es.png" className="w-4 h-3 rounded-sm opacity-50" />
+                    <span className="text-[9px] font-black uppercase text-white/20 tracking-widest">Contenido Español</span>
+                  </div>
+
+                  {/* Text Inputs ES */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-2.5">
                       <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
-                        TEXTO SUPERIOR (PEQUEÑO)
+                        TEXTO SUPERIOR ES
                       </label>
                       <input 
                         className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
                         placeholder="OFERTA DESTACADA" 
                         type="text" 
-                        value={subtitle}
-                        onChange={(e) => setSubtitle(e.target.value)}
+                        value={subtitleEs}
+                        onChange={(e) => setSubtitleEs(e.target.value)}
                       />
                     </div>
                     <div className="space-y-2.5">
                       <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
-                        TEXTO PRINCIPAL (GRANDE)
+                        TEXTO PRINCIPAL ES
                       </label>
                       <input 
                         className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
-                        placeholder="EL TÍTULO DEL BANNER" 
+                        placeholder="TÍTULO EN ESPAÑOL" 
                         type="text" 
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        value={titleEs}
+                        onChange={(e) => setTitleEs(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* EN Labels */}
+                  <div className="pt-2 border-t border-white/5 mx-2" />
+                  <div className="flex items-center gap-2 px-2">
+                    <img src="https://flagcdn.com/w40/us.png" className="w-4 h-3 rounded-sm opacity-50" />
+                    <span className="text-[9px] font-black uppercase text-white/20 tracking-widest">English Content</span>
+                  </div>
+
+                  {/* Text Inputs EN */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="space-y-2.5">
+                      <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
+                        SUBTITLE EN
+                      </label>
+                      <input 
+                        className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
+                        placeholder="FEATURED OFFER" 
+                        type="text" 
+                        value={subtitleEn}
+                        onChange={(e) => setSubtitleEn(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2.5">
+                      <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
+                        MAIN TITLE EN
+                      </label>
+                      <input 
+                        className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
+                        placeholder="BANNER TITLE IN ENGLISH" 
+                        type="text" 
+                        value={titleEn}
+                        onChange={(e) => setTitleEn(e.target.value)}
                       />
                     </div>
                   </div>
@@ -222,8 +272,10 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                         onClick={() => {
                           setEditingId(null);
                           setImageUrl("");
-                          setTitle("");
-                          setSubtitle("");
+                          setTitleEs("");
+                          setTitleEn("");
+                          setSubtitleEs("");
+                          setSubtitleEn("");
                           setRedirectUrl("");
                         }}
                         className="w-full bg-white/5 text-white/40 font-black py-3 rounded-xl hover:bg-white/10 transition-all uppercase text-[10px] tracking-widest"
@@ -265,7 +317,7 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-xs font-black truncate text-white uppercase tracking-tight">{banner.title || "Sin título"}</h4>
+                        <h4 className="text-xs font-black truncate text-white uppercase tracking-tight">{banner.title_es || "Sin título"}</h4>
                         <p className="text-[10px] text-white/30 truncate font-bold">{banner.redirect_url || "Sin enlace"}</p>
                       </div>
                       <div className="flex items-center gap-1.5 pr-1">

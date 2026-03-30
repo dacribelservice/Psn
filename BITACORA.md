@@ -200,4 +200,7 @@ Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un dise
 *   **Backend:**
     *   **Nueva Tabla `banners`:** Creación de la estructura en Supabase con RLS (Row Level Security) para acceso público de lectura y acceso total para administradores.
     *   **Servicio Extendido:** Actualización de `inventoryService` para incluir métodos de recuperación de banners.
+*   **Optimización de Tabla de Inventario:**
+    *   **Acciones CRUD:** Adición de la columna "Acciones" con funcionalidad de **Eliminar** para códigos individuales, permitiendo una limpieza precisa del stock.
+    *   **Diseño Adaptativo Móvil:** Implementación de un layout basado en **Tarjetas (Cards)** para dispositivos móviles. La tabla ahora se transforma "inteligentemente" en una vista vertical compacta, asegurando que toda la información y acciones sean accesibles en pantallas pequeñas.
 *   **GitHub**: Backup completo de la lógica de banners y limpieza visual del storefront.

@@ -193,18 +193,18 @@ export default function StorePage() {
               >
                 <img
                   src={banners[currentSlide].image_url}
-                  alt={banners[currentSlide].title}
+                  alt={language === 'es' ? (banners[currentSlide].title_es || "Banner") : (banners[currentSlide].title_en || banners[currentSlide].title_es || "Banner")}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black via-black/40 to-transparent flex flex-col justify-end md:justify-center p-6 md:px-20 pb-12 md:pb-6">
-                  {banners[currentSlide].subtitle && (
+                  {(language === 'es' ? banners[currentSlide].subtitle_es : (banners[currentSlide].subtitle_en || banners[currentSlide].subtitle_es)) && (
                     <motion.span 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
                       className="text-primary font-black tracking-[0.4em] text-[8px] md:text-[10px] uppercase mb-4 drop-shadow-md select-none"
                     >
-                      {banners[currentSlide].subtitle}
+                      {language === 'es' ? banners[currentSlide].subtitle_es : (banners[currentSlide].subtitle_en || banners[currentSlide].subtitle_es)}
                     </motion.span>
                   )}
                   <motion.h2 
@@ -213,7 +213,9 @@ export default function StorePage() {
                     transition={{ delay: 0.4, duration: 0.5 }}
                     className="text-2xl md:text-5xl lg:text-7xl font-black text-on-surface mb-4 md:mb-8 leading-tight max-w-3xl drop-shadow-2xl font-headline tracking-tighter uppercase"
                   >
-                    {banners[currentSlide].title || "OFERTA ESPECIAL"}
+                    {language === 'es' ? 
+                      (banners[currentSlide].title_es || "OFERTA ESPECIAL") : 
+                      (banners[currentSlide].title_en || banners[currentSlide].title_es || "SPECIAL OFFER")}
                   </motion.h2>
                   
                   <motion.button 

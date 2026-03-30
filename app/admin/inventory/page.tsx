@@ -38,6 +38,18 @@ export default function AdminInventoryPage() {
     }
   };
 
+  const handleDeleteCode = async (id: string) => {
+    if (!confirm("¿Estás seguro de eliminar este código?")) return;
+    try {
+      const { error } = await supabase.from('inventory_codes').delete().eq('id', id);
+      if (error) throw error;
+      fetchData();
+    } catch (err) {
+      console.error("Error deleting code:", err);
+      alert("Error al eliminar el código");
+    }
+  };
+
   React.useEffect(() => {
     if (user) fetchData();
   }, [user]);
@@ -142,6 +154,68 @@ export default function AdminInventoryPage() {
               </div>
            </div>
 
+            {/* Mobile Adaptive Cards - Intelligently adapted for small screens */}
+            <div className="lg:hidden space-y-4 px-2">
+               {codes.map((item, idx) => (
+                  <div key={idx} className="bg-[#191b23] p-5 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden group">
+                     {/* Flag & Region floating */}
+                     <div className="absolute top-5 right-5 flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5">
+                        <img 
+                           src={`https://flagcdn.com/w40/${
+                              item.region === 'USA' ? 'us' : 
+                              item.region === 'Colombia' ? 'co' : 
+                              item.region === 'Brazil' ? 'br' : 
+                              item.region === 'Argentina' ? 'ar' : 
+                              item.region === 'Turkia' ? 'tr' : 
+                              item.region === 'India' ? 'in' : 'un'
+                           }.png`} 
+                           className="w-4 h-2.5 object-cover rounded-sm" 
+                           alt={item.region} 
+                        />
+                        <span className="text-[9px] font-black text-white/60 uppercase">{item.region || 'Global'}</span>
+                     </div>
+
+                     <div className="flex flex-col gap-4">
+                        <div className="flex flex-col">
+                           <span className="text-label-sm text-white/30 uppercase mb-1">Producto</span>
+                           <h4 className="text-sm font-black text-white leading-none uppercase">{item.product?.name}</h4>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="flex flex-col">
+                              <span className="text-label-sm text-white/30 uppercase mb-1">Estado</span>
+                              <span className={`w-fit px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${item.status === 'available' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-500'}`}>
+                                 {item.status}
+                              </span>
+                           </div>
+                           <div className="flex flex-col">
+                              <span className="text-label-sm text-white/30 uppercase mb-1">Precio</span>
+                              <span className="text-base font-black text-primary">${item.product?.price}us</span>
+                           </div>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-4 mt-2 border-t border-white/5">
+                           <div className="flex flex-col">
+                              <span className="text-label-sm text-white/30 uppercase mb-1">Código</span>
+                              <code className="text-[11px] font-mono text-primary font-bold">{item.code}</code>
+                           </div>
+                           <button 
+                              onClick={() => handleDeleteCode(item.id)}
+                              className="w-10 h-10 rounded-2xl bg-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500/20 active:scale-90 transition-all shadow-lg"
+                           >
+                              <span className="material-symbols-outlined text-[18px]">delete</span>
+                           </button>
+                        </div>
+                     </div>
+                  </div>
+               ))}
+               {codes.length === 0 && (
+                  <div className="py-20 text-center bg-[#191b23] rounded-[2rem] border border-dashed border-white/5">
+                     <p className="text-white/20 font-black uppercase tracking-widest text-[10px]">Sin inventario actual</p>
+                  </div>
+               )}
+            </div>
+
            <div className="hidden lg:block bg-[#191b23] rounded-[2.5rem] overflow-hidden shadow-2xl">
               <table className="w-full border-separate border-spacing-0">
                  <thead>
@@ -151,6 +225,7 @@ export default function AdminInventoryPage() {
                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Región</th>
                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Código</th>
+                       <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-right">Acciones</th>
                     </tr>
                  </thead>
                  <tbody className="divide-y divide-white/5">
@@ -187,6 +262,14 @@ export default function AdminInventoryPage() {
                           <td className="px-8 py-6">
                              <code className="text-xs font-mono text-white/40 group-hover:text-primary transition-colors">{item.code}</code>
                           </td>
+                          <td className="px-8 py-6 text-right">
+                              <button 
+                                onClick={() => handleDeleteCode(item.id)}
+                                className="p-2 hover:bg-red-500/10 rounded-xl text-white/20 hover:text-red-400 transition-all active:scale-90"
+                              >
+                                 <span className="material-symbols-outlined text-[18px]">delete</span>
+                              </button>
+                           </td>
                        </tr>
                     ))}
                  </tbody>
