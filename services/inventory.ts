@@ -58,7 +58,7 @@ export const inventoryService = {
   async getAdminInventory() {
     const { data, error } = await supabase
       .from('products')
-      .select('*, category:categories(name, slug)')
+      .select('*, categories(name, slug, image_url)')
       .order('created_at', { ascending: false });
 
     if (error) throw error;

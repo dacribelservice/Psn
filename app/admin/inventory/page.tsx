@@ -116,21 +116,42 @@ export default function AdminInventoryPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-y divide-white/5 md:divide-y-0">
              {products.map((item, idx) => {
-                const platform = item.name.toLowerCase().includes('playstation') ? 'PS' : item.name.toLowerCase().includes('xbox') ? 'XB' : 'NT';
+                const category = Array.isArray(item.categories) ? item.categories[0] : item.categories;
+                const categoryImage = category?.image_url;
+                const region = item.region || 'USA';
+                const flagCode = region === 'USA' ? 'us' : 
+                               region === 'Colombia' ? 'co' : 
+                               region === 'Brazil' ? 'br' : 
+                               region === 'Argentina' ? 'ar' : 
+                               region === 'Turkia' ? 'tr' : 
+                               region === 'India' ? 'in' : 'un';
+
                 return (
-                  <div key={idx} className="flex items-center justify-between px-8 py-6 hover:bg-white/5 transition-colors group">
+                  <div key={idx} className="flex items-center justify-between px-8 py-4 hover:bg-white/[0.03] transition-colors group">
                      <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center border-none text-label-sm ${platform === 'PS' ? 'bg-primary/20 text-primary' : platform === 'XB' ? 'bg-[#c3c4e2]/20 text-[#c3c4e2]' : 'bg-green-400/20 text-green-400'}`}>
-                          {platform}
+                        <div className="w-11 h-11 rounded-full overflow-hidden flex-shrink-0 bg-black/40 ring-1 ring-white/5 shadow-2xl relative">
+                           {categoryImage ? (
+                             <img src={categoryImage} className="w-full h-full object-cover" alt={category?.name} />
+                           ) : (
+                             <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-black text-xs">
+                               {(category?.name || item.name).substring(0,2).toUpperCase()}
+                             </div>
+                           )}
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-[13px] font-bold text-white/80 group-hover:text-white transition-colors tracking-tight">{item.name}</span>
-                          <span className="text-label-sm text-primary">${item.price}us</span>
+                           <div className="flex items-center gap-2">
+                              <img 
+                                 src={`https://flagcdn.com/w40/${flagCode}.png`} 
+                                 className="w-3.5 h-2.5 object-cover rounded-px opacity-60" 
+                                 alt={region} 
+                              />
+                              <span className="text-[13px] font-black text-white/90 group-hover:text-white transition-colors tracking-tight uppercase leading-none">{item.name}</span>
+                           </div>
                         </div>
                      </div>
-                     <div className="flex flex-col items-end">
-                        <span className="text-label-sm text-white/20 uppercase leading-none">STOCK</span>
-                        <span className={`text-xl md:text-2xl font-display ${(item.stock || 0) <= 5 ? 'text-red-400' : 'text-white'}`}>{item.stock || 0}</span>
+                     <div className="flex flex-col items-end gap-1">
+                        <span className="text-[10px] font-black text-white/20 uppercase tracking-widest leading-none">STOCK</span>
+                        <span className={`text-xl font-display leading-none ${(item.stock || 0) <= 5 ? 'text-red-400' : 'text-white'}`}>{item.stock || 0}</span>
                      </div>
                   </div>
                 );
