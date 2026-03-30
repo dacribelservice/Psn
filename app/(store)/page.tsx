@@ -27,6 +27,7 @@ export default function StorePage() {
   const [banners, setBanners] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingBanners, setLoadingBanners] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   React.useEffect(() => {
     const loadData = async () => {
@@ -130,6 +131,10 @@ export default function StorePage() {
       router.push(`/payment/processing?method=${method}&amount=${amount.toFixed(2)}&productId=${selectedProductId}`);
     }, 300);
   };
+
+  const filteredCategories = categories.filter(cat => 
+    cat.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
 
   const swipeConfidenceThreshold = 10000;
@@ -296,17 +301,34 @@ export default function StorePage() {
         </section>
 
         {/* Search Bar */}
-        <section className="mb-12 max-w-2xl mx-auto">
-          <div className="relative group">
-            <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
-              <span className="material-symbols-outlined text-[#c3c4e2]/60 group-focus-within:text-primary transition-all duration-300">search</span>
+        <section className="mb-12 max-w-xl mx-auto px-4">
+          <motion.div 
+            initial={false}
+            animate={{ scale: searchQuery ? 1.02 : 1 }}
+            className="relative group"
+          >
+            <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none z-10">
+              <span className={`material-symbols-outlined transition-all duration-500 text-[22px] ${searchQuery ? 'text-primary' : 'text-white/40'}`}>search</span>
             </div>
             <input
-              className="w-full bg-[#191b23]/50 border border-white/5 outline-none focus:ring-4 focus:ring-primary/20 hover:border-white/10 rounded-full py-5 pl-16 pr-8 text-on-surface placeholder:text-[#c3c4e2]/40 transition-all backdrop-blur-xl shadow-2xl font-medium"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#11131b]/60 border-2 border-white/5 outline-none focus:border-primary/50 rounded-full py-3.5 md:py-4 pl-16 pr-12 text-on-surface placeholder:text-white/10 transition-all backdrop-blur-3xl shadow-[0_20px_40px_rgba(0,0,0,0.4)] font-bold text-sm"
               placeholder={t("search_placeholder")}
               type="text"
             />
-          </div>
+            {searchQuery && (
+              <button 
+                onClick={() => setSearchQuery("")}
+                className="absolute inset-y-0 right-4 flex items-center text-white/20 hover:text-primary transition-colors"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            )}
+            
+            {/* Animated Gold Border Glow */}
+            <div className={`absolute -inset-[2px] rounded-full bg-gradient-to-r from-primary/30 via-primary/5 to-primary/30 -z-10 opacity-0 group-focus-within:opacity-100 transition-opacity blur-md`} />
+          </motion.div>
         </section>
 
 
@@ -319,8 +341,11 @@ export default function StorePage() {
             </h3>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-12 lg:gap-16 max-w-5xl mx-auto px-4">
-            {categories.map((cat) => (
-              <div 
+            {filteredCategories.map((cat) => (
+              <motion.div 
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
                 key={cat.id} 
                 className="flex flex-col items-center group cursor-pointer transition-all duration-300"
                 onClick={() => {
@@ -338,8 +363,13 @@ export default function StorePage() {
                   )}
                 </div>
                 <span className="text-on-surface font-black text-[10px] md:text-sm tracking-widest group-hover:text-primary transition-colors text-center uppercase">{cat.name}</span>
-              </div>
+              </motion.div>
             ))}
+            {filteredCategories.length === 0 && !loading && (
+              <div className="col-span-full py-20 text-center">
+                 <p className="text-white/20 font-black uppercase tracking-[0.3em] text-xs">No se encontraron resultados</p>
+              </div>
+            )}
             {loading && [1,2,3,4].map(i => (
               <div key={i} className="animate-pulse flex flex-col items-center">
                 <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-white/5 mb-4"></div>

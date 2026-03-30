@@ -71,12 +71,24 @@ export const ProductBottomSheet = ({
     if (categoryProducts.length > 0) {
       if (!selectedProduct || !categoryProducts.find(p => p.id === selectedProduct.id)) {
         setSelectedProduct(categoryProducts[0]);
+        setQuantity(1);
       }
     } else {
       setSelectedProduct(null);
+      setQuantity(0);
     }
   }, [categoryProducts, selectedProduct]);
 
+  // Handle selectedProduct change specifically to reset quantity
+  React.useEffect(() => {
+    if (selectedProduct) {
+       setQuantity(selectedProduct.stock > 0 ? 1 : 0);
+    }
+  }, [selectedProduct?.id]);
+
+  if (selectedProduct && quantity > (selectedProduct.stock || 0)) {
+    setQuantity(selectedProduct?.stock || 0);
+  }
 
   if (!category) return null;
 
@@ -189,8 +201,12 @@ export const ProductBottomSheet = ({
                   <div className="flex justify-between items-center mb-3 pr-2">
                     <span className="block text-[11px] font-black text-black/30 uppercase tracking-[0.25em] ml-1">Denominación</span>
                     {selectedProduct && (
-                      <span className="text-[10px] font-black text-emerald-600 bg-emerald-100/50 px-2.5 py-1 rounded-full border border-emerald-200">
-                        {selectedProduct.stock} EN STOCK
+                      <span className={`text-[10px] font-black px-2.5 py-1 rounded-full border transition-all duration-300 ${
+                         ((selectedProduct?.stock || 0) - quantity) > 0 
+                         ? 'text-emerald-600 bg-emerald-100/50 border-emerald-200' 
+                         : 'text-red-600 bg-red-100/50 border-red-200'
+                      }`}>
+                        {Math.max(0, (selectedProduct?.stock || 0) - quantity)} EN STOCK
                       </span>
                     )}
                   </div>
@@ -230,14 +246,16 @@ export const ProductBottomSheet = ({
                   <div className="flex items-center justify-between bg-black/5 p-1 rounded-full w-32 border border-black/[0.03]">
                         <button 
                           onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-black/5 transition-colors text-black/40 active:scale-90"
+                          disabled={quantity <= 1 || (selectedProduct?.stock || 0) === 0}
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-black/5 transition-colors text-black/40 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed"
                         >
                            <span className="material-symbols-outlined text-[16px]">remove</span>
                         </button>
                         <span className="text-[#11131b] font-black text-base">{quantity}</span>
                         <button 
-                          onClick={() => setQuantity(quantity + 1)}
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-black/5 transition-colors text-black/40 active:scale-90"
+                          onClick={() => setQuantity(Math.min(selectedProduct?.stock || 0, quantity + 1))}
+                          disabled={!selectedProduct || quantity >= (selectedProduct?.stock || 0)}
+                          className={`w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm hover:bg-black/5 transition-all text-black/40 active:scale-90 disabled:opacity-0 disabled:pointer-events-none`}
                         >
                            <span className="material-symbols-outlined text-[16px]">add</span>
                         </button>

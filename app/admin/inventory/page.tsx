@@ -16,8 +16,14 @@ export default function AdminInventoryPage() {
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [isGiftCardSheetOpen, setIsGiftCardSheetOpen] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [codes, setCodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Filter States
+  const [filterPlatform, setFilterPlatform] = useState("Todos");
+  const [filterCountry, setFilterCountry] = useState("Todos");
+  const [filterValue, setFilterValue] = useState("Todos");
 
   const fetchData = async () => {
     try {
@@ -25,9 +31,12 @@ export default function AdminInventoryPage() {
       const adminProducts = await inventoryService.getAdminInventory();
       setProducts(adminProducts);
 
+      const cats = await inventoryService.getCategories();
+      setCategories(cats);
+
       const { data: realCodes } = await supabase
         .from('inventory_codes')
-        .select('*, product:products(name, price, category_id)')
+        .select('*, product:products(name, price, category_id, region)')
         .order('created_at', { ascending: false });
       
       setCodes(realCodes || []);
@@ -60,6 +69,16 @@ export default function AdminInventoryPage() {
   const totalInvertedCOP = activeCodes.reduce((acc, item) => acc + ((item.face_value || item.product?.price || 0) * (item.usd_rate || 4000)), 0);
   const criticalItems = products.filter(item => (item.stock || 0) <= (item.stock_alert_threshold || 5)).map(item => ({ name: item.name, stock: item.stock || 0 }));
   const activeCodesCount = activeCodes.length;
+
+  const filteredCodes = codes.filter(item => {
+    const matchPlatform = filterPlatform === "Todos" || item.product?.category_id === filterPlatform;
+    const matchCountry = filterCountry === "Todos" || item.region === filterCountry;
+    const matchValue = filterValue === "Todos" || item.product?.price?.toString() === filterValue;
+    return matchPlatform && matchCountry && matchValue;
+  });
+
+  const availableCountries = Array.from(new Set(codes.map(c => c.region).filter(Boolean)));
+  const availableValues = Array.from(new Set(codes.map(c => c.product?.price?.toString()).filter(Boolean))).sort((a,b) => Number(a) - Number(b));
 
   const metrics = [
     { label: t("total_invested"), value: totalInvertedUSDT.toLocaleString(), sub: `$${totalInvertedCOP.toLocaleString()} COP`, unit: "USDT", icon: "payments", color: "primary" },
@@ -161,23 +180,82 @@ export default function AdminInventoryPage() {
 
         {/* Detailed Codes Table */}
         <section className="space-y-6 pt-4">
-           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 px-4">
-              <div className="flex items-center gap-6">
-                 <h1 className="text-xl md:text-2xl font-display text-white uppercase">{t("inventory")}</h1>
-                 <div className="flex items-center gap-3">
-                    <button onClick={() => setIsCategorySheetOpen(true)} className="w-12 h-12 rounded-full bg-[#f2b92f] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-2xl">
-                       <span className="material-symbols-outlined font-black">folder</span>
-                    </button>
-                    <button onClick={() => setIsGiftCardSheetOpen(true)} className="w-12 h-12 rounded-full bg-[#f2b92f] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-2xl">
-                       <span className="material-symbols-outlined font-black text-2xl">add</span>
-                    </button>
-                 </div>
-              </div>
-           </div>
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 px-4">
+               <div className="flex items-center gap-6">
+                  <h1 className="text-xl md:text-2xl font-display text-white uppercase">{t("inventory")}</h1>
+                  <div className="flex items-center gap-3">
+                     <button onClick={() => setIsCategorySheetOpen(true)} className="w-12 h-12 rounded-full bg-[#f2b92f] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-2xl">
+                        <span className="material-symbols-outlined font-black">folder</span>
+                     </button>
+                     <button onClick={() => setIsGiftCardSheetOpen(true)} className="w-12 h-12 rounded-full bg-[#f2b92f] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-2xl">
+                        <span className="material-symbols-outlined font-black text-2xl">add</span>
+                     </button>
+                  </div>
+               </div>
+
+               {/* Premium Filters Group */}
+               <div className="flex flex-wrap items-center gap-3">
+                  {/* Platform Filter */}
+                  <div className="relative group">
+                     <select 
+                        value={filterPlatform}
+                        onChange={(e) => setFilterPlatform(e.target.value)}
+                        className="appearance-none bg-[#1e202f] text-white/70 text-label-sm font-black uppercase pl-6 pr-12 py-3 rounded-full border border-white/5 hover:border-primary/30 hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer min-w-[140px]"
+                     >
+                        <option value="Todos">Plataforma: Todas</option>
+                        {categories.map(cat => (
+                           <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        ))}
+                     </select>
+                     <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none text-[18px]">keyboard_arrow_down</span>
+                  </div>
+
+                  {/* Country Filter */}
+                  <div className="relative group">
+                     <select 
+                        value={filterCountry}
+                        onChange={(e) => setFilterCountry(e.target.value)}
+                        className="appearance-none bg-[#1e202f] text-white/70 text-label-sm font-black uppercase pl-6 pr-12 py-3 rounded-full border border-white/5 hover:border-primary/30 hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer min-w-[140px]"
+                     >
+                        <option value="Todos">País: Todos</option>
+                        {availableCountries.map(country => (
+                           <option key={country} value={country}>{country}</option>
+                        ))}
+                     </select>
+                     <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none text-[18px]">keyboard_arrow_down</span>
+                  </div>
+
+                  {/* Value Filter */}
+                  <div className="relative group">
+                     <select 
+                        value={filterValue}
+                        onChange={(e) => setFilterValue(e.target.value)}
+                        className="appearance-none bg-[#1e202f] text-white/70 text-label-sm font-black uppercase pl-6 pr-12 py-3 rounded-full border border-white/5 hover:border-primary/30 hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer min-w-[120px]"
+                     >
+                        <option value="Todos">Valor: Todos</option>
+                        {availableValues.map(val => (
+                           <option key={val} value={val}>${val}</option>
+                        ))}
+                     </select>
+                     <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none text-[18px]">keyboard_arrow_down</span>
+                  </div>
+
+                  {/* Reset Filter Button */}
+                  {(filterPlatform !== "Todos" || filterCountry !== "Todos" || filterValue !== "Todos") && (
+                     <button 
+                        onClick={() => { setFilterPlatform("Todos"); setFilterCountry("Todos"); setFilterValue("Todos"); }}
+                        className="w-10 h-10 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500/20 active:scale-90 transition-all"
+                        title="Limpiar Filtros"
+                     >
+                        <span className="material-symbols-outlined text-[18px]">filter_alt_off</span>
+                     </button>
+                  )}
+               </div>
+            </div>
 
             {/* Mobile Adaptive Cards - Intelligently adapted for small screens */}
             <div className="lg:hidden space-y-4 px-2">
-               {codes.map((item, idx) => (
+               {filteredCodes.map((item, idx) => (
                   <div key={idx} className="bg-[#191b23] p-5 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden group">
                      {/* Flag & Region floating */}
                      <div className="absolute top-5 right-5 flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5">
@@ -230,7 +308,7 @@ export default function AdminInventoryPage() {
                      </div>
                   </div>
                ))}
-               {codes.length === 0 && (
+               {filteredCodes.length === 0 && (
                   <div className="py-20 text-center bg-[#191b23] rounded-[2rem] border border-dashed border-white/5">
                      <p className="text-white/20 font-black uppercase tracking-widest text-[10px]">Sin inventario actual</p>
                   </div>
@@ -250,7 +328,7 @@ export default function AdminInventoryPage() {
                     </tr>
                  </thead>
                  <tbody className="divide-y divide-white/5">
-                    {codes.map((item, idx) => (
+                    {filteredCodes.map((item, idx) => (
                        <tr key={idx} className="group hover:bg-white/5 transition-all">
                           <td className="px-8 py-6 font-bold text-white text-sm">
                              {item.product?.name}

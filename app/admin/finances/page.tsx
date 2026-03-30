@@ -51,6 +51,8 @@ export default function AdminFinancesPage() {
   });
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -125,7 +127,7 @@ export default function AdminFinancesPage() {
           monthlyChartData: historyData
         });
         
-        setOrders(formattedOrders.slice(0, 10));
+        setOrders(formattedOrders);
       }
       
       setLoading(false);
@@ -154,6 +156,10 @@ export default function AdminFinancesPage() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const totalPages = Math.ceil(orders.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentOrders = orders.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="flex min-h-screen bg-[#11131b] text-on-surface font-sans antialiased">
@@ -261,7 +267,7 @@ export default function AdminFinancesPage() {
                       </tr>
                    </thead>
                    <tbody className="divide-y divide-white/5 text-sm">
-                      {orders.map((order, idx) => (
+                      {currentOrders.map((order, idx) => (
                          <tr key={idx} className="group hover:bg-white/5 transition-all cursor-default">
                             <td className="px-8 py-6">
                                <div className="flex items-center gap-4">
@@ -304,24 +310,41 @@ export default function AdminFinancesPage() {
              </div>
           </div>
 
-          {/* Pagination */}
-          <div className="flex items-center justify-center gap-4 pt-6">
-            <button className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 hover:text-primary transition-all">
-               <span className="material-symbols-outlined">chevron_left</span>
-            </button>
-            <div className="flex items-center gap-3">
-               {[1, 2, 3].map(p => (
-                 <button key={p} className={`w-12 h-12 rounded-2xl font-black text-xs transition-all ${p === 1 ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'bg-white/5 text-white/20 hover:text-white'}`}>
-                    {p}
-                 </button>
-               ))}
-               <span className="text-white/10 px-2">...</span>
-               <button className="w-12 h-12 rounded-2xl bg-white/5 font-black text-xs text-white/20">12</button>
-            </div>
-            <button className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 hover:text-primary transition-all">
-               <span className="material-symbols-outlined">chevron_right</span>
-            </button>
-          </div>
+           {/* Pagination */}
+           {totalPages > 1 && (
+             <div className="flex items-center justify-center gap-4 pt-6">
+               <button 
+                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                 disabled={currentPage === 1}
+                 className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/20 hover:text-primary transition-all disabled:opacity-0"
+               >
+                  <span className="material-symbols-outlined">chevron_left</span>
+               </button>
+               <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                    <button 
+                      key={p} 
+                      onClick={() => setCurrentPage(p)}
+                      className={`w-10 h-10 rounded-full font-black text-xs transition-all ${p === currentPage ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'bg-white/5 text-white/20 hover:text-white'}`}
+                    >
+                       {p}
+                    </button>
+                  ))}
+               </div>
+               <button 
+                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                 disabled={currentPage === totalPages}
+                 className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/20 hover:text-primary transition-all disabled:opacity-0"
+               >
+                  <span className="material-symbols-outlined">chevron_right</span>
+               </button>
+             </div>
+           )}
+           {orders.length === 0 && (
+              <div className="py-20 text-center bg-[#191b23] rounded-[2.5rem] border border-dashed border-white/5">
+                 <p className="text-white/20 font-black uppercase tracking-widest text-xs">Aún no hay órdenes registradas</p>
+              </div>
+           )}
         </section>
       </main>
     </div>
