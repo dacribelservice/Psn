@@ -25,6 +25,8 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   signOut: () => void;
   deleteAccount: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -185,6 +187,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           await signOut();
         }
         setLoading(false);
+      },
+      resetPassword: async (email: string) => {
+        setLoading(true);
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
+        });
+        setLoading(false);
+        if (error) throw error;
+      },
+      updatePassword: async (newPassword: string) => {
+        setLoading(true);
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        setLoading(false);
+        if (error) throw error;
+        router.push("/login?message=Clave actualizada correctamente");
       }
     }}>
       {children}
