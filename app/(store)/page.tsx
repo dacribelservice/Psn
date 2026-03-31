@@ -18,6 +18,7 @@ export default function StorePage() {
   const { t, language } = useLanguage();
   const [[currentSlide, direction], setSlide] = useState([0, 0]);
   const [amount, setAmount] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const [selectedProductId, setSelectedProductId] = useState('');
   const [isProductSheetOpen, setIsProductSheetOpen] = useState(false);
   const [isPaymentSheetOpen, setIsPaymentSheetOpen] = useState(false);
@@ -105,16 +106,33 @@ export default function StorePage() {
         }
       )
       .subscribe();
+    
+    // REALTIME: Listen for stock changes (inventory codes updates)
+    const stockChannel = supabase
+      .channel('stock-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'inventory_codes' },
+        async (payload) => {
+          console.log('Stock inventory update:', payload);
+          // Recargamos solo los productos para actualizar el stock real
+          const updatedProducts = await inventoryService.getStorefrontProducts();
+          setProducts(updatedProducts);
+        }
+      )
+      .subscribe();
 
     return () => {
       supabase.removeChannel(catChannel);
       supabase.removeChannel(prodChannel);
       supabase.removeChannel(bannerChannel);
+      supabase.removeChannel(stockChannel);
     };
   }, []);
 
-  const handleProceedToPayment = (selectedAmount: number, productId: string) => {
+  const handleProceedToPayment = (selectedAmount: number, productId: string, selectedQuantity: number) => {
     setAmount(selectedAmount);
+    setQuantity(selectedQuantity);
     setSelectedProductId(productId);
     setIsProductSheetOpen(false);
     setTimeout(() => {
@@ -128,7 +146,7 @@ export default function StorePage() {
     
     // Smooth transition to payment processing page
     setTimeout(() => {
-      router.push(`/payment/processing?method=${method}&amount=${amount.toFixed(2)}&productId=${selectedProductId}`);
+      router.push(`/payment/processing?method=${method}&amount=${amount.toFixed(2)}&productId=${selectedProductId}&quantity=${quantity}`);
     }, 300);
   };
 
@@ -370,7 +388,7 @@ export default function StorePage() {
                  <p className="text-white/20 font-black uppercase tracking-[0.3em] text-xs">No se encontraron resultados</p>
               </div>
             )}
-            {loading && [1,2,3,4].map(i => (
+            {loading && categories.length === 0 && [1,2,3,4].map(i => (
               <div key={i} className="animate-pulse flex flex-col items-center">
                 <div className="w-28 h-28 md:w-36 md:h-36 rounded-full bg-white/5 mb-4"></div>
                 <div className="h-4 w-20 bg-white/5 rounded"></div>

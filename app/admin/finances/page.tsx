@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/lib/supabase";
+import { motion, AnimatePresence } from "framer-motion";
 
 const StatCard = ({ label, value, sub, trend, icon, color = "primary" }: any) => {
   // Parsing value to ensure it's a number for COP calculation
@@ -249,50 +250,52 @@ export default function AdminFinancesPage() {
               </div>
            </div>
 
-           <div className="h-48 w-full relative group mt-4">
-              <svg className="w-full h-full overflow-visible" preserveAspectRatio="none">
-                 <defs>
-                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                       <stop offset="0%" stopColor="#f7be34" stopOpacity="0.2" />
-                       <stop offset="100%" stopColor="#f7be34" stopOpacity="0" />
-                    </linearGradient>
-                 </defs>
-                 
-                 {/* Line Path */}
-                 <path 
-                    d={`M ${metrics.monthlyChartData.map((d, i) => `${(i / 11) * 100}%, ${100 - (Math.min(d.amount / (Math.max(...metrics.monthlyChartData.map(x => x.amount)) || 1), 1) * 80 + 10)}%`).join(' L ')}`}
-                    fill="none"
-                    stroke="#f7be34"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    className="drop-shadow-[0_0_10px_rgba(247,190,52,0.5)]"
-                    style={{ vectorEffect: 'non-scaling-stroke' }}
-                 />
-                 
-                 {/* Area Fill */}
-                 <path 
-                    d={`M 0,100 L ${metrics.monthlyChartData.map((d, i) => `${(i / 11) * 100}%, ${100 - (Math.min(d.amount / (Math.max(...metrics.monthlyChartData.map(x => x.amount)) || 1), 1) * 80 + 10)}%`).join(' L ')} L 100,100 Z`}
-                    fill="url(#chartGradient)"
-                    style={{ vectorEffect: 'non-scaling-stroke' }}
-                 />
+           <div className="h-64 w-full relative mt-4 flex items-end justify-between gap-1 md:gap-4 px-1 pb-8">
+              {metrics.monthlyChartData.map((d, i) => {
+                const maxVal = Math.max(...metrics.monthlyChartData.map(x => x.amount)) || 1;
+                const heightPercentage = Math.min((d.amount / maxVal) * 100, 100);
+                
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center group relative h-full justify-end">
+                    {/* Tooltip on hover */}
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      whileHover={{ opacity: 1, y: -5 }}
+                      className="absolute -top-12 z-20 bg-white/10 backdrop-blur-xl border border-white/10 px-3 py-1.5 rounded-xl pointer-events-none shadow-2xl"
+                    >
+                      <p className="text-[10px] font-black text-primary leading-none uppercase mb-1">{d.month}</p>
+                      <p className="text-xs font-bold text-white leading-none whitespace-nowrap">{d.amount.toLocaleString()} USDT</p>
+                    </motion.div>
 
-                 {/* Data Points */}
-                 {metrics.monthlyChartData.map((d, i) => (
-                    <circle 
-                       key={i}
-                       cx={`${(i / 11) * 100}%`}
-                       cy={`${100 - (Math.min(d.amount / (Math.max(...metrics.monthlyChartData.map(x => x.amount)) || 1), 1) * 80 + 10)}%`}
-                       r="4"
-                       className="fill-[#191b23] stroke-primary stroke-[2px] transition-all hover:r-6 cursor-pointer"
-                    />
-                 ))}
-              </svg>
+                    {/* The Glass Bar */}
+                    <div className="w-full max-w-[40px] relative h-full flex flex-col justify-end">
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: `${heightPercentage}%` }}
+                        transition={{ type: "spring", damping: 15, stiffness: 100, delay: i * 0.05 }}
+                        className="w-full rounded-t-xl relative overflow-hidden bg-gradient-to-t from-primary/20 via-primary/5 to-transparent border-t border-x border-white/10 backdrop-blur-sm group-hover:from-primary/40 group-hover:border-primary/40 transition-all duration-300"
+                      >
+                         {/* Shine Effect */}
+                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out"></div>
+                         
+                         {/* Top cap glow */}
+                         <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary shadow-[0_0_15px_rgba(247,190,52,0.8)] opacity-50 group-hover:opacity-100"></div>
+                      </motion.div>
+                    </div>
+
+                    {/* Bottom Label */}
+                    <span className="absolute -bottom-6 text-[9px] font-black text-white/20 uppercase tracking-tighter transition-colors group-hover:text-primary">
+                      {d.month}
+                    </span>
+                  </div>
+                );
+              })}
               
-              {/* Labels */}
-              <div className="flex justify-between mt-6 px-1">
-                 {metrics.monthlyChartData.map((d, i) => (
-                    <span key={i} className="text-[9px] font-black text-white/20 uppercase tracking-tighter">{d.month}</span>
-                 ))}
+              {/* Background horizontal grid lines */}
+              <div className="absolute inset-x-0 inset-y-0 -z-10 flex flex-col justify-between pointer-events-none opacity-5">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-full h-[1px] bg-white"></div>
+                ))}
               </div>
            </div>
         </section>

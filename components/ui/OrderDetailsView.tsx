@@ -101,23 +101,27 @@ export const OrderDetailsView = ({ orderData, onClose, showConfetti = true }: Or
         {/* Transaction Details Card */}
         <div className="bg-[#30334a]/40 backdrop-blur-xl w-full rounded-2xl p-6 mb-10 text-left border border-white/5 shadow-2xl">
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl overflow-hidden bg-black/20 flex items-center justify-center border border-white/5">
-                <img 
-                  alt="Product Logo" 
-                  className="w-8 h-8" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwlSvNIjLatXyidNG5Am2bK-rHDiFxAMcuySaC_ZKPSngTVHUJjr5X_C8Wwr_p3vEraMQzCF6NmuHJcDAcmNMN4lsVu3ZD5d07VY3qMpLJg-Dd3EuZGJmLASst63jvG1wyfTLx7r5nL3hx4F16mLYw9dzTojusBENzAfGk8qwC0COP3ig3PDYd8nJXlH8tgzgSysihJDdD4UcdEjOCLuplWz_QN7d7UOA15acWjmwsa8bsO8oZWezeL68unib-PZ7BPNYlpxubE4aK"
-                />
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-14 h-14 rounded-full bg-surface-container-highest flex items-center justify-center border border-primary/20 shadow-lg overflow-hidden shrink-0">
+                  {orderData.product_image ? (
+                    <img 
+                      src={orderData.product_image} 
+                      alt={orderData.product}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="material-symbols-outlined text-primary text-2xl">sports_esports</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-display font-black text-white tracking-tight leading-none mb-1">{orderData.product}</h3>
+                  <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">Gift Card Digital</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-white/30 uppercase font-black mb-0.5">TOTAL</p>
+                  <p className="text-lg font-headline font-black text-primary leading-none">{orderData.amount}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-on-surface">{orderData.product}</h3>
-                <p className="text-xs text-white/40">Gift Card Digital</p>
-              </div>
-            </div>
-            <div className="text-right flex flex-col items-end">
-              <span className="text-[10px] uppercase tracking-wider text-white/40 font-medium mb-0.5">Total</span>
-              <span className="text-[#f2b92f] font-bold text-lg leading-tight">{orderData.amount}</span>
-            </div>
           </div>
 
           <div className="space-y-3 border-t border-white/5 pt-4">
@@ -138,7 +142,7 @@ export const OrderDetailsView = ({ orderData, onClose, showConfetti = true }: Or
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs uppercase tracking-wider text-white/30 font-medium">{language === "es" ? "Cantidad" : "Quantity"}</span>
-              <span className="text-sm text-white/60">1</span>
+              <span className="text-sm text-white/60">{orderData.codesCount}</span>
             </div>
           </div>
         </div>

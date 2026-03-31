@@ -10,7 +10,7 @@ import { useLanguage } from "@/context/LanguageContext";
 interface ProductBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  onProceed?: (amount: number, productId: string) => void;
+  onProceed?: (amount: number, productId: string, quantity: number) => void;
   category: Category | null;
   allProducts: Product[];
 }
@@ -297,7 +297,7 @@ export const ProductBottomSheet = ({
                       return;
                     }
                     if ((selectedProduct?.stock || 0) <= 0) return;
-                    onProceed?.(unitPrice * quantity, selectedProduct?.id || '');
+                    onProceed?.(unitPrice * quantity, selectedProduct?.id || '', quantity);
                   }}
                   disabled={(selectedProduct?.stock || 0) <= 0}
                   className={`font-black py-4 px-8 rounded-xl transition-all uppercase tracking-[0.05em] text-[11px] ${

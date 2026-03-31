@@ -14,6 +14,7 @@ export default function CheckoutProcessingPage() {
 
   const method = searchParams.get("method")?.toUpperCase() || "BEP20-USDT";
   const amount = searchParams.get("amount") || "22.37";
+  const quantity = parseInt(searchParams.get("quantity") || "1");
   const productId = searchParams.get("productId");
   const networkName = method.includes("BEP20") ? "Binance Smart Chain (BEP20)" : "TRON (TRC20)";
   const walletAddress = method.includes("BEP20") ? "0x7C187c1Fc9A9C96E5B" : "T9yD6vE6A7L8M9N1O2P";
@@ -160,7 +161,8 @@ export default function CheckoutProcessingPage() {
                   const { data: orderId, error: rpcError } = await supabase.rpc('process_checkout', {
                     p_product_id: productId,
                     p_amount: parseFloat(amount),
-                    p_method: method
+                    p_method: method,
+                    p_quantity: quantity
                   });
 
                   if (rpcError) throw rpcError;
@@ -235,25 +237,40 @@ export default function CheckoutProcessingPage() {
                   {validationStatus === "error" && (errorMessage || "No pudimos confirmar tu pago. Por favor intenta de nuevo.")}
                 </p>
 
-                <div className="pt-6">
+                <div className="pt-6 space-y-3 w-full">
                   {validationStatus === "success" ? (
                     <button 
                       onClick={() => router.push('/history')}
-                      className="w-full bg-green-500 text-white font-black py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(34,197,94,0.3)] uppercase tracking-widest text-[11px]"
+                      className="w-full bg-[#f2b92f] text-black font-black py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(242,185,47,0.3)] uppercase tracking-widest text-[11px]"
                     >
-                      Ir al historial
+                      Ir a mis pedidos
                     </button>
                   ) : validationStatus === "error" ? (
+                    <div className="space-y-3">
+                      <button 
+                        onClick={() => {
+                          setIsValidating(false);
+                          setValidationStatus("idle");
+                        }}
+                        className="w-full bg-red-500 text-white font-black py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(239,68,68,0.3)] uppercase tracking-widest text-[11px]"
+                      >
+                        Intentar de nuevo
+                      </button>
+                      <button 
+                        onClick={() => router.push('/history')}
+                        className="w-full bg-[#f2b92f] text-black font-black py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(242,185,47,0.3)] uppercase tracking-widest text-[11px]"
+                      >
+                        Ir a mis pedidos
+                      </button>
+                    </div>
+                  ) : (
                     <button 
-                      onClick={() => {
-                        setIsValidating(false);
-                        setValidationStatus("idle");
-                      }}
-                      className="w-full bg-red-500 text-white font-black py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(239,68,68,0.3)] uppercase tracking-widest text-[11px]"
+                      onClick={() => router.push('/history')}
+                      className="w-full bg-[#f2b92f] text-black font-black py-4 px-6 rounded-xl transition-all hover:scale-[1.02] active:scale-95 shadow-[0_4px_20px_rgba(242,185,47,0.3)] uppercase tracking-widest text-[11px]"
                     >
-                      Intentar de nuevo
+                      Ir a mis pedidos
                     </button>
-                  ) : null}
+                  )}
                 </div>
               </div>
 

@@ -114,6 +114,7 @@ export default function AdminInventoryPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [codes, setCodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [todaySales, setTodaySales] = useState({ usdt: 0, cop: 0 });
 
   // Confirmation Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -139,6 +140,28 @@ export default function AdminInventoryPage() {
         .order('created_at', { ascending: false });
       
       setCodes(realCodes || []);
+
+      // 4. Calcular Ventas de Hoy
+      const { data: todayOrders } = await supabase
+        .from('orders')
+        .select('amount, created_at')
+        .eq('status', 'completed');
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Inicio del día local
+      
+      const totalToday = (todayOrders || []).reduce((acc: number, o: any) => {
+        const orderDate = new Date(o.created_at);
+        if (orderDate >= today) {
+          return acc + (Number(o.amount) || 0);
+        }
+        return acc;
+      }, 0);
+
+      setTodaySales({ 
+        usdt: totalToday, 
+        cop: totalToday * 3650 // Tasa estándar para concordancia
+      });
     } catch (err) {
       console.error("Error fetching admin inventory:", err);
     } finally {
@@ -237,8 +260,8 @@ export default function AdminInventoryPage() {
           
           <StatCard 
             label="VENTAS DIARIAS" 
-            value="0" 
-            secondaryValue="0"
+            value={todaySales.usdt.toLocaleString()} 
+            secondaryValue={todaySales.cop.toLocaleString()}
             icon="point_of_sale" 
             color="primary" 
             sub="RECAUDO HOY" 
