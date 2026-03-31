@@ -142,12 +142,6 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
               )}
             </div>
 
-            {/* Modal Footer */}
-            <div className="px-4 pb-5 pt-2">
-              <button className="w-full py-2.5 rounded-xl bg-primary text-background font-black text-[10px] uppercase tracking-wider hover:scale-[1.02] active:scale-95 transition-all shadow-[0_10px_20px_rgba(242,185,47,0.2)]">
-                {t("review_all")}
-              </button>
-            </div>
           </motion.div>
         </>
       )}

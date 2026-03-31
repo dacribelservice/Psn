@@ -39,7 +39,7 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
       show: true 
     },
     { 
-      label: t("banners_management") || "Gestionar Banners", 
+      label: "Banners", 
       icon: "view_carousel", 
       onClick: () => { onClose(); onBannersClick?.(); },
       show: role === "admin" 
@@ -72,24 +72,33 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
       >
         <div className="p-6 bg-gradient-to-br from-[#191b23] to-[#11131b]">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-full border-2 border-primary/50 p-0.5 relative">
-              <img 
-                src={user?.avatar_url || "https://img.freepik.com/vector-premium/icono-avatar-masculino-persona-desconocida-vector-estilo-plano_501069-4217.jpg"} 
-                alt="Profile" 
-                className="w-full h-full rounded-full object-cover"
-              />
+            {/* Avatar Container */}
+            <div className="w-12 h-12 rounded-full border-2 border-primary/30 p-0.5 relative flex-shrink-0">
+              <div className="w-full h-full rounded-full overflow-hidden bg-white/5 flex items-center justify-center shadow-inner text-white/10">
+                {user?.avatar_url ? (
+                  <img 
+                    src={user.avatar_url} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="material-symbols-outlined text-white/30 text-2xl">account_circle</span>
+                )}
+              </div>
+              
+              {/* Badge Verificado VIP - Estrella Negra */}
               {user && (
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-[#191b23] flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[8px] text-background font-black">verified</span>
+                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-primary rounded-full border-2 border-[#191b23] flex items-center justify-center z-30 shadow-lg select-none">
+                  <span className="material-symbols-outlined text-[13px] text-[#000000] font-black fill-current">star</span>
                 </div>
               )}
             </div>
             
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold text-primary/60 mb-0.5 lowercase tracking-tight">
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] font-bold text-primary/60 mb-0.5 lowercase tracking-tight truncate">
                 {user?.email || (loading ? "Verificando..." : "Modo Invitado")}
               </span>
-              <h2 className="text-sm font-black tracking-tight leading-none text-on-surface uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+              <h2 className="text-sm font-black tracking-tight leading-none text-on-surface uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] truncate">
                 {user?.full_name || user?.email?.split('@')[0] || (loading ? "Cargando..." : "Invitado")}
               </h2>
             </div>
@@ -100,10 +109,14 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
               <button
                 key={idx}
                 onClick={item.onClick}
-                className="flex items-center space-x-3 px-3 py-2.5 text-on-surface/70 hover:text-primary hover:bg-white/5 rounded-xl transition-all group"
+                className="flex items-center space-x-3 px-3 py-2.5 text-on-surface hover:bg-white/5 rounded-xl transition-all group"
               >
-                <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                <span className="text-xs font-bold tracking-tight">{item.label}</span>
+                <span className="material-symbols-outlined text-[20px] text-primary group-hover:scale-110 transition-transform">
+                  {item.icon}
+                </span>
+                <span className="text-xs font-bold tracking-tight text-on-surface/80 group-hover:text-primary transition-colors">
+                  {item.label}
+                </span>
               </button>
             ))}
 
@@ -118,19 +131,21 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
 
             {user && (
               <div className="pt-4 mt-4 border-t border-white/5 space-y-1">
-                <button 
-                   onClick={() => setIsDeleteModalOpen(true)}
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-red-500/70 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all"
-                >
-                  <span className="material-symbols-outlined text-[20px]">delete</span>
-                   <span className="text-[10px] font-black uppercase text-xs">Eliminar Cuenta</span>
-                </button>
+                {role !== "admin" && (
+                  <button 
+                    onClick={() => setIsDeleteModalOpen(true)}
+                    className="w-full flex items-center space-x-3 px-3 py-2.5 text-red-500/70 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all group"
+                  >
+                    <span className="material-symbols-outlined text-[20px] group-hover:rotate-12 transition-transform">delete</span>
+                    <span className="text-[10px] font-black uppercase text-xs">Eliminar Cuenta</span>
+                  </button>
+                )}
 
                 <button 
                   onClick={handleSignOut}
-                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-primary/70 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                  className="w-full flex items-center space-x-3 px-3 py-2.5 text-primary/70 hover:text-primary hover:bg-primary/5 rounded-xl transition-all group"
                 >
-                  <span className="material-symbols-outlined text-[20px]">logout</span>
+                  <span className="material-symbols-outlined text-[20px] text-primary group-hover:-translate-x-1 transition-transform">logout</span>
                   <span className="text-[10px] font-black uppercase tracking-tight text-xs">Cerrar Sesión</span>
                 </button>
               </div>
@@ -182,13 +197,13 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative bg-[#191b23] border border-red-500/20 p-8 rounded-[2rem] w-full max-w-sm shadow-2xl"
+              className="relative bg-[#191b23] border border-red-500/20 p-8 rounded-[2rem] w-full max-sm shadow-2xl"
             >
               <div className="text-center">
-                 <span className="material-symbols-outlined text-red-500 text-5xl mb-4">warning</span>
+                <span className="material-symbols-outlined text-red-500 text-5xl mb-4">warning</span>
                 <h3 className="text-lg font-black text-white mb-2 uppercase tracking-tight">¿Estás seguro?</h3>
                 <p className="text-white/50 text-xs mb-8 font-bold">
-                   Esta acción es irreversible y perderás tu saldo.
+                  Esta acción es irreversible y perderás tu saldo.
                 </p>
                 <div className="flex flex-col space-y-3">
                   <button 
