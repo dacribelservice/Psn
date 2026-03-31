@@ -222,3 +222,41 @@ Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un dise
 *   **Estándares de Código:**
     *   **TypeScript Fixes:** Corrección de errores de tipado ("rojos") en el flujo de selección de productos.
 *   **GitHub**: Respaldo completo de la sesión sincronizado con el repositorio (`main`).
+
+---
+
+### Sesión XVII: Estabilidad de Rutas y Corrección de UX en Admin (Actual)
+
+- **Corrección de Conflicto de Rutas (Next.js)**:
+  - **Eliminación de Dúplicas**: Se eliminó la carpeta redundante `/app/payment` que causaba un error de compilación al colisionar con `/app/(store)/payment`.
+  - **Fusión de Lógica**: Se integró la lógica de validación de Supabase (`rpc_checkout`) dentro de la pantalla premium de procesamiento de pago. El botón "Validar Pago" ahora es totalmente funcional y sincronizado con la base de datos.
+- **Optimización de UX/UI Administrativo**:
+  - **Arreglo de Capas (z-index)**: Se corrigió el solapamiento visual donde los filtros de inventario cubrían el menú de perfil. Se elevó la jerarquía de `AdminHeader` y `ProfileMenu` asegurando que los menús siempre floten por encima del contenido.
+  - **Refuerzo de Feedback**: El modal de validación de pago ahora incluye estados dinámicos de éxito y error con iconografía de color (Verde/Rojo).
+- **Seguridad y Respaldo**:
+  - **Reactivación del Middleware de Seguridad**:
+  - **Implementación Evolucionada**: Se reemplazó el middleware de "no-bloqueo" por uno basado en `@supabase/ssr` que refresca la sesión y gestiona redirecciones de forma inteligente.
+  - **Lógica Anti-Bucle**: Se implementaron verificaciones cruzadas (`pathname` vs `role`) para asegurar que un administrador nunca sea bloqueado de su panel y que un usuario invitado siempre sea redirigido al login al intentar acceder a rutas protegidas.
+  - **Mapeo de Roles**: El sistema ahora distingue entre `admin` y `user` consultando la tabla de perfiles en tiempo real para máxima seguridad.
+- **GitHub**: Backup completo de la sesión sincronizado satisfactoriamente en el repositorio remoto.
+
+---
+*Bitácora actualizada (Sesión XVII - Marzo 2026). La arquitectura de rutas es ahora segura, performante y está alineada con el diseño Ethereal Vault.*
+
+## 📜 Documentación Especializada
+> [!IMPORTANT]
+> Se ha creado el archivo [mid.md](file:///c:/Users/cange/Documents/Psn/mid.md) para registrar detalladamente todos los fallos y soluciones relacionados con el **Middleware**, **Autenticación** y **Seguridad de Admin**. Consultar este archivo antes de realizar cambios estructurales en `AuthContext` o `middleware.ts`.
+
+### Sesión XVII: Estabilización Crítica de Autenticación y Layout
+**Objetivo:** Eliminar el error de carga infinita ("hang") y asegurar el flujo de admin.
+
+- **Middleware:** Simplificado a una versión ultra-ligera que solo refresca la sesión. El redireccionamiento por **rol** se movió a los layouts para mejorar la velocidad.
+- **AuthContext:** Corregido el bucle infinito del `useEffect`. Se implementó un `Ref` de control de fetches para evitar descargas duplicadas de perfil. 
+- **Seguridad Admin:** Creación de `app/admin/layout.tsx`. Este componente central ahora gestiona la seguridad (rol `admin`), carga de pantalla premium y navegación unificada.
+- **UI & Layout Fixes:**
+  - `AdminHeader`: Posicionamiento corregido con `right-0` para evitar desbordamiento lateral.
+  - Se eliminaron las sidebars y headers duplicados de cada página individual de administración.
+- **Histórico:** Creación del archivo `mid.md` como bitácora técnica de incidentes de seguridad.
+
+---
+*Fin de Sesión XVII. El acceso administrativo es ahora fluido, seguro y fácil de auditar.*

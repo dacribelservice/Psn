@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // ELIMINACION AGRESIVA DEL BUCLE: NO BLOQUEAR NADA
+  // DESACTIVADO TEMPORALMENTE PARA DIAGNÓSTICO
   return NextResponse.next()
 }
 

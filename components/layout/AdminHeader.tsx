@@ -28,7 +28,7 @@ export const AdminHeader = () => {
 
   return (
     <>
-      <header className="fixed top-0 w-full z-[100] lg:w-[calc(100%-16rem)] flex items-center justify-between px-6 h-16 bg-[#11131b]/80 backdrop-blur-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-b border-white/5 lg:ml-64">
+      <header className="fixed top-0 right-0 z-[100] w-full lg:w-[calc(100%-16rem)] flex items-center justify-between px-6 h-16 bg-[#11131b]/80 backdrop-blur-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border-b border-white/5">
         <div className="flex items-center gap-4">
           <div className="lg:hidden flex items-center justify-center">
             <img

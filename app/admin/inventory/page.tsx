@@ -3,15 +3,12 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
-import { AdminHeader } from "@/components/layout/AdminHeader";
-import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { CategoryBottomSheet } from "@/components/admin/CategoryBottomSheet";
 import { GiftCardBottomSheet } from "@/components/admin/GiftCardBottomSheet";
 import { inventoryService } from "@/services/inventory";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
-import { AdminBottomNav } from "@/components/layout/AdminBottomNav";
 
 const StatCard = ({ label, value, sub, secondaryValue, icon, color = "primary", children }: any) => {
   return (
@@ -225,11 +222,8 @@ export default function AdminInventoryPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-[#11131b] text-on-surface font-sans antialiased">
-      <AdminSidebar />
-      <AdminHeader />
-
-      <main className="flex-1 lg:ml-64 mt-16 p-4 md:p-8 space-y-8 overflow-x-hidden">
+    <>
+      <div className="space-y-8 overflow-x-hidden">
         {/* Metrics Grid */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2 md:px-0">
           <StatCard 
@@ -529,7 +523,7 @@ export default function AdminInventoryPage() {
               </table>
            </div>
         </section>
-      </main>
+      </div>
 
       <CategoryBottomSheet 
         isOpen={isCategorySheetOpen} 
@@ -553,7 +547,6 @@ export default function AdminInventoryPage() {
         type="danger"
       />
 
-      <AdminBottomNav />
 
       {/* Floating Action Button for Mobile */}
       <motion.button
@@ -566,6 +559,6 @@ export default function AdminInventoryPage() {
       >
         <span className="material-symbols-outlined text-3xl font-black">add</span>
       </motion.button>
-    </div>
+    </>
   );
 }

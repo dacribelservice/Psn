@@ -2,10 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
-import { AdminHeader } from "@/components/layout/AdminHeader";
-import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { supabase } from "@/lib/supabase";
-import { AdminBottomNav } from "@/components/layout/AdminBottomNav";
 
 const StatCard = ({ label, value, sub, trend, icon, color = "primary" }: any) => {
   // Parsing value to ensure it's a number for COP calculation
@@ -230,11 +227,7 @@ export default function AdminFinancesPage() {
   const currentOrders = orders.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="flex min-h-screen bg-[#11131b] text-on-surface font-sans antialiased">
-      <AdminSidebar />
-      <AdminHeader />
-
-      <main className="flex-1 lg:ml-64 mt-16 p-4 md:p-8 space-y-8 overflow-x-hidden">
+    <div className="space-y-8 overflow-x-hidden">
         {/* Metrics Grid */}
         <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 px-2 md:px-0">
           <StatCard label="INGRESOS TOTALES" value={metrics.totalIncome} trend={metrics.incomeTrend} icon="payments" color="primary" sub="VENTAS BRUTAS" />
@@ -414,8 +407,6 @@ export default function AdminFinancesPage() {
               </div>
            )}
         </section>
-      </main>
-       <AdminBottomNav />
     </div>
   );
 }

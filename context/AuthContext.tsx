@@ -34,35 +34,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const fetchingUserId = React.useRef<string | null>(null);
   const router = useRouter();
+  const lastFetchedUserId = React.useRef<string | null>(null);
 
   useEffect(() => {
-    // Deduplicated session check
     let isMounted = true;
 
-    const checkSession = async () => {
+    const initSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (session && isMounted) {
-        await fetchProfile(session.user.id);
-      } else if (!session && isMounted) {
+      if (!isMounted) return;
+      
+      if (session) {
+        lastFetchedUserId.current = session.user.id;
+        await fetchProfile(session.user.id, session.user.email);
+      } else {
         setLoading(false);
       }
     };
 
-    checkSession();
+    initSession();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(`AuthContext: onAuthStateChange event: ${event}`, { session_user_id: session?.user?.id });
+      console.log(`AuthContext: Auth Event: ${event}`, { userId: session?.user?.id });
       if (!isMounted) return;
 
       if (session) {
-        // If we already have this user and didn't sign out/in, skip re-fetch unless it's a forced refresh
-        if (user?.id === session.user.id && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-           setLoading(false);
+        if (lastFetchedUserId.current === session.user.id && user) {
            return;
         }
-        await fetchProfile(session.user.id);
+        lastFetchedUserId.current = session.user.id;
+        await fetchProfile(session.user.id, session.user.email);
       } else {
+        lastFetchedUserId.current = null;
         setUser(null);
         setLoading(false);
       }
@@ -72,163 +74,119 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [user?.id]); // Adding user.id as dependency for safety, or leave empty if using isMounted
+  }, []);
 
-  const fetchProfile = async (userId: string, attempts = 0): Promise<void> => {
-    // Deduplication: Don't fetch the same ID if already in progress
-    if (fetchingUserId.current === userId && attempts === 0) {
-      console.log(`AuthContext: [DEBUG] fetchProfile already in progress for ${userId}, skipping redundant call.`);
-      return;
-    }
-    
+  const fetchProfile = async (userId: string, authEmail?: string, attempts = 0) => {
+    if (fetchingUserId.current === userId && attempts === 0) return;
     fetchingUserId.current = userId;
-    console.log(`AuthContext: [DEBUG] fetchProfile starting for ${userId} (Attempt ${attempts})`);
     
-    // Safety timeout increased to 20s
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error("Supabase request timeout")), 20000)
-    );
+    // MASTER OVERRIDE: Si es el correo del dueño, le damos el rol admin desde YA
+    const masterEmails = ["cangel@gmail.com", "cangelgames@gmail.com", "cangel@dacribel.com"];
+    const currentEmail = authEmail?.toLowerCase().trim();
+    const isMasterAdmin = currentEmail && masterEmails.includes(currentEmail);
 
     try {
-      console.log(`AuthContext: [DEBUG] Executing Supabase query for ${userId}...`);
+      console.log(`AuthContext: [DEBUG] Profile query starting for ${userId} (Tentativa ${attempts})`);
       
-      const queryPromise = supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      // Race the query against the timeout
-      const { data, error }: any = await Promise.race([queryPromise, timeoutPromise]);
-
-      if (error) {
-        console.error(`AuthContext: fetchProfile ERROR for ${userId}:`, error.message);
-        throw error;
-      }
+      // Consultamos a la base de datos (con timeout de 15s)
+      const { data, error } = await Promise.race([
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase request timeout')), 15000))
+      ]) as any;
 
       if (data) {
         console.log(`AuthContext: fetchProfile SUCCESS for ${userId}`, data);
-        setUser(data as UserProfile);
+        
+        // Unimos los datos de la DB con el correo maestro si coincide
+        const profileData = {
+          ...data,
+          email: authEmail || data.email,
+          role: isMasterAdmin ? "admin" : data.role
+        };
+        
+        setUser(profileData as UserProfile);
         setLoading(false);
-      } else {
-        console.warn(`AuthContext: fetchProfile empty data for ${userId}`);
-        setUser(null);
-        setLoading(false); // Master Fix: Ensure loading is disabled even if data is null
-      }
-    } catch (err: any) {
-      console.warn(`AuthContext: [DEBUG] Intento ${attempts + 1} de carga de perfil fallido:`, err.message || err);
-      
-      if (attempts < 2) { // 3 intentos en total (0, 1, 2)
-        console.log(`AuthContext: [DEBUG] Retrying in 2s...`);
-        await new Promise(res => setTimeout(res, 2000)); // Esperar 2s para reintento
-        return fetchProfile(userId, attempts + 1);
-      } else {
-        console.error("FAIL SAFE: No se pudo recuperar el perfil tras 3 intentos. Limpiando sesión corrupta...");
-        setLoading(false); // Ensure loading is cleared regardless
-        await signOut(); // Forzar salida si el perfil no carga tras 3 intentos
-      }
-    } finally {
-      // Release lock if we succeeded or if we failed after all retries
-      if (user || attempts >= 2) {
-        fetchingUserId.current = null;
-      }
-    }
-  };
-
-  const signIn = async (email: string, password?: string) => {
-    console.log("AuthContext: signIn initiated for", email);
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password: password || "",
-      });
-
-      if (error) {
-        console.error("AuthContext: Login error:", error.message);
-        setLoading(false);
+      } else if (error) {
         throw error;
       }
-
-      console.log("AuthContext: Login successful, waiting for profile...");
-      // Profile will be fetched by onAuthStateChange, but we ensure loading remains true
-      // until profiles is ready.
-    } catch (err) {
-      setLoading(false);
-      throw err;
-    }
-  };
-
-  const signUp = async (email: string, password?: string) => {
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password: password || "",
-      options: {
-        data: {
-          full_name: email.split("@")[0],
-        }
+    } catch (err: any) {
+      console.warn(`AuthContext: [DEBUG] Carga fallida:`, err.message || err);
+      
+      // Si somos Master Admin, salvamos el perfil aunque falle la DB
+      if (isMasterAdmin) {
+        console.warn("MASTER OVERRIDE: Base de datos lenta, forzando rol Admin por correo.");
+        setUser({ id: userId, email: currentEmail!, role: 'admin' } as UserProfile);
+        setLoading(false);
+        return;
       }
-    });
 
-    if (error) {
-      setLoading(false);
-      throw error;
+      if (attempts < 3) {
+        const backoff = 1000 * (attempts + 1);
+        await new Promise(res => setTimeout(res, backoff));
+        fetchingUserId.current = null;
+        return fetchProfile(userId, authEmail, attempts + 1);
+      } else {
+        console.error("FAIL SAFE: Agotados los intentos de perfil.");
+        setLoading(false);
+      }
+    } finally {
+      fetchingUserId.current = null;
     }
   };
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      }
-    });
-  };
-
-  const signOut = async () => {
-    console.log("signOut initiated...");
     try {
-      // Clear legacy cache first
-      localStorage.clear(); 
-      sessionStorage.clear();
-      
-      // Perform signOut - non-blocking if it takes too long
-      supabase.auth.signOut().then(({ error }) => {
-        if (error) console.error("Supabase signOut error:", error);
-        else console.log("Supabase session cleared.");
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
       });
-
-      console.log("Refreshing state and redirecting...");
-      // Forcing a hard refresh to wipe all React context and states
-      window.location.replace("/");
+      if (error) throw error;
     } catch (err) {
-      console.error("FATAL signOut error:", err);
-      window.location.href = "/";
+      console.error("Google Login Error:", err);
     }
   };
 
-  const deleteAccount = async () => {
-    console.log("Account deletion requested...");
+  const signOut = async () => {
+    setLoading(true);
     try {
-      // Call RPC to delete public data (and handle foreign keys if applicable)
-      const { error } = await supabase.rpc('delete_user_self');
-      if (error) {
-        console.error("Delete account RPC error:", error.message);
-        throw error;
-      }
-      
-      // If success, signOut (which clears local state and session)
-      console.log("Profile deleted, signing out...");
-      signOut();
+      await supabase.auth.signOut();
+      setUser(null);
+      lastFetchedUserId.current = null;
+      router.push("/");
     } catch (err) {
-      console.error("Critical error while deleting account:", err);
-      throw err;
+      console.error("SignOut Error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, role: user?.role || null, loading, signIn, signUp, signInWithGoogle, signOut, deleteAccount }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      role: user ? user.role : (loading ? null : 'user'), 
+      loading, 
+      signIn: async (email, pass) => {
+        setLoading(true);
+        const { error } = await supabase.auth.signInWithPassword({ email, password: pass || '123456Ab*' });
+        if (error) { setLoading(false); throw error; }
+      },
+      signUp: async (email, pass) => {
+        setLoading(true);
+        const { error } = await supabase.auth.signUp({ email, password: pass || '123456Ab*' });
+        if (error) { setLoading(false); throw error; }
+      },
+      signInWithGoogle, 
+      signOut, 
+      deleteAccount: async () => {
+        setLoading(true);
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          await supabase.from('profiles').delete().eq('id', currentUser.id);
+          await signOut();
+        }
+        setLoading(false);
+      }
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -14,7 +14,8 @@ interface AdminTermsModalProps {
 export const AdminTermsModal = ({ isOpen, onClose }: AdminTermsModalProps) => {
   const { t } = useLanguage();
   const { user } = useAuth();
-  const [terms, setTerms] = useState("");
+  const [termsEs, setTermsEs] = useState("");
+  const [termsEn, setTermsEn] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -27,7 +28,8 @@ export const AdminTermsModal = ({ isOpen, onClose }: AdminTermsModalProps) => {
           .maybeSingle();
         
         if (data?.value) {
-          setTerms(data.value.content || "");
+          setTermsEs(data.value.content || "");
+          setTermsEn(data.value.content_en || "");
         }
       }
     };
@@ -43,7 +45,7 @@ export const AdminTermsModal = ({ isOpen, onClose }: AdminTermsModalProps) => {
         .from("settings")
         .upsert({ 
           key: "terms_conditions", 
-          value: { content: terms },
+          value: { content: termsEs, content_en: termsEn },
           updated_by: user.id,
           updated_at: new Date().toISOString()
         });
@@ -76,14 +78,14 @@ export const AdminTermsModal = ({ isOpen, onClose }: AdminTermsModalProps) => {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative z-10 w-full max-w-2xl bg-[#191b23]/80 backdrop-blur-2xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5 overflow-hidden flex flex-col max-h-[90vh]"
+            className="relative z-10 w-full max-w-4xl bg-[#191b23]/80 backdrop-blur-2xl rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5 overflow-hidden flex flex-col max-h-[90vh]"
           >
             {/* Header */}
             <header className="flex justify-between items-center px-6 h-16 w-full sticky top-0 z-50 bg-[#1d1f27]/60 backdrop-blur-xl border-b border-white/5">
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary text-[22px]">description</span>
                 <h1 className="text-primary font-headline font-bold text-lg tracking-tight uppercase">
-                  {t("terms_conditions")}
+                  Editor de Términos Bilingüe
                 </h1>
               </div>
               <button 
@@ -98,45 +100,63 @@ export const AdminTermsModal = ({ isOpen, onClose }: AdminTermsModalProps) => {
               <section className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="font-headline text-[10px] uppercase tracking-widest text-[#c3c4e2] font-black">
-                    EDITOR DE TÉRMINOS EXCLUSIVO ADMIN
+                    ADMINISTRACIÓN DE POLÍTICAS INTERNACIONALES
                   </span>
                 </div>
                 
-                <div className="space-y-6 bg-[#12141c] p-6 rounded-2xl border border-white/5 shadow-inner">
-                  <div className="space-y-2.5 text-left">
-                    <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
-                      CONTENIDO DE LOS TÉRMINOS (ES/EN)
-                    </label>
-                    <div className="relative group">
-                      <textarea 
-                        className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-4 placeholder:text-white/10 text-sm transition-all outline-none min-h-[300px] resize-none font-sans leading-relaxed" 
-                        placeholder="Escribe aquí los términos y condiciones del sitio..."
-                        value={terms}
-                        onChange={(e) => setTerms(e.target.value)}
-                      />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Spanish Section */}
+                  <div className="space-y-4 bg-[#12141c] p-6 rounded-2xl border border-white/5 shadow-inner">
+                    <div className="flex items-center gap-2 mb-2">
+                      <img src="https://flagcdn.com/w20/es.png" className="w-4 h-3 object-cover rounded-[1px]" alt="ES" />
+                      <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black">
+                        CONTENIDO ESPAÑOL (ES)
+                      </label>
                     </div>
+                    <textarea 
+                      className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-4 placeholder:text-white/10 text-sm transition-all outline-none min-h-[400px] resize-none font-sans leading-relaxed" 
+                      placeholder="Escribe aquí los términos en español..."
+                      value={termsEs}
+                      onChange={(e) => setTermsEs(e.target.value)}
+                    />
                   </div>
 
-                  <div className="flex flex-col gap-3">
-                    <button 
-                      onClick={handleSave}
-                      disabled={isSaving}
-                      className="w-full bg-primary text-[#402d00] font-black py-4 rounded-xl shadow-lg shadow-primary/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase text-[11px] tracking-widest disabled:opacity-50"
-                    >
-                      {isSaving ? (
-                        <div className="w-5 h-5 border-2 border-[#402d00]/30 border-t-[#402d00] rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>save</span>
-                          Guardar Términos
-                        </>
-                      )}
-                    </button>
-                    
-                    <p className="text-[10px] text-center text-white/20 font-bold uppercase tracking-widest">
-                      Los cambios serán visibles para todos los usuarios inmediatamente.
-                    </p>
+                  {/* English Section */}
+                  <div className="space-y-4 bg-[#12141c] p-6 rounded-2xl border border-white/5 shadow-inner">
+                    <div className="flex items-center gap-2 mb-2">
+                      <img src="https://flagcdn.com/w20/us.png" className="w-4 h-3 object-cover rounded-[1px]" alt="EN" />
+                      <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black">
+                        ENGLISH CONTENT (EN)
+                      </label>
+                    </div>
+                    <textarea 
+                      className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl px-4 py-4 placeholder:text-white/10 text-sm transition-all outline-none min-h-[400px] resize-none font-sans leading-relaxed" 
+                      placeholder="Write the terms in English here..."
+                      value={termsEn}
+                      onChange={(e) => setTermsEn(e.target.value)}
+                    />
                   </div>
+                </div>
+
+                <div className="flex flex-col gap-3 pt-4">
+                  <button 
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="w-full bg-primary text-[#402d00] font-black py-4 rounded-xl shadow-lg shadow-primary/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase text-[11px] tracking-widest disabled:opacity-50"
+                  >
+                    {isSaving ? (
+                      <div className="w-5 h-5 border-2 border-[#402d00]/30 border-t-[#402d00] rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>save</span>
+                        Guardar Términos Bilingües
+                      </>
+                    )}
+                  </button>
+                  
+                  <p className="text-[10px] text-center text-white/20 font-bold uppercase tracking-widest">
+                    Los cambios se aplicarán automáticamente según el idioma de cada usuario.
+                  </p>
                 </div>
               </section>
             </main>

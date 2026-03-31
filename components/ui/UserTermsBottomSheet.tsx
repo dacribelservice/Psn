@@ -11,7 +11,7 @@ interface UserTermsBottomSheetProps {
 }
 
 export const UserTermsBottomSheet = ({ isOpen, onClose }: UserTermsBottomSheetProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [terms, setTerms] = useState("");
 
   useEffect(() => {
@@ -24,14 +24,19 @@ export const UserTermsBottomSheet = ({ isOpen, onClose }: UserTermsBottomSheetPr
           .maybeSingle();
         
         if (data?.value) {
-          setTerms(data.value.content || "");
+          // Si el idioma es inglés, mostramos content_en, si no, mostramos content (ES)
+          const content = language === 'en' 
+            ? (data.value.content_en || data.value.content || "") 
+            : (data.value.content || "");
+          
+          setTerms(content || (t("terms_not_configured") || "Aún no se han configurado los términos y condiciones."));
         } else {
           setTerms(t("terms_not_configured") || "Aún no se han configurado los términos y condiciones.");
         }
       }
     };
     fetchTerms();
-  }, [isOpen, t]);
+  }, [isOpen, t, language]);
 
   return (
     <AnimatePresence>
@@ -70,7 +75,7 @@ export const UserTermsBottomSheet = ({ isOpen, onClose }: UserTermsBottomSheetPr
             </header>
 
             <main className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-gradient-to-b from-transparent to-black/20">
-              <div className="prose prose-invert max-w-none">
+              <div className="prose prose-invert max-w-none text-left">
                 <div className="whitespace-pre-wrap text-[#c3c4e2]/90 text-sm leading-relaxed font-sans tracking-wide">
                   {terms}
                 </div>

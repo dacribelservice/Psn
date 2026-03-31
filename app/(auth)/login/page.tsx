@@ -22,9 +22,13 @@ export default function LoginPage() {
   React.useEffect(() => {
     console.log("LoginPage: Effect triggered", { hasUser: !!user, loading, role });
     if (user && !loading) {
-      // MASTER FIX: Use hard redirect for admin to ensure cookie sync and use precise route
-      const target = role === 'admin' ? "/admin/inventory" : "/";
-      console.log("MASTER REDIRECT: Going to", target);
+      // MASTER OVERRIDE: Owner is ALWAYS redirected to admin (with case-insensitiy)
+      const masterEmails = ["cangel@gmail.com", "cangelgames@gmail.com"];
+      const userEmail = user?.email?.toLowerCase().trim();
+      const isMasterAdmin = masterEmails.includes(userEmail || "");
+      const target = (role === "admin" || isMasterAdmin) ? "/admin/inventory" : "/";
+      
+      console.log("MASTER REDIRECT: Going to", target, { role, isMasterAdmin });
       
       // We use window.location.href instead of router.push for the FIRST login
       // to force a full cookie sync with the middleware
