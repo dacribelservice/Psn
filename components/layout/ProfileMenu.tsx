@@ -119,11 +119,11 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
             {user && (
               <div className="pt-4 mt-4 border-t border-white/5 space-y-1">
                 <button 
-                  onClick={() => setIsDeleteModalOpen(true)}
+                   onClick={() => setIsDeleteModalOpen(true)}
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-red-500/70 hover:text-red-500 hover:bg-red-500/5 rounded-xl transition-all"
                 >
                   <span className="material-symbols-outlined text-[20px]">delete</span>
-                  <span className="text-[10px] font-black uppercase">{t("delete_account") || "Eliminar Cuenta"}</span>
+                   <span className="text-[10px] font-black uppercase text-xs">Eliminar Cuenta</span>
                 </button>
 
                 <button 
@@ -131,28 +131,36 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
                   className="w-full flex items-center space-x-3 px-3 py-2.5 text-primary/70 hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
                 >
                   <span className="material-symbols-outlined text-[20px]">logout</span>
-                  <span className="text-[10px] font-black uppercase tracking-tight">{t("logout") || "Cerrar Sesión"}</span>
+                  <span className="text-[10px] font-black uppercase tracking-tight text-xs">Cerrar Sesión</span>
                 </button>
               </div>
             )}
           </nav>
 
-          <div className="mt-6 pt-6 border-t border-white/5">
-            <p className="text-[8px] font-black text-white/20 uppercase tracking-[0.2em] mb-3 text-center">Idioma</p>
-            <div className="bg-[#11131b] p-1 rounded-xl flex gap-1 border border-white/5">
+          <div className="mt-8 pt-6 border-t border-white/5">
+            <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.25em] mb-4 text-center italic">Select Language</p>
+            <div className="flex items-center justify-center gap-2 p-1 bg-surface-container-low/50 rounded-full border border-secondary/10">
               <button 
-                onClick={() => setLanguage('en')}
-                className={`flex-1 flex items-center justify-center space-x-2 py-2 rounded-lg transition-all ${language === 'en' ? 'bg-[#2a2d3a] text-primary shadow-lg' : 'text-white/30 hover:text-white/60'}`}
+                onClick={() => setLanguage("en")}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-300 ${
+                  language === "en" 
+                    ? "bg-[#f2b92f] text-[#402d00] shadow-[0_2px_10px_rgba(242,185,47,0.3)] scale-[1.02]" 
+                    : "text-secondary/60 hover:text-on-surface bg-transparent"
+                }`}
               >
-                <img src="https://flagcdn.com/w20/us.png" className="w-4 h-3 object-cover rounded-[1px]" alt="EN" />
-                <span className="text-[9px] font-black">EN</span>
+                <img alt="USA" className="rounded-sm opacity-80" src="https://flagcdn.com/w40/us.png" width="18" />
+                English
               </button>
               <button 
-                onClick={() => setLanguage('es')}
-                className={`flex-1 flex items-center justify-center space-x-2 py-2 rounded-lg transition-all ${language === 'es' ? 'bg-[#2a2d3a] text-primary shadow-lg' : 'text-white/30 hover:text-white/60'}`}
+                onClick={() => setLanguage("es")}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-300 ${
+                  language === "es" 
+                    ? "bg-[#f2b92f] text-[#402d00] shadow-[0_2px_10px_rgba(242,185,47,0.3)] scale-[1.02]" 
+                    : "text-secondary/60 hover:text-on-surface bg-transparent"
+                }`}
               >
-                <img src="https://flagcdn.com/w20/es.png" className="w-4 h-3 object-cover rounded-[1px]" alt="ES" />
-                <span className="text-[9px] font-black">ES</span>
+                <img alt="Spain" className="rounded-sm opacity-80" src="https://flagcdn.com/w40/es.png" width="18" />
+                Español
               </button>
             </div>
           </div>
@@ -177,10 +185,10 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
               className="relative bg-[#191b23] border border-red-500/20 p-8 rounded-[2rem] w-full max-w-sm shadow-2xl"
             >
               <div className="text-center">
-                <span className="material-symbols-outlined text-red-500 text-5xl mb-4">warning</span>
+                 <span className="material-symbols-outlined text-red-500 text-5xl mb-4">warning</span>
                 <h3 className="text-lg font-black text-white mb-2 uppercase tracking-tight">¿Estás seguro?</h3>
                 <p className="text-white/50 text-xs mb-8 font-bold">
-                  Esta acción es irreversible y perderás tu saldo.
+                   Esta acción es irreversible y perderás tu saldo.
                 </p>
                 <div className="flex flex-col space-y-3">
                   <button 
