@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 
-export default function CheckoutProcessingPage() {
+function CheckoutProcessingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
@@ -296,5 +296,17 @@ export default function CheckoutProcessingPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function CheckoutProcessingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#11131b] flex items-center justify-center text-[#f7be34]">
+        Cargando portal de pago...
+      </div>
+    }>
+      <CheckoutProcessingContent />
+    </Suspense>
   );
 }

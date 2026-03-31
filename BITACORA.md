@@ -260,3 +260,25 @@ Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un dise
 
 ---
 *Fin de Sesión XVII. El acceso administrativo es ahora fluido, seguro y fácil de auditar.*
+
+---
+
+### Sesión XVIII: Sincronización de Checkout y UX de Historial Premium (Sesión Actual)
+
+**Objetivo:** Implementar soporte para compras múltiples, vinculación de códigos e historial responsivo de alto nivel.
+
+- **Refactor de Checkout & Inventario:**
+  - **Soporte de Quantities:** Actualización de `ProductBottomSheet` y `orders` table para soportar compras de múltiples unidades (ej. 3 unidades de $75).
+  - **Lógica SQL Atómica:** Refactorización de `process_checkout` para validar stock disponible, asignar múltiples códigos a un solo ID de orden y actualizar estados simultáneamente en una transacción.
+- **Rediseño de Historial de Órdenes:**
+  - **Identidad Visual "Ethereal History":** Implementación de estados con código de colores: **Verde (Completado)**, **Amarillo (Pendiente)** y **Rojo (Cancelado)**.
+  - **Acciones Directas:** Botón dorado **"VER CÓDIGOS"** con ícono de ojo, permitiendo al cliente acceder a sus compras de forma instantánea.
+  - **Responsive Intelligence (Mobile Cards):** Eliminación de tablas horizontales en móviles. Implementación de un layout basado en **Tarjetas Stacked (Verticales)** que organiza la información de forma limpia y legible en celulares.
+- **Detalle de Orden & Seguridad:**
+  - **Product Avatars:** Los detalles de la orden ahora incluyen la imagen de categoría en un círculo compacto y estilizado.
+  - **Seguridad RLS:** Implementación de políticas de Row Level Security en `inventory_codes` para asegurar que cada cliente solo pueda visualizar los códigos vinculados a sus facturas.
+  - **Limpieza de UI:** Eliminación de redundancias en montos totales y optimización de espaciados en el `OrderDetailsView`.
+- **GitHub:** Respaldo completo de la sesión sincronizado con el repositorio (`main`).
+
+---
+*Fin de Sesión XVIII (Marzo 2026). El flujo de compra y entrega de códigos es ahora robusto, seguro y visualmente impecable en todos los dispositivos.*
