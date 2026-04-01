@@ -1,284 +1,59 @@
-# BITACORA DE DESARROLLO - PROYECTO DACRIBEL (PSN)
+# 💎 DACRIBEL - MASTER PROJECT LOG
 
-## 🎯 OBJETIVO GENERAL
-Construir una plataforma de venta de tarjetas de regalo (Gift Cards) con un diseño premium "Ethereal Vault", integración completa con Supabase y automatización de pagos cripto.
-
----
-
-## 🛠️ FASES DEL PROYECTO
-
-### ✅ FASE 1: Diseño & UI (Ethereal Vault)
-- [x] Configuración de Next.js 14 y Tailwind CSS.
-- [x] Implementación del Sistema de Diseño (Colores, Tipografía, Glassmorphism).
-- [x] Layout principal y Sidebar responsivo.
-
-### ✅ FASE 2: Storefront UI
-- [x] Página de inicio con Grid de productos premium.
-- [x] Filtros y buscador estilizados.
-- [x] Modal de detalles de producto (ProductBottomSheet).
-
-### ✅ FASE 3: Autenticación y Perfil
-- [x] Flujo visual de Login, Registro y Recuperar Contraseña.
-- [x] AuthContext & AuthProvider con persistencia.
-- [x] Lógica de Roles (Admin/User).
-- [x] Perfil de usuario y cierre de sesión.
-
-### ✅ FASE 4: Inventario & Dashboard (UI)
-- [x] Gestión de Stock en tiempo real para Admin.
-- [x] Vistas de Finanzas y métricas Bento.
-
-### 🚀 FASE 5: Automatización de Pagos (Cripto)
-- [ ] Fase 5. a) Integración de API de Pagos (Generación de Wallet BEP20).
-- [ ] Fase 5. b) Implementación de Webhook de confirmación (Lógica Backend).
-- [x] Fase 5. c) Modal de estado de pago (Esperando, Validando, Éxito - UI Completa).
-- [x] Fase 5. d) Lógica de liberación instantánea de código (Visualización de Gift Cards).
-
-### ⚙️ FASE 6: Admin Dashboard & Settings
-- [x] Fase 6. a) Panel de Administración (Rediseño de Inventario y Gestión de Stock).
-- [x] Fase 6. b) Editor de Términos y Condiciones (Admin) y Visor de Lectura (User).
+## 🎯 OBJETIVO ESTRATÉGICO
+Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, entrega instantánea de códigos y automatización de pagos cripto, operando sobre un stack moderno de **Next.js 14 + Supabase**.
 
 ---
 
-## 🚀 ÚLTIMA INTEGRACIÓN (27/03/2026 - Sesión de Tarde - III)
-- **User Orders UI (Ethereal Vault Adaptation)**:
-  - **Metric Cards (Bento Style)**: Rediseño completo de la barra de estadísticas con profundidad tonal y sin bordes sólidos (`#191b23`).
-  - **Iconografía Premium**: Iconos con efectos de resplandor (glow) en Liquid Gold y Emerald Green.
-  - **Jerarquía Editorial**: Implementación de la escala **Display-lg (3.5rem / 56px)** en el título principal para un impacto visual "Hero".
-  - **Emparejamiento Tipográfico**: Contraste refinado entre etiquetas en **Public Sans** (micro-dato) y titulares en **Lexend**.
-- **Consistencia Visual**: Auditoría de fuentes en Sidebar y Header para asegurar el uso de tokens variables de Next.js.
-- **GitHub**: Respaldo completo de la sesión sincronizado con el repositorio (`main`).
+## 🚀 ESTADO ACTUAL: PRODUCCIÓN 🌎🟢
+*   **App URL:** `https://psn-six.vercel.app` 🪐✨
+*   **Seguridad:** Autenticación robusta con roles (Admin/User), recuperación de claves y RLS activado.
+*   **Inventario:** Realtime sync habilitado (Supabase).
+*   **Fase:** Implementando Automatización de Pagos (Fase 5).
 
 ---
 
-## 🚀 ÚLTIMA INTEGRACIÓN (28/03/2026 - Sesión de Madrugada - IV)
+## 🛡️ CAPACIDADES CORE (LO QUE HACE QUE LA APP SEA ÚNICA)
 
-- **Flujo de Pago de Extremo a Extremo (End-to-End)**:
-    - **`ProductBottomSheet`**: Integración de selector de cantidad y cálculo dinámico de subtotales.
-    - **`PaymentBottomSheet`**: Selector de canales cripto (BEP20, TRC20) alineado con los diseños del cliente.
-    - **`CheckoutProcessingPage`**: Página de espera con **temporizador de 10 min** en tiempo real, QR dinámico y sistema de copiado de billetera prioritario.
-    - **`ValidationModal`**: Modal premium con micro-animaciones, spinner de reloj de arena y barra de progreso.
-    - **Visualización de Códigos (`OrderDetailsView`)**: Pantalla final con confeti, detalles de la transacción y visualización segura de los códigos adquiridos.
+### 1. Sistema de Diseño "Ethereal Vault"
+*   Estética de cristal pulido (**Glassmorphism**) con profundidad tonal en `#191b23`.
+*   Layout adaptativo inteligente: tablas que se transforman en tarjetas en móviles.
+*   Micro-animaciones de alto impacto con `framer-motion` y efectos visuales de éxito (Confetti).
 
-- **Refinamiento de UX/UI**:
-    - **Limpieza de Roles**: Remoción completa de etiquetas "Vault Access" y badges de rol (Admin/User) para una estética más minimalista en Sidebar y Header.
-    - **Animaciones Premium**: Implementación de `framer-motion` para transiciones de "Page Overlay" y efectos de pulso en estados de carga.
-    - **Internacionalización**: Sincronización completa de todos los nuevos componentes con el `LanguageContext` (ES/EN).
+### 2. Motor de Ventas & Autenticación
+*   **Auth Flow Completo:** Login, Registro y Recuperación de Contraseña con diseño consistente y legal (Términos integrados).
+*   **Checkout Atómico:** Lógica SQL que garantiza que un código digital nunca se entregue dos veces, incluso bajo alta demanda.
+*   **Historial Premium:** Seguimiento de pedidos con estados de color y visualización segura de activos comprados.
 
-- **Mantenimiento y Dependencias**:
-    - Instalación de `canvas-confetti` y tipos para efectos visuales.
-    - Auditoría de estilos y corrección de desbordamientos en modales móviles.
-
-- **GitHub**: Respaldo completo de la lógica de pago y entrega de códigos.
+### 3. Panel Administrativo (ERP Interno)
+*   **Dashboard Financiero:** Métricas en tiempo real de ingresos, ganancias e inversión activa con conversión automática a COP.
+*   **Gestión de Stock:** CRUD avanzado de productos, categorías y banners con alertas inteligentes de "Stock Bajo".
+*   **Control de Banners:** Sistema dinámico para gestionar el Hero del Storefront sin tocar el código.
 
 ---
 
-## 🚀 ÚLTIMA INTEGRACIÓN (28/03/2026 - Auditoría y Ajustes UX/UI)
-- **Correcciones de UX/UI en Panel Admin**: Solución de discrepancias tipográficas (`text-display-lg`) en las vistas de Inventario y Finanzas, reduciendo los tamaños a escalas proporcionales (`text-xl` y `2xl`) para restaurar el balance visual y el espacio de trabajo.
-- **Silenciado de Linter CSS**: Creación de archivo `.vscode/settings.json` para ignorar falsas advertencias de reglas `@tailwind`.
-- **Auditoría General de Arquitectura y Flujos**:
-  - ✅ **Storefront & Checkout (UI) - Completado**: Las pantallas de visualización, modales de compra y entrega final (con confeti) están 100% integradas visualmente.
-  - ✅ **Dashboard Admin (UI) - Completado**: Base estructural (Finanzas, Inventario) terminada con estética Ethereal Vault y vistas de tablas responsivas.
-  - ❌ **Flujos de Autenticación (Fase 3) - Ausente**: El directorio `/app/(auth)` estaba vacío en esta fase inicial.
-  - ❌ **Backend y Webhooks (Fase 5) - Ausente**: El directorio `/app/api` estaba vacío. La lógica de generación de wallets y persistencia real en Supabase no había iniciado.
+## 🚦 HITOS CLAVE (CRONOLOGÍA RESUMIDA)
+
+### 🏗️ Fase I & II: Cimientos y Storefront (Marzo 2026)
+*   Definición de tokens de diseño y creación de la cuadrícula de productos premium.
+*   Implementación de `ProductBottomSheet` y filtrado regional por países (Banderas animadas).
+
+### 🔐 Fase III & IV: Identidad y Seguridad
+*   Integración de **Supabase Auth**. Redirección inteligente: Administradores al panel, Clientes a la tienda.
+*   Implementación de políticas de seguridad (RLS) para proteger los códigos del inventario.
+
+### 💰 Fase V (Iniciada): Procesamiento de Pagos
+*   Diseño del flujo de pago con temporizadores de 10 min, QRs dinámicos y estados de validación.
+*   Integración de lógica atómica para la liberación instantánea de códigos digitales.
+
+### 🌐 Fase Final: Despliegue Público
+*   Lanzamiento oficial en Vercel con soporte para recuperación de cuentas y términos de servicio legales.
 
 ---
 
-## 🚀 ÚLTIMA INTEGRACIÓN (28/03/2026 - Sistema de Términos y Condiciones - V)
-- **Admin Terms Editor**: Implementación de `AdminTermsModal.tsx` con diseño Glassmorphism y guardado simulado en `localStorage`.
-- **User Terms Viewer**: Creación de `UserTermsBottomSheet.tsx` de solo lectura para el cliente final.
-- **Red de Menús**: Refactorización de `ProfileMenu`, `Header` y `AdminHeader` para soportar la lógica de términos según el rol.
-- **GitHub**: Respaldo completo del sistema de términos y condiciones en la rama `main`.
-
-> **Siguiente Paso Crítico**: Iniciar la **FASE 3: Autenticación y Perfil**. Implementación de Middleware de Supabase, AuthContext y pantallas de Login/Registro.
+## 📜 DOCUMENTACIÓN DE APOYO
+*   [**PAGOS.md**](file:///c:/Users/cange/Documents/Psn/pagos.md): Hoja de ruta para la automatización BEP20/TRC20.
+*   [**MID.md**](file:///c:/Users/cange/Documents/Psn/mid.md): Bitácora técnica de incidentes de seguridad y middleware.
 
 ---
-
-## 🚀 ÚLTIMA INTEGRACIÓN (28/03/2026 - Autenticación y Roles - VI)
-- **Visual Auth Flow**: Implementación completa de las pantallas de Login, Registro y Recuperar Contraseña en /app/(auth).
-- **AuthContext & AuthProvider**: Sistema de gestión de sesión con persistencia en localStorage.
-- **Lógica de Roles**: Configuración de administradores (cangel2890@gmail.com y dacribel.service@gmail.com) con redirección inteligente.
-- **Header & Profile Integration**: Sincronización de ProfileMenu para mostrar el correo real y habilitar el cierre de sesión.
-- **Estado**: Flujo de frontend 100% listo para Supabase Auth.
-
-> **Siguiente Paso Crítico**: Integración real con **Supabase Auth** (Middleware y DB).
-
----
-
-## 🚀 ÚLTIMA INTEGRACIÓN (28/03/2026 - Conexión Supabase DB y Pagos - VII)
-- **Base de Datos Configurada**: Creación de la tabla orders protegida con RLS y función atómica en checkout_rpc.sql para prevenir colisiones en la asignación de códigos digitales.
-- **Historial en Vivo (Storefront)**: Conectado el componente HistoryPage a Supabase, mostrando órdenes reales y calculando montos en base a la relación orders -> products.
-- **Vista de Orden Real (OrderDetailsView)**: Integración dinámica para presentar el ticket de pago exitoso y revelar el código digital del inventario descontado.
-- **Dinamismo y Errores (Auth)**: Corregidas las alertas de inicio de sesión y registro para mapear y mostrar los errores literales del SDK de Supabase Auth (Ej. contraseñas de menos de 6 dígitos). Habilitado evento OnClick de Google Auth.
-- **Estado**: Flujo E2E de compras (Tienda -> Checkout Backend -> Inventario Historial) totalmente finalizado.
-
-> **Siguiente Paso Crítico**: FASE 6 - Dashboard Financiero del Administrador: Mostrar gráficos de ganancias en tiempo real en la página principal del admin consumiendo de la tabla órdenes.
-
----
-
-## 🚀 ÚLTIMA INTEGRACIÓN (28/03/2026 - Auditoría y Plan Final - VIII)
-- **Estado de Autenticación**: Login, Registro y Roles 100% operativos con Supabase Auth y redirección inteligente (Admin -> /admin, User -> /).
-- **Dashboard en Tiempo Real**: Implementación de Supabase Realtime en AdminFinancesPage.
-- **Validación de Inventario**: Lógica de 'Agotado' integrada en Storefront.
-- **Descarte**: Se ha eliminado oficialmente el Sistema de Afiliados.
-
-> **Siguiente Paso Crítico**: Iniciar FASE 5: Automatización de Pagos.
-
----
-
-## 🚀 ÚLTIMA INTEGRACIÓN (28/03/2026 - Corrección Navegación Admin - IX)
-- **Fix Redirección Automática**: Se modificó el middleware.ts para forzar que los administradores sean redirigidos al Dashboard (/admin/inventory) al intentar acceder al Home (/), evitando que visualicen pantallas de usuario por error.
-- **Consistencia de Sesión**: Asegurada la verificación del rol en el punto de entrada principal para una experiencia 100% administrativa.
-
-> **Siguiente Paso Crítico**: Iniciar FASE 5: Automatización de Pagos.
-
----
-
-## 🚀 ÚLTIMA INTEGRACIÓN (29/03/2026 - Sesión de Tarde - X)
-- **Auth Robustness Fix**:
-  - **Loading Failsafe**: Implementación de un `timeout` de 10 segundos y un `setLoading(false)` obligatorio en `AuthContext.tsx` para evitar que la pantalla se quede cargando si la consulta de perfil es lenta o falla silenciosamente.
-  - **Retry Logic**: Añadido sistema de hasta 3 reintentos antes de realizar un `signOut` de seguridad para limpiar sesiones corruptas.
-- **Auditoría de Navegación**: Confirmación de la correcta redirección de Administradores hacia el panel de inventario.
----
-
-## 🚀 ÚLTIMA INTEGRACIÓN (29/03/2026 - Sesión de Tarde - XI)
-- **Auth Context Optimization**:
-  - **Deduplicación de Peticiones**: Implementación de un `Ref` (`fetchingUserId`) para evitar múltiples cargas simultáneas del mismo perfil (prevención de condiciones de carrera entre `checkSession` y `onAuthStateChange`).
-  - **Ajuste de Timeouts**: Incremento del tiempo de espera de seguridad de 10s a **20s** para soportar redes inestables o refrescos de token en paralelo durante operaciones de escritura.
-  - **Protección de Montaje**: Uso de `isMounted` para prevenir fugas de memoria y errores de actualización de estado en componentes desmontados.
-- **Admin UI & Consistencia Visual**:
-  - **Dynamic Admin Avatar**: Refactorización de `AdminHeader.tsx` para eliminar el avatar estático y mostrar dinámicamente el `avatar_url` real del usuario logueado.
-  - **Fix de Keys en React**: Corrección de advertencias en `ProfileMenu.tsx` añadiendo claves únicas a elementos estáticos y reestructurando `AnimatePresence` para eliminar el uso de fragmentos inválidos.
----
-
-## 🚀 ÚLTIMA INTEGRACIÓN (29/03/2026 - Realtime & Mobile UI - XII)
-- **Supabase Realtime Integration**:
-  - **Live Updates**: Habilitada la suscripción en tiempo real a las tablas `categories` y `products`. Ahora las categorías aparecen, se editan o se eliminan automáticamente en la pantalla del usuario sin necesidad de recargar (F5).
-  - **DB Publication**: Configuración de `supabase_realtime` en Postgres para incluir las tablas del inventario.
-- **Responsive Storefront (Mobile-First)**:
-  - **Dynamic Grid**: Implementación de cuadrícula inteligente (PC: 4 cols, Tablet: 3 cols, Celular: 2 cols).
-  - **Optimización Móvil**: Incremento del tamaño de los círculos de categoría a **w-28 (112px)** y reducción del `gap` para una apariencia más compacta y premium en dispositivos táctiles.
-- **GitHub**: Respaldo completo de la lógica de sincronización y ajustes visuales.
-
----
-
-## 🚀 ÚLTIMA INTEGRACIÓN (29/03/2026 - Financial Accuracy & Regions - XIII)
-- **Admin Inventory: Financial Accuracy & Region Management**:
-  - **Financial Persistence**: Migración de la base de datos para añadir `face_value` (valor nominal), `usd_rate` (tasa de compra) y `region` a la tabla `inventory_codes`.
-  - **Stock-Based Logic**: Refactorización de la lógica en `AdminInventoryPage` para que los contadores de inversión reflejen únicamente el inventario **disponible**. Cuando se vende un código, el "Total Invertido" se descuenta automáticamente para mostrar el capital activo.
-  - **Refactor GiftCard UI**: Rediseño del `GiftCardBottomSheet` para ser más compacto, con cabezal y footer de acción fijos y contenido scrollable (Fix del botón "salido").
-  - **Region Selector**: Integración de un selector de regiones de primer nivel con banderas animadas (FlagCDN) y guardado automático en la base de datos.
-  - **Visibilidad Table**: Adición de la columna "Región" en la tabla de inventario administrativo con íconos visuales de banderas.
-- **GitHub**: Respaldo de la migración de esquema y optimizaciones financieras.
-
----
-
-## 🚀 ÚLTIMA INTEGRACIÓN (29/03/2026 - Regions & Inventory Intelligence - XIV)
-- **Storefront: Region Selection**:
-  - **Dynamic Filtering**: Implementación de un selector de regiones (USA, Colombia, Global, etc.) en el `ProductBottomSheet` del cliente. Ahora el sistema filtra automáticamente las denominaciones disponibles basado en la región seleccionada.
-  - **Premium UI**: Integración de banderas animadas y efectos de transición para la selección de países.
-- **Admin Inventory: Advanced Monitoring**:
-  - **Product Details ("Detalles del Vault")**: Adición del campo `Detalle` en la carga de inventario administrativa, permitiendo personalizar la información técnica que ve el cliente final.
-  - **Live Summary Card**: Nuevo panel de cálculo en tiempo real que suma **Total de Códigos**, **Inversión en USDT** e **Inversión Estimada en COP** antes de cargar el inventario.
-  - **Custom Stock Alerts**: Migración de la base de datos para añadir `stock_alert_threshold` por producto. El Dashboard de administración ahora dispara alertas basadas en el número específico definido por el usuario (ej. avisar cuando queden 3 tarjetas de $10 USA).
-- **Backend & Logic**:
-  - **Multi-Metadata persistence**: Sincronización de descripción, región y umbrales de alerta entre el panel de carga y la tabla de productos.
-- **GitHub**: Backup completo de la lógica de filtrado regional y alertas personalizadas.
-
----
-
-### Sesión XV: Gestión Dinámica de Banners y Consolidación Visual (Sesión Actual)
-
-*   **Refactor de Banners (Admin):**
-    *   **Eliminación de Upload:** Se eliminó el sistema de carga de archivos local, reemplazándolo por una entrada de **URL directa**, optimizando el rendimiento y la flexibilidad de activos externos.
-    *   **Jerarquía de Texto:** Se implementaron dos campos de texto por banner: `subtitle` (texto pequeño superior) e `title` (texto grande principal).
-    *   **Panel CRUD:** Unificación del creador y editor. El listado de "Banners Activos" ahora permite editar y eliminar registros directamente con sincronización inmediata.
-*   **Integración Storefront:**
-    *   **Carrusel Dinámico:** El Hero principal de la tienda ahora consume datos de la tabla `banners` en tiempo real.
-    *   **Diseño Premium:** Se ajustó la escala tipográfica en el `ProductBottomSheet` y se integraron las imágenes reales de las categorías en los selectores circulares.
-*   **Backend:**
-    *   **Nueva Tabla `banners`:** Creación de la estructura en Supabase con RLS (Row Level Security) para acceso público de lectura y acceso total para administradores.
-    *   **Servicio Extendido:** Actualización de `inventoryService` para incluir métodos de recuperación de banners.
-*   **Optimización de Tabla de Inventario:**
-    *   **Acciones CRUD:** Adición de la columna "Acciones" con funcionalidad de **Eliminar** para códigos individuales, permitiendo una limpieza precisa del stock.
-    *   **Diseño Adaptativo Móvil:** Implementación de un layout basado en **Tarjetas (Cards)** para dispositivos móviles. La tabla ahora se transforma "inteligentemente" en una vista vertical compacta, asegurando que toda la información y acciones sean accesibles en pantallas pequeñas.
-*   **GitHub**: Backup completo de la lógica de banners y limpieza visual del storefront.
-
----
-
-### Sesión XVI: Optimización Financiera y UX Premium (Sesión Actual)
-
-*   **Dashboard de Finanzas (Lógica & Precisión):**
-    *   **Inversión Real:** Refactorización de las métricas para que el "Costo Total" refleje la inversión en el inventario disponible (`inventory_codes` con status `available`), independiente de las ventas realizadas.
-    *   **Tendencias Dinámicas:** Implementación de cálculo de porcentajes automáticos (Mes actual vs Mes anterior) para Ingresos y Ganancias.
-    *   **Rendimiento Diario:** Comparativa de ventas en tiempo real contra el día anterior (Hoy vs Ayer).
-*   **Rediseño de Interfaz "StatCard":**
-    *   **Estética Minimalista:** Eliminación de elementos circulares invasivos, reemplazados por un diseño de cristal pulido (`backdrop-blur-3xl`) con auras de fondo dinámicas.
-    *   **Integración de COP:** Inclusión de la conversión automática de USDT a **Pesos Colombianos (COP)** en color verde neón para todas las métricas administrativas.
-    *   **Iconografía Corregida:** Flechas de tendencia con lógica de color (Verde/Rojo) y resplandor (glow) premium.
-*   **Uniformidad de Diseño:**
-    *   **Inventario Sincronizado:** Réplica del nuevo sistema de tarjetas en el panel de inventario, incluyendo la adaptación de la tarjeta de "Inventario Crítico" para mantener las alertas de stock bajo.
-*   **Refinamiento Storefront:**
-    *   **ProductBottomSheet:** Reducción de tamaño en los selectores de denominación, eliminación de sombras externas excesivas y corrección de recortes visuales para dispositivos móviles.
-*   **Estándares de Código:**
-    *   **TypeScript Fixes:** Corrección de errores de tipado ("rojos") en el flujo de selección de productos.
-*   **GitHub**: Respaldo completo de la sesión sincronizado con el repositorio (`main`).
-
----
-
-### Sesión XVII: Estabilidad de Rutas y Corrección de UX en Admin (Actual)
-
-- **Corrección de Conflicto de Rutas (Next.js)**:
-  - **Eliminación de Dúplicas**: Se eliminó la carpeta redundante `/app/payment` que causaba un error de compilación al colisionar con `/app/(store)/payment`.
-  - **Fusión de Lógica**: Se integró la lógica de validación de Supabase (`rpc_checkout`) dentro de la pantalla premium de procesamiento de pago. El botón "Validar Pago" ahora es totalmente funcional y sincronizado con la base de datos.
-- **Optimización de UX/UI Administrativo**:
-  - **Arreglo de Capas (z-index)**: Se corrigió el solapamiento visual donde los filtros de inventario cubrían el menú de perfil. Se elevó la jerarquía de `AdminHeader` y `ProfileMenu` asegurando que los menús siempre floten por encima del contenido.
-  - **Refuerzo de Feedback**: El modal de validación de pago ahora incluye estados dinámicos de éxito y error con iconografía de color (Verde/Rojo).
-- **Seguridad y Respaldo**:
-  - **Reactivación del Middleware de Seguridad**:
-  - **Implementación Evolucionada**: Se reemplazó el middleware de "no-bloqueo" por uno basado en `@supabase/ssr` que refresca la sesión y gestiona redirecciones de forma inteligente.
-  - **Lógica Anti-Bucle**: Se implementaron verificaciones cruzadas (`pathname` vs `role`) para asegurar que un administrador nunca sea bloqueado de su panel y que un usuario invitado siempre sea redirigido al login al intentar acceder a rutas protegidas.
-  - **Mapeo de Roles**: El sistema ahora distingue entre `admin` y `user` consultando la tabla de perfiles en tiempo real para máxima seguridad.
-- **GitHub**: Backup completo de la sesión sincronizado satisfactoriamente en el repositorio remoto.
-
----
-*Bitácora actualizada (Sesión XVII - Marzo 2026). La arquitectura de rutas es ahora segura, performante y está alineada con el diseño Ethereal Vault.*
-
-## 📜 Documentación Especializada
-> [!IMPORTANT]
-> Se ha creado el archivo [mid.md](file:///c:/Users/cange/Documents/Psn/mid.md) para registrar detalladamente todos los fallos y soluciones relacionados con el **Middleware**, **Autenticación** y **Seguridad de Admin**. Consultar este archivo antes de realizar cambios estructurales en `AuthContext` o `middleware.ts`.
-
-### Sesión XVII: Estabilización Crítica de Autenticación y Layout
-**Objetivo:** Eliminar el error de carga infinita ("hang") y asegurar el flujo de admin.
-
-- **Middleware:** Simplificado a una versión ultra-ligera que solo refresca la sesión. El redireccionamiento por **rol** se movió a los layouts para mejorar la velocidad.
-- **AuthContext:** Corregido el bucle infinito del `useEffect`. Se implementó un `Ref` de control de fetches para evitar descargas duplicadas de perfil. 
-- **Seguridad Admin:** Creación de `app/admin/layout.tsx`. Este componente central ahora gestiona la seguridad (rol `admin`), carga de pantalla premium y navegación unificada.
-- **UI & Layout Fixes:**
-  - `AdminHeader`: Posicionamiento corregido con `right-0` para evitar desbordamiento lateral.
-  - Se eliminaron las sidebars y headers duplicados de cada página individual de administración.
-- **Histórico:** Creación del archivo `mid.md` como bitácora técnica de incidentes de seguridad.
-
----
-*Fin de Sesión XVII. El acceso administrativo es ahora fluido, seguro y fácil de auditar.*
-
----
-
-### Sesión XVIII: Sincronización de Checkout y UX de Historial Premium (Sesión Actual)
-
-**Objetivo:** Implementar soporte para compras múltiples, vinculación de códigos e historial responsivo de alto nivel.
-
-- **Refactor de Checkout & Inventario:**
-  - **Soporte de Quantities:** Actualización de `ProductBottomSheet` y `orders` table para soportar compras de múltiples unidades (ej. 3 unidades de $75).
-  - **Lógica SQL Atómica:** Refactorización de `process_checkout` para validar stock disponible, asignar múltiples códigos a un solo ID de orden y actualizar estados simultáneamente en una transacción.
-- **Rediseño de Historial de Órdenes:**
-  - **Identidad Visual "Ethereal History":** Implementación de estados con código de colores: **Verde (Completado)**, **Amarillo (Pendiente)** y **Rojo (Cancelado)**.
-  - **Acciones Directas:** Botón dorado **"VER CÓDIGOS"** con ícono de ojo, permitiendo al cliente acceder a sus compras de forma instantánea.
-  - **Responsive Intelligence (Mobile Cards):** Eliminación de tablas horizontales en móviles. Implementación de un layout basado en **Tarjetas Stacked (Verticales)** que organiza la información de forma limpia y legible en celulares.
-- **Detalle de Orden & Seguridad:**
-  - **Product Avatars:** Los detalles de la orden ahora incluyen la imagen de categoría en un círculo compacto y estilizado.
-  - **Seguridad RLS:** Implementación de políticas de Row Level Security en `inventory_codes` para asegurar que cada cliente solo pueda visualizar los códigos vinculados a sus facturas.
-  - **Limpieza de UI:** Eliminación de redundancias en montos totales y optimización de espaciados en el `OrderDetailsView`.
-- **GitHub:** Respaldo completo de la sesión sincronizado con el repositorio (`main`).
-
----
-*Fin de Sesión XVIII (Marzo 2026). El flujo de compra y entrega de códigos es ahora robusto, seguro y visualmente impecable en todos los dispositivos.*
+*Dacribel: La bóveda digital de activos más segura y estética del mercado.*

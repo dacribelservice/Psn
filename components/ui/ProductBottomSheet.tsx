@@ -284,7 +284,7 @@ export const ProductBottomSheet = ({
             </div>
 
             {/* Total & Action */}
-            <div className="mt-4 p-6 bg-white/50 backdrop-blur-xl flex items-center justify-between shrink-0">
+            <div className="mt-4 p-6 pb-28 md:pb-6 bg-white/50 backdrop-blur-xl flex items-center justify-between shrink-0">
                <div>
                   <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">{t("total_to_pay")}</p>
                   <p className="text-2xl font-black text-[#11131b] tracking-tighter">${(unitPrice * quantity).toFixed(2)} <span className="text-[11px] text-[#f7be34] uppercase font-black">USDT</span></p>

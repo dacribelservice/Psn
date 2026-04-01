@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { UserTermsBottomSheet } from "@/components/ui/UserTermsBottomSheet";
 
 export default function UpdatePasswordPage() {
   const { language } = useLanguage();
@@ -14,14 +15,13 @@ export default function UpdatePasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Verificar si el usuario tiene una sesión activa (enviada por el link de Supabase)
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        // Si no hay sesión, el link expiró o es inválido
         router.push("/forgot-password?error=Enlace expirado");
       }
     };
@@ -47,7 +47,6 @@ export default function UpdatePasswordPage() {
 
     try {
       await updatePassword(password);
-      // El helper updatePassword ya redirige al login con un mensaje
     } catch (err: any) {
       console.error("Update Error:", err);
       setStatus("error");
@@ -85,7 +84,6 @@ export default function UpdatePasswordPage() {
             {/* Form */}
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div className="space-y-4 text-left">
-                {/* Password Field */}
                 <div className="space-y-2">
                   <label className="block text-[10px] font-bold text-secondary uppercase tracking-[0.2em] ml-1">
                     {language === "es" ? "NUEVA CLAVE" : "NEW PASSWORD"}
@@ -106,7 +104,6 @@ export default function UpdatePasswordPage() {
                   </div>
                 </div>
 
-                {/* Confirm Password Field */}
                 <div className="space-y-2">
                   <label className="block text-[10px] font-bold text-secondary uppercase tracking-[0.2em] ml-1">
                     {language === "es" ? "CONFIRMAR CLAVE" : "CONFIRM PASSWORD"}
@@ -151,11 +148,25 @@ export default function UpdatePasswordPage() {
             </form>
           </motion.div>
 
+          <footer className="mt-8 pt-8 border-t border-white/5">
+             <button 
+                onClick={() => setIsTermsOpen(true)}
+                className="text-[10px] font-bold uppercase tracking-widest hover:text-[#f2b92f] transition-all cursor-pointer opacity-50 hover:opacity-100"
+              >
+                {language === "es" ? "Términos y condiciones" : "Terms & Conditions"}
+              </button>
+          </footer>
+
           {/* Decorative Accents */}
           <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-primary-container/10 blur-[80px] rounded-full pointer-events-none"></div>
           <div className="absolute -top-20 -left-20 w-40 h-40 bg-secondary/5 blur-[80px] rounded-full pointer-events-none"></div>
         </div>
       </main>
+
+      <UserTermsBottomSheet 
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+      />
 
       <style jsx>{`
         .glass-vault {

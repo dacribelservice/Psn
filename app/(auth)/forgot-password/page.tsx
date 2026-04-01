@@ -5,6 +5,7 @@ import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { UserTermsBottomSheet } from "@/components/ui/UserTermsBottomSheet";
 
 export default function ForgotPasswordPage() {
   const { language, setLanguage } = useLanguage();
@@ -12,6 +13,7 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,11 +177,19 @@ export default function ForgotPasswordPage() {
 
         {/* Footer Links */}
         <div className="mt-8 flex justify-center opacity-40 hover:opacity-100 transition-opacity duration-500">
-          <Link className="text-[10px] font-bold uppercase tracking-widest hover:text-primary-container" href="/terms">
+          <button 
+            onClick={() => setIsTermsOpen(true)}
+            className="text-[10px] font-bold uppercase tracking-widest hover:text-[#f2b92f] transition-all cursor-pointer"
+          >
             {language === "es" ? "Términos y condiciones" : "Terms & Conditions"}
-          </Link>
+          </button>
         </div>
       </main>
+
+      <UserTermsBottomSheet 
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+      />
 
       <style jsx>{`
         .glass-vault {

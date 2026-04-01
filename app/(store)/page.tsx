@@ -283,21 +283,21 @@ export default function StorePage() {
           </AnimatePresence>
 
           {/* Indicators - Premium Pill Style */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-20">
+          <div className="absolute bottom-6 md:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 md:gap-4 z-20">
             {banners.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setPage(idx)}
-                className="relative h-2.5 group focus:outline-none"
+                className="relative h-1.5 md:h-2.5 group focus:outline-none"
               >
                 {idx === currentSlide ? (
                   <motion.div
                     layoutId="active-pill"
-                    className="w-12 bg-primary rounded-full h-full shadow-[0_0_20px_rgba(242,185,47,0.8)]"
+                    className="w-6 md:w-12 bg-primary rounded-full h-full shadow-[0_0_20px_rgba(242,185,47,0.8)]"
                     transition={{ type: "spring", stiffness: 350, damping: 25 }}
                   />
                 ) : (
-                  <div className="w-2.5 bg-white/10 rounded-full h-full hover:bg-white/30 transition-all duration-300" />
+                  <div className="w-1.5 md:w-2.5 bg-white/10 rounded-full h-full hover:bg-white/30 transition-all duration-300" />
                 )}
               </button>
             ))}

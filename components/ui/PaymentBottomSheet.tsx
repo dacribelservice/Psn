@@ -94,7 +94,7 @@ export const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({
             </div>
 
             {/* Action */}
-            <div className="p-4 bg-white/50 backdrop-blur-xl border-t border-black/[0.03] pb-8 sm:pb-6">
+            <div className="p-4 bg-white/50 backdrop-blur-xl border-t border-black/[0.03] pb-28 md:pb-8">
                <button 
                   onClick={() => onConfirm(method)}
                   className="w-full bg-[#f7be34] text-[#402d00] font-black py-3 rounded-full shadow-[0_10px_20px_rgba(247,190,52,0.15)] hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-[0.1em] text-[10px]"
