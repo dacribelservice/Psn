@@ -18,7 +18,7 @@ export const BottomNav = () => {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 md:hidden z-[100] w-fit">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 md:hidden z-[50] w-fit">
       <motion.div 
         initial={{ y: 40, opacity: 0, scale: 0.9 }}
         animate={{ y: 0, opacity: 1, scale: 1 }}

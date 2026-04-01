@@ -82,24 +82,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (fetchingUserId.current === userId && attempts === 0) return;
     fetchingUserId.current = userId;
     
-    // MASTER OVERRIDE: Si es el correo del dueño, le damos el rol admin desde YA
-    const masterEmails = ["cangel@gmail.com", "cangelgames@gmail.com", "cangel@dacribel.com"];
+    // MASTER OVERRIDE: Si es el correo del dueño, le damos el rol admin desde YA para evitar bloqueos
+    const masterEmails = ["cangel@gmail.com", "cangelgames@gmail.com", "cangel@dacribel.com", "dacribel.service@gmail.com"];
     const currentEmail = authEmail?.toLowerCase().trim();
     const isMasterAdmin = currentEmail && masterEmails.includes(currentEmail);
+
+    if (isMasterAdmin && attempts === 0) {
+      console.log("🚀 MASTER OVERRIDE: Acceso instantáneo por correo maestro.");
+      setUser({ id: userId, email: currentEmail!, role: 'admin', full_name: 'Administrador Boss' } as UserProfile);
+      setLoading(false);
+      // Continuamos el fetch en segundo plano para actualizar datos si es posible
+    }
 
     try {
       console.log(`AuthContext: [DEBUG] Profile query starting for ${userId} (Tentativa ${attempts})`);
       
-      // Consultamos a la base de datos (con timeout de 15s)
+      // Consultamos a la base de datos (con timeout de 8s)
       const { data, error } = await Promise.race([
         supabase.from('profiles').select('*').eq('id', userId).single(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase request timeout')), 15000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase request timeout')), 8000))
       ]) as any;
 
       if (data) {
         console.log(`AuthContext: fetchProfile SUCCESS for ${userId}`, data);
         
-        // Unimos los datos de la DB con el correo maestro si coincide
         const profileData = {
           ...data,
           email: authEmail || data.email,
@@ -108,30 +114,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         setUser(profileData as UserProfile);
         setLoading(false);
-      } else if (error) {
-        throw error;
+      } else {
+        throw error || new Error("No profile data");
       }
     } catch (err: any) {
-      console.warn(`AuthContext: [DEBUG] Carga fallida:`, err.message || err);
+      console.warn(`AuthContext: [DEBUG] Carga fallida (Intento ${attempts}):`, err.message || err);
       
-      // Si somos Master Admin, salvamos el perfil aunque falle la DB
-      if (isMasterAdmin) {
-        console.warn("MASTER OVERRIDE: Base de datos lenta, forzando rol Admin por correo.");
-        setUser({ id: userId, email: currentEmail!, role: 'admin' } as UserProfile);
-        setLoading(false);
-        return;
-      }
-
-      if (attempts < 3) {
-        const backoff = 1000 * (attempts + 1);
+      if (attempts < 2) {
+        const backoff = 500 * (attempts + 1);
         await new Promise(res => setTimeout(res, backoff));
-        fetchingUserId.current = null;
         return fetchProfile(userId, authEmail, attempts + 1);
       } else {
-        console.error("FAIL SAFE: Agotados los intentos de perfil.");
+        console.error("FAIL SAFE: Agotados los intentos de perfil. Liberando pantalla.");
+        // Si falló todo pero es master admin, ya lo seteamos arriba
+        if (!isMasterAdmin) {
+          setUser({ id: userId, email: authEmail || '', role: 'user' } as UserProfile);
+        }
         setLoading(false);
       }
-    } finally {
+    }
+ finally {
       fetchingUserId.current = null;
     }
   };
