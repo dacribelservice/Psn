@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchingUserId = React.useRef<string | null>(null);
   const router = useRouter();
   const lastFetchedUserId = React.useRef<string | null>(null);
+  const failedFetches = React.useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let isMounted = true;
@@ -46,6 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!isMounted) return;
       
       if (session) {
+        if (failedFetches.current.has(session.user.id)) return;
         lastFetchedUserId.current = session.user.id;
         await fetchProfile(session.user.id, session.user.email);
       } else {
@@ -56,17 +58,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(`AuthContext: Auth Event: ${event}`, { userId: session?.user?.id });
       if (!isMounted) return;
+      const currentId = session?.user?.id;
+      
+      console.log(`AuthContext: [EVENT] ${event}`, { userId: currentId });
 
       if (session) {
+        // ANTI-BLOQUEO: Si ya intentamos cargar este ID y falló, o si ya se está cargando, ignoramos el evento
+        if (failedFetches.current.has(session.user.id) || fetchingUserId.current === session.user.id) {
+           console.log("🛡️ AuthContext: Evitando reintento de perfil fallido o en curso.");
+           setLoading(false);
+           return;
+        }
+
         if (lastFetchedUserId.current === session.user.id && user) {
            return;
         }
+        
         lastFetchedUserId.current = session.user.id;
         await fetchProfile(session.user.id, session.user.email);
       } else {
         lastFetchedUserId.current = null;
+        failedFetches.current.clear();
         setUser(null);
         setLoading(false);
       }
@@ -126,6 +139,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return fetchProfile(userId, authEmail, attempts + 1);
       } else {
         console.error("FAIL SAFE: Agotados los intentos de perfil. Liberando pantalla.");
+        // MARCAMOS COMO FALLIDO
+        failedFetches.current.add(userId);
+        
         // Si falló todo pero es master admin, ya lo seteamos arriba
         if (!isMasterAdmin) {
           setUser({ id: userId, email: authEmail || '', role: 'user' } as UserProfile);
