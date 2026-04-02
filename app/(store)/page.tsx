@@ -140,14 +140,27 @@ export default function StorePage() {
     }, 400); // Wait for first modal to exit partially
   };
 
-  const handleConfirmPayment = (method: string) => {
-    console.log("Confirming payment with method:", method, "amount:", amount);
+  const handleConfirmPayment = async (method: string) => {
+    console.log("🛠️ Inregrity - Creando orden pendiente...");
     setIsPaymentSheetOpen(false);
     
-    // Smooth transition to payment processing page
-    setTimeout(() => {
-      router.push(`/payment/processing?method=${method}&amount=${amount.toFixed(2)}&productId=${selectedProductId}&quantity=${quantity}`);
-    }, 300);
+    try {
+      // 1. Crear la orden PENDIENTE en la base de datos de inmediato
+      const { data: orderId, error } = await supabase.rpc('process_checkout', {
+        p_product_id: selectedProductId,
+        p_amount: amount,
+        p_method: method,
+        p_quantity: quantity
+      });
+
+      if (error) throw error;
+
+      // 2. Redirigir usando el ID real de la orden generada
+      router.push(`/payment/processing?orderId=${orderId}`);
+    } catch (err: any) {
+      console.error("❌ Error al crear orden:", err.message);
+      alert("Lo sentimos, no pudimos procesar tu orden en este momento.");
+    }
   };
 
   const filteredCategories = categories.filter(cat => 

@@ -18,6 +18,7 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchOrders = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -34,8 +35,8 @@ export default function HistoryPage() {
           created_at,
           status,
           quantity,
-          products ( name, image_url, region ),
-          inventory_codes!order_id ( id, code )
+          products(name, image_url, region),
+          inventory_codes!order_id(id, code)
         `)
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -62,23 +63,24 @@ export default function HistoryPage() {
       }
       setLoading(false);
     };
+
     fetchOrders();
 
+    // ESCUCHA TOTAL: INSERT, UPDATE y DELETE para que nada se escape
     const channel = supabase
-      .channel('user-orders-realtime')
+      .channel('user-orders-all-changes')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'orders' },
-        async (payload) => {
-          const { data: { user } } = await supabase.auth.getUser();
-          if (payload.new.user_id === user?.id) {
-            fetchOrders();
-          }
+        { event: '*', schema: 'public', table: 'orders' },
+        () => {
+          console.log("🔄 Realtime: Cambio detectado en órdenes, refrescando...");
+          fetchOrders();
         }
       )
       .subscribe();
 
     return () => {
+      isMounted = false;
       supabase.removeChannel(channel);
     };
   }, []);
@@ -250,9 +252,17 @@ export default function HistoryPage() {
                         <span className="text-[11px] uppercase tracking-widest">{language === 'es' ? 'VER MIS CÓDIGOS' : 'VIEW MY CODES'}</span>
                       </>
                     ) : (
-                      <span className="text-[11px] uppercase tracking-widest animate-pulse">
-                        {language === 'es' ? 'PROCESANDO PAGO...' : 'PROCESSING...'}
-                      </span>
+                      <div className="flex flex-col items-center">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></div>
+                          <span className="text-[11px] uppercase tracking-widest font-black">
+                            {language === 'es' ? 'PROCESANDO PAGO' : 'PROCESSING PAYMENT'}
+                          </span>
+                        </div>
+                        <span className="text-[9px] opacity-40 font-bold uppercase tracking-tighter">
+                          {language === 'es' ? 'Tu pedido aparecerá aquí en segundos' : 'Your order will appear here in seconds'}
+                        </span>
+                      </div>
                     )}
                   </button>
                   <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl opacity-50"></div>

@@ -8,27 +8,77 @@ import { supabase } from "@/lib/supabase";
 function CheckoutProcessingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  const orderId = searchParams.get("orderId");
+  
+  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [timeLeft, setTimeLeft] = useState(600);
   const [copied, setCopied] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-
-  const method = searchParams.get("method")?.toUpperCase() || "BEP20-USDT";
-  const amount = searchParams.get("amount") || "22.37";
-  const quantity = parseInt(searchParams.get("quantity") || "1");
-  const productId = searchParams.get("productId");
-  const networkName = method.includes("BEP20") ? "Binance Smart Chain (BEP20)" : "TRON (TRC20)";
-  const walletAddress = method.includes("BEP20") ? "0x7C187c1Fc9A9C96E5B" : "T9yD6vE6A7L8M9N1O2P";
-
   const [validationStatus, setValidationStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (!orderId) return;
+
+    async function loadOrder() {
+       const { data, error } = await supabase
+         .from('orders')
+         .select('*, products(name, region)')
+         .eq('id', orderId)
+         .single();
+       
+       if (error) {
+         console.error("❌ Error cargando orden:", error);
+         setErrorMessage("No pudimos encontrar los detalles de tu orden.");
+         return;
+       }
+       
+       if (data) {
+         setOrderDetails(data);
+         
+         // 🎯 Sintonía de Tiempo Real Profesional basado en DB
+         const createdAt = new Date(data.created_at).getTime();
+         const now = new Date().getTime();
+         const secondsPassed = Math.floor((now - createdAt) / 1000);
+         const remaining = Math.max(0, 600 - secondsPassed);
+         
+         setTimeLeft(remaining);
+
+         // Si la orden ya está cancelada o expiró, bloquear
+         if (data.status === 'cancelled' || (data.status === 'pending' && remaining <= 0)) {
+            setValidationStatus("error");
+            setErrorMessage("Esta solicitud de pago ha expirado o fue cancelada.");
+            if (data.status === 'pending') {
+               await supabase.rpc('cancel_order', { p_order_id: orderId });
+            }
+         }
+       }
+    }
+    loadOrder();
+  }, [orderId]);
+
+  const amount = orderDetails?.amount || "0.00";
+  const method = orderDetails?.payment_method?.toUpperCase() || "CARGANDO...";
+  const networkName = method.includes("BEP20") ? "Binance Smart Chain (BEP20)" : "TRON (TRC20)";
+  const walletAddress = method.includes("BEP20") ? "0x7C187c1Fc9A9C96E5B" : "T96vE6A7L8M9N1O2P";
+
+  // Hook del Reloj con Auto-Cancelación Estricta
+  useEffect(() => {
+    if (timeLeft <= 0) {
+       if (orderDetails?.status === 'pending' && validationStatus !== 'success') {
+          console.log("⏰ Tiempo agotado - Cancelando orden...");
+          supabase.rpc('cancel_order', { p_order_id: orderId });
+          setValidationStatus("error");
+          setErrorMessage("¡Tiempo agotado! La orden ha sido cancelada.");
+       }
+       return;
+    }
+    
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [timeLeft, orderId, orderDetails?.status, validationStatus]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -151,18 +201,17 @@ function CheckoutProcessingContent() {
             </button>
             <button 
               onClick={async () => {
+                if (!orderId) return;
                 setIsValidating(true);
                 setValidationStatus("loading");
                 
                 try {
-                  // Simulate network delay for premium feel
-                  await new Promise(r => setTimeout(r, 3000));
+                  // Simular tiempo de validación premium
+                  await new Promise(r => setTimeout(r, 4000));
                   
-                  const { data: orderId, error: rpcError } = await supabase.rpc('process_checkout', {
-                    p_product_id: productId,
-                    p_amount: parseFloat(amount),
-                    p_method: method,
-                    p_quantity: quantity
+                  // COMPLETAR LA ORDEN OFICIALMENTE EN DB
+                  const { data: success, error: rpcError } = await supabase.rpc('complete_order', {
+                    p_order_id: orderId
                   });
 
                   if (rpcError) throw rpcError;
