@@ -1,7 +1,11 @@
-# 💎 DACRIBEL - MASTER PROJECT LOG
-
 ## 🎯 OBJETIVO ESTRATÉGICO
 Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, entrega instantánea de códigos y automatización de pagos cripto, operando sobre un stack moderno de **Next.js 14 + Supabase**.
+
+---
+
+## 🏆 REGLAS DE ORO DE DACRIBEL (INVIOLABLES)
+1. **NUNCA GUARDAR COPIAS DE SEGURIDAD (BACKUPS, DUMPS, ARCHIVOS BINARIOS) EN GITHUB.**
+2. **NUNCA COMENZAR UN PROCESO DE TRABAJO SIN AUTORIZACIÓN EXPRESA DEL USUARIO. ESTÁ TOTAL Y ESTRICTAMENTE PROHIBIDO.**
 
 ---
 

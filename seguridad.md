@@ -1,8 +1,14 @@
 # DACRIBEL: PLAN MAESTRO DE FORTIFICACIÓN DIGITAL (SECURITY FORCED PHASE)
 
-Este documento es el único mapa de ruta oficial para la implementación de seguridad en Dacribel. Se ejecutará mediante micro-pasos para garantizar la estabilidad total de la plataforma.
+---
+
+## 🏆 REGLAS DE ORO (INVIOLABLES)
+1. **NUNCA GUARDAR COPIAS DE SEGURIDAD (BACKUPS, DUMPS DE BASE DE DATOS, ARCHIVOS BINARIOS) EN GITHUB. ESTA ESTRICTAMENTE PROHIBIDO.**
+2. **NUNCA COMENZAR UN PROCESO DE TRABAJO SIN AUTORIZACIÓN EXPRESA DEL USUARIO. ESTA TOTAL Y ESTRICTAMENTE PROHIBIDO.**
 
 ---
+
+Este documento es el único mapa de ruta oficial para la implementación de seguridad en Dacribel. Se ejecutará mediante micro-pasos para garantizar la estabilidad total de la plataforma.
 
 ## ESTATUS DE IMPLEMENTACIÓN GLOBAL
 *   **Nivel de Seguridad Actual:** Básico (Capa de datos activa).
@@ -43,9 +49,9 @@ Estrategia: Eliminar dependencias de dominios externos (Wikimedia, GameRant, etc
 ---
 
 *   [x] **Paso 4.1: Activación de Identidad de Búnker (SMTP Profesional).** (Transición de Gmail a Resend completada para asegurar entregas instantáneas).
-*   [ ] **Paso 4.2: Activación del Session Refresher.** Unir el proceso de actualización de cookies de Supabase al Middleware.
-*   [ ] **Paso 4.3: Firewall de Rutas Administrativas.** Barrera estricta que redirige fuera de `/admin` si no hay sesión válida.
-*   [ ] **Paso 4.4: Protección del Flujo de Login.** Evitar que usuarios ya autenticados accedan a la página de inicio de sesión.
+*   [ ] **Paso 4.2: Activación del Session Refresher.** (Desactivado por conflictos en Vercel).
+*   [ ] **Paso 4.3: Firewall de Rutas Administrativas.** (Desactivado por conflictos en Vercel).
+*   [ ] **Paso 4.4: Protección del Flujo de Login.** (Desactivado por conflictos en Vercel).
 
 ---
 
