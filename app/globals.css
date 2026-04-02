@@ -44,19 +44,24 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar { 
+  width: 6px;
   height: 8px; 
   display: block; 
 } 
 
 .custom-scrollbar::-webkit-scrollbar-track { 
-  background: rgba(255, 255, 255, 0.1); 
+  background: rgba(255, 255, 255, 0.05); 
   border-radius: 10px;
 } 
 
 .custom-scrollbar::-webkit-scrollbar-thumb { 
-  background: #f2b92f; 
+  background: rgba(242, 185, 47, 0.3); 
   border-radius: 10px; 
-  border: 2px solid #11131b;
+  border: 1px solid rgba(17, 19, 27, 0.5);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { 
+  background: rgba(242, 185, 47, 0.6); 
 }
 
 .custom-scrollbar-light::-webkit-scrollbar { 

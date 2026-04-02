@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { CategoryBottomSheet } from "@/components/admin/CategoryBottomSheet";
 import { GiftCardBottomSheet } from "@/components/admin/GiftCardBottomSheet";
+import { RegionsBottomSheet } from "@/components/admin/RegionsBottomSheet";
 import { inventoryService } from "@/services/inventory";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
@@ -110,8 +111,10 @@ export default function AdminInventoryPage() {
   const { user } = useAuth();
   const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
   const [isGiftCardSheetOpen, setIsGiftCardSheetOpen] = useState(false);
+  const [isRegionsSheetOpen, setIsRegionsSheetOpen] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [regions, setRegions] = useState<any[]>([]);
   const [codes, setCodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [todaySales, setTodaySales] = useState({ usdt: 0, cop: 0 });
@@ -133,6 +136,9 @@ export default function AdminInventoryPage() {
 
       const cats = await inventoryService.getCategories();
       setCategories(cats);
+
+      const { data: regs } = await supabase.from('regions').select('*');
+      setRegions(regs || []);
 
       const { data: realCodes } = await supabase
         .from('inventory_codes')
@@ -306,13 +312,8 @@ export default function AdminInventoryPage() {
              {products.map((item, idx) => {
                 const category = Array.isArray(item.categories) ? item.categories[0] : item.categories;
                 const categoryImage = category?.image_url;
-                const region = item.region || 'USA';
-                const flagCode = region === 'USA' ? 'us' : 
-                               region === 'Colombia' ? 'co' : 
-                               region === 'Brazil' ? 'br' : 
-                               region === 'Argentina' ? 'ar' : 
-                               region === 'Turkia' ? 'tr' : 
-                               region === 'India' ? 'in' : 'un';
+                const regionName = item.region || 'GLOBAL';
+                const regionData = regions.find(r => r.name === regionName);
 
                 return (
                   <div key={idx} className="flex items-center justify-between px-8 py-4 hover:bg-white/[0.03] transition-colors group">
@@ -328,11 +329,11 @@ export default function AdminInventoryPage() {
                         </div>
                         <div className="flex flex-col">
                            <div className="flex items-center gap-2">
-                              <img 
-                                 src={`https://flagcdn.com/w40/${flagCode}.png`} 
-                                 className="w-3.5 h-2.5 object-cover rounded-px opacity-60" 
-                                 alt={region} 
-                              />
+                              {regionData?.flag_url ? (
+                                <img src={regionData.flag_url} className="w-3.5 h-2.5 object-cover rounded-px opacity-60" alt={regionName} />
+                              ) : (
+                                <span className="material-symbols-outlined text-[10px] text-white/20">public</span>
+                              )}
                               <span className="text-[13px] font-black text-white/90 group-hover:text-white transition-colors tracking-tight uppercase leading-none">{item.name}</span>
                            </div>
                         </div>
@@ -358,6 +359,9 @@ export default function AdminInventoryPage() {
                      </button>
                      <button onClick={() => setIsGiftCardSheetOpen(true)} className="w-12 h-12 rounded-full bg-[#f2b92f] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-2xl">
                         <span className="material-symbols-outlined font-black text-2xl">add</span>
+                     </button>
+                     <button onClick={() => setIsRegionsSheetOpen(true)} className="w-12 h-12 rounded-full bg-white/10 text-[#f2b92f] border border-white/5 flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-2xl backdrop-blur-xl">
+                        <span className="material-symbols-outlined font-black text-[22px]">public</span>
                      </button>
                   </div>
                </div>
@@ -415,18 +419,15 @@ export default function AdminInventoryPage() {
                      {/* Flag & Region floating */}
                      <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5">
-                           <img 
-                              src={`https://flagcdn.com/w40/${
-                                 item.region === 'USA' ? 'us' : 
-                                 item.region === 'Colombia' ? 'co' : 
-                                 item.region === 'Brazil' ? 'br' : 
-                                 item.region === 'Argentina' ? 'ar' : 
-                                 item.region === 'Turkia' ? 'tr' : 
-                                 item.region === 'India' ? 'in' : 'un'
-                              }.png`} 
-                              className="w-4 h-2.5 object-cover rounded-sm" 
-                              alt={item.region} 
-                           />
+                           {regions.find(r => r.name === item.region)?.flag_url ? (
+                             <img 
+                                src={regions.find(r => r.name === item.region)?.flag_url} 
+                                className="w-4 h-2.5 object-cover rounded-sm" 
+                                alt={item.region} 
+                             />
+                           ) : (
+                             <span className="material-symbols-outlined text-[10px] text-white/40">public</span>
+                           )}
                            <span className="text-[9px] font-black text-white/60 uppercase">{item.region || 'Global'}</span>
                         </div>
                         <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase ${item.status === 'available' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-500'}`}>
@@ -509,18 +510,15 @@ export default function AdminInventoryPage() {
                           </td>
                           <td className="px-8 py-6">
                              <div className="flex items-center gap-2">
-                                <img 
-                                   src={`https://flagcdn.com/w40/${
-                                      item.region === 'USA' ? 'us' : 
-                                      item.region === 'Colombia' ? 'co' : 
-                                      item.region === 'Brazil' ? 'br' : 
-                                      item.region === 'Argentina' ? 'ar' : 
-                                      item.region === 'Turkia' ? 'tr' : 
-                                      item.region === 'India' ? 'in' : 'un'
-                                   }.png`} 
-                                   className="w-5 h-3.5 object-cover rounded-sm border border-white/10" 
-                                   alt={item.region} 
-                                />
+                                {regions.find(r => r.name === item.region)?.flag_url ? (
+                                   <img 
+                                      src={regions.find(r => r.name === item.region)?.flag_url} 
+                                      className="w-5 h-3.5 object-cover rounded-sm border border-white/10" 
+                                      alt={item.region} 
+                                   />
+                                ) : (
+                                   <span className="material-symbols-outlined text-sm text-white/20">public</span>
+                                )}
                                 <span className="text-[10px] font-black text-white/60 uppercase">{item.region || 'Global'}</span>
                              </div>
                           </td>
@@ -550,6 +548,11 @@ export default function AdminInventoryPage() {
         isOpen={isGiftCardSheetOpen} 
         onClose={() => setIsGiftCardSheetOpen(false)} 
         onSuccess={fetchData} 
+      />
+      <RegionsBottomSheet
+        isOpen={isRegionsSheetOpen}
+        onClose={() => setIsRegionsSheetOpen(false)}
+        onSuccess={fetchData}
       />
 
       <ConfirmationModal

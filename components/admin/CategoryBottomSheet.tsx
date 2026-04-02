@@ -13,7 +13,9 @@ interface CategoryBottomSheetProps {
 export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBottomSheetProps) => {
   const [name, setName] = useState("");
   const [imageUrlInput, setImageUrlInput] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -36,14 +38,25 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
   const handleSave = async () => {
     if (!name.trim()) return;
     setLoading(true);
     setStatusMessage("PROCESANDO...");
-    console.log("Saving category:", { name, editingId });
     
     try {
-      const finalImageUrl = imageUrlInput;
+      let finalImageUrl = imageUrlInput;
 
       setStatusMessage("GENERANDO SLUG...");
       const slug = name.toLowerCase().trim()
@@ -51,8 +64,35 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-]/g, '');
 
+      // 1. Si hay un archivo nuevo, subirlo a storage
+      if (file) {
+        setStatusMessage("SUBIENDO LOGO...");
+        const fileExt = file.name.split('.').pop();
+        // Sanitización profunda de nombre de archivo
+        const sanitizedFileName = slug
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/ñ/g, "n")
+          .replace(/[^a-z0-9]/g, "-")
+          .replace(/-+/g, "-");
+          
+        const fileName = `${sanitizedFileName}_${Date.now()}.${fileExt}`;
+        const filePath = `categories/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('app-assets')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('app-assets')
+          .getPublicUrl(filePath);
+        
+        finalImageUrl = publicUrl;
+      }
+
       setStatusMessage("GUARDANDO EN DB...");
-      console.log("Final payload:", { name, slug, image_url: finalImageUrl });
 
       if (editingId) {
         const { error } = await supabase
@@ -69,7 +109,7 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
         if (error) throw error;
       }
 
-      setStatusMessage("SINCRONIZANDO LISTA...");
+      setStatusMessage("SINCRONIZANDO...");
       onSuccess?.();
       await loadCategories();
       resetForm();
@@ -87,6 +127,7 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
     setName(cat.name);
     setImageUrlInput(cat.image_url || "");
     setPreviewUrl(cat.image_url || null);
+    setFile(null);
     setStatusMessage(null);
     document.querySelector('.content-scroll')?.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -177,41 +218,37 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <label className="block text-[10px] font-black text-gray-500 dark:text-white/30 uppercase tracking-[0.2em]">
-                            ENLACE (URL) DE LA IMAGEN
+                            IMAGEN / LOGO DE CATEGORIA
                           </label>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              value={imageUrlInput}
-                              onChange={(e) => {
-                                setImageUrlInput(e.target.value);
-                                setPreviewUrl(e.target.value || null);
-                              }}
-                              placeholder="https://ejemplo.com/logo.png"
-                              className="w-full bg-gray-100 dark:bg-black/20 border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 pr-12 focus:ring-1 focus:ring-primary text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 transition-all outline-none font-bold text-xs shadow-inner"
+                          <div 
+                            onClick={() => fileInputRef.current?.click()}
+                            className="relative group cursor-pointer"
+                          >
+                            <input 
+                              type="file"
+                              ref={fileInputRef}
+                              onChange={handleFileChange}
+                              accept="image/*"
+                              className="hidden"
                             />
-                            <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-primary opacity-60">link</span>
+                            
+                            <div className={`w-full aspect-video rounded-[2rem] border-2 border-dashed transition-all flex flex-center items-center justify-center overflow-hidden ${previewUrl ? 'border-primary/50' : 'border-black/5 dark:border-white/5 bg-gray-50 dark:bg-black/20'}`}>
+                              {previewUrl ? (
+                                <div className="relative w-full h-full group/preview">
+                                  <img src={previewUrl} className="w-full h-full object-contain p-4" alt="Preview" />
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+                                    <span className="text-[10px] font-black text-white uppercase tracking-widest">Cambiar Logo</span>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex flex-col items-center gap-2 text-gray-400 dark:text-white/20 group-hover:text-primary transition-colors">
+                                  <span className="material-symbols-outlined text-4xl">add_photo_alternate</span>
+                                  <span className="text-[10px] font-black uppercase tracking-widest">Subir Imagen de Consola</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-
-                        {previewUrl && (
-                          <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-black/10 rounded-2xl border border-black/5 dark:border-white/5">
-                            <div className="w-16 h-16 rounded-xl overflow-hidden bg-white dark:bg-white/5 ring-1 ring-black/5 flex items-center justify-center shrink-0">
-                               <img 
-                                 src={previewUrl} 
-                                 alt="Preview" 
-                                 className="w-full h-full object-cover"
-                                 onError={(e) => {
-                                   (e.target as any).src = "https://placehold.co/100x100?text=Error";
-                                 }}
-                               />
-                            </div>
-                            <div className="flex-1 overflow-hidden">
-                              <p className="text-[10px] font-black text-gray-400 uppercase tracking-tighter truncate">VISTA PREVIA</p>
-                              <p className="text-[10px] text-primary font-bold italic truncate">La imagen se ve correctamente</p>
-                            </div>
-                          </div>
-                        )}
                       </div>
 
                       <div className="pt-2 flex gap-3">

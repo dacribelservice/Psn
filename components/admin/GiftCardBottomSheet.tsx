@@ -22,32 +22,25 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
   const [loading, setLoading] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [exchangeRate, setExchangeRate] = useState(3650); // Tasa por defecto
-  const [selectedRegion, setSelectedRegion] = useState("Global");
+  const [selectedRegion, setSelectedRegion] = useState("GLOBAL");
+  const [dbRegions, setDbRegions] = useState<any[]>([]);
   const [isRegionOpen, setIsRegionOpen] = useState(false);
   const [lowStockAlert, setLowStockAlert] = useState(5);
   const totalCodes = codesText.split("\n").filter(c => c.trim() !== "").length;
 
-  const regions = [
-    { name: "Global", code: "un", flag: "https://flagcdn.com/w40/un.png" },
-    { name: "USA", code: "us", flag: "https://flagcdn.com/w40/us.png" },
-    { name: "Colombia", code: "co", flag: "https://flagcdn.com/w40/co.png" },
-    { name: "Brazil", code: "br", flag: "https://flagcdn.com/w40/br.png" },
-    { name: "Argentina", code: "ar", flag: "https://flagcdn.com/w40/ar.png" },
-    { name: "Turkia", code: "tr", flag: "https://flagcdn.com/w40/tr.png" },
-    { name: "India", code: "in", flag: "https://flagcdn.com/w40/in.png" },
-  ];
-
   useEffect(() => {
-    const fetchCats = async () => {
+    const fetchData = async () => {
       try {
-        const { data, error } = await supabase.from('categories').select('*').order('name');
-        if (error) throw error;
-        setCategories(data || []);
+        const { data: cats } = await supabase.from('categories').select('*').order('name');
+        setCategories(cats || []);
+
+        const { data: regs } = await supabase.from('regions').select('*').order('name');
+        setDbRegions(regs || []);
       } catch (err) {
-        console.error("Error fetching categories for giftcard:", err);
+        console.error("Error fetching data for giftcard:", err);
       }
     };
-    if (isOpen) fetchCats();
+    if (isOpen) fetchData();
   }, [isOpen]);
 
   const handleCreate = async () => {
@@ -277,11 +270,15 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                       className="w-full flex items-center justify-between bg-white dark:bg-[#2a2d3a] border border-black/5 dark:border-white/5 rounded-2xl py-4 px-5 outline-none text-gray-900 dark:text-[#f2b92f] font-bold text-sm shadow-sm hover:border-primary/30 transition-all border-dashed"
                     >
                       <span className="flex items-center gap-3">
-                        <img 
-                          src={regions.find(r => r.name === selectedRegion)?.flag} 
-                          className="w-5 h-3.5 object-cover rounded-sm shadow-sm" 
-                          alt={selectedRegion} 
-                        />
+                        {dbRegions.find(r => r.name === selectedRegion)?.flag_url ? (
+                          <img 
+                            src={dbRegions.find(r => r.name === selectedRegion)?.flag_url} 
+                            className="w-5 h-3.5 object-cover rounded-sm shadow-sm" 
+                            alt={selectedRegion} 
+                          />
+                        ) : (
+                          <span className="material-symbols-outlined text-sm opacity-40">public</span>
+                        )}
                         {selectedRegion}
                       </span>
                       <span className={`material-symbols-outlined text-[20px] transition-transform duration-300 ${isRegionOpen ? 'rotate-180 text-primary' : 'text-gray-400'}`}>expand_more</span>
@@ -296,13 +293,17 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
                           className="absolute z-[160] left-0 right-0 mt-2 bg-white dark:bg-[#252833] rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-black/5 dark:border-white/10 overflow-hidden"
                         >
                           <div className="max-h-48 overflow-y-auto no-scrollbar py-2">
-                            {regions.map((region) => (
+                            {dbRegions.map((region) => (
                               <button 
-                                key={region.code}
+                                key={region.id}
                                 onClick={() => { setSelectedRegion(region.name); setIsRegionOpen(false); }}
                                 className="w-full text-left px-5 py-3 hover:bg-primary/10 text-gray-900 dark:text-white font-black text-[11px] uppercase transition-colors flex items-center gap-3 group"
                               >
-                                <img src={region.flag} className="w-6 h-4 object-cover rounded-sm shadow-sm grayscale-[0.5] group-hover:grayscale-0 transition-all" alt={region.name} />
+                                {region.flag_url ? (
+                                  <img src={region.flag_url} className="w-6 h-4 object-cover rounded-sm shadow-sm grayscale-[0.5] group-hover:grayscale-0 transition-all" alt={region.name} />
+                                ) : (
+                                  <div className="w-6 h-4 bg-black/20 rounded-sm flex items-center justify-center text-[8px] font-bold">?</div>
+                                )}
                                 {region.name}
                                 {selectedRegion === region.name && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
                               </button>

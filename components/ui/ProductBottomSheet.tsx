@@ -6,6 +6,7 @@ import { Category, Product } from "@/services/inventory";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
+import { supabase } from "@/lib/supabase";
 
 interface ProductBottomSheetProps {
   isOpen: boolean;
@@ -30,15 +31,27 @@ export const ProductBottomSheet = ({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
   
-  const allRegions = [
-    { name: "Global", code: "un", flag: "https://flagcdn.com/w40/un.png" },
-    { name: "USA", code: "us", flag: "https://flagcdn.com/w40/us.png" },
-    { name: "Colombia", code: "co", flag: "https://flagcdn.com/w40/co.png" },
-    { name: "Brazil", code: "br", flag: "https://flagcdn.com/w40/br.png" },
-    { name: "Argentina", code: "ar", flag: "https://flagcdn.com/w40/ar.png" },
-    { name: "Turkia", code: "tr", flag: "https://flagcdn.com/w40/tr.png" },
-    { name: "India", code: "in", flag: "https://flagcdn.com/w40/in.png" },
-  ];
+  const [allRegions, setAllRegions] = useState<any[]>([]);
+
+  // Fetch regions from Supabase on mount
+  React.useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const { data } = await supabase.from('regions').select('*').order('name');
+        if (data) {
+          setAllRegions(data.map(r => ({
+            name: r.name,
+            flag: r.flag_url,
+            // We use name as code for compatibility if needed, but the UI uses r.name
+            code: r.name.toLowerCase()
+          })));
+        }
+      } catch (err) {
+        console.error("Error fetching regions:", err);
+      }
+    };
+    fetchRegions();
+  }, []);
 
   // 1. Filter regions that HAVE stock for this category
   const availableRegions = React.useMemo(() => {
@@ -164,7 +177,7 @@ export const ProductBottomSheet = ({
                         <img 
                           alt={selectedRegion} 
                           className="w-3.5 h-2.5 rounded-sm object-cover" 
-                          src={availableRegions.find(r => r.name === selectedRegion)?.flag || allRegions.find(r => r.name === "Global")?.flag} 
+                          src={allRegions.find(r => r.name === selectedRegion)?.flag || "/Logos/dacribel.png"} 
                         />
                         <span className="text-[11px] font-black text-[#11131b]">{selectedRegion || "Sin Stock"}</span>
                         {availableRegions.length > 1 && (
@@ -186,9 +199,9 @@ export const ProductBottomSheet = ({
                           className="absolute right-0 mt-2 w-32 bg-white rounded-2xl shadow-xl border border-black/5 z-[150] overflow-hidden"
                         >
                           <div className="max-h-48 overflow-y-auto no-scrollbar py-1">
-                            {availableRegions.map((r) => (
+                            {availableRegions.map((r, idx) => (
                               <button 
-                                key={r.code}
+                                key={r.name + idx}
                                 onClick={() => { setSelectedRegion(r.name); setIsRegionDropdownOpen(false); }}
                                 className="w-full flex items-center space-x-2 px-3 py-2.5 hover:bg-black/5 transition-colors text-left"
                               >

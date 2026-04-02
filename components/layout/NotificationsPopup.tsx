@@ -98,8 +98,8 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
               </button>
             </div>
 
-            {/* Modal Content - Compact List */}
-            <div className="px-4 py-2 min-h-[100px] flex flex-col justify-center">
+            {/* Modal Content - Compact List with Scroll */}
+            <div className="px-4 py-2 max-h-[380px] overflow-y-auto custom-scrollbar flex flex-col">
               {loading ? (
                 <div className="py-8 text-center">
                   <span className="text-[10px] font-black text-white/20 uppercase animate-pulse">Cargando...</span>
@@ -110,7 +110,7 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
                   <span className="text-[10px] font-black text-white/20 uppercase">{t("all_good") || (language === 'es' ? 'Todo al día' : 'Everything ok')}</span>
                 </div>
               ) : (
-                criticalItems.slice(0, 3).map((item: any, idx: number) => (
+                criticalItems.map((item: any, idx: number) => (
                   <div key={idx} className="flex flex-col">
                     <div className="flex items-center justify-between py-2.5 group cursor-pointer">
                       <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
                           </span>
                         </div>
                         <div>
-                          <h3 className="font-bold text-white text-[11px] mb-0.5 tracking-tight truncate max-w-[100px]">{item.label}</h3>
+                          <h3 className="font-bold text-white text-[11px] mb-0.5 tracking-tight truncate max-w-[120px]">{item.label}</h3>
                           <div className="flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(247,190,52,0.4)]"></span>
                             <span className="text-[9px] text-primary/80 font-black uppercase tracking-tighter">
@@ -136,7 +136,7 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
                         </p>
                       </div>
                     </div>
-                    {idx < criticalItems.length - 1 && idx < 2 && <div className="h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>}
+                    {idx < criticalItems.length - 1 && <div className="h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>}
                   </div>
                 ))
               )}

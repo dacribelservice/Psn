@@ -16,7 +16,11 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
   const [editingId, setEditingId] = React.useState<string | null>(null);
   
   // Form states
+  // Form states
   const [imageUrl, setImageUrl] = React.useState("");
+  const [file, setFile] = React.useState<File | null>(null);
+  const [filePreview, setFilePreview] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [titleEs, setTitleEs] = React.useState("");
   const [titleEn, setTitleEn] = React.useState("");
   const [subtitleEs, setSubtitleEs] = React.useState("");
@@ -46,15 +50,48 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
     }
   }, [isOpen]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
   const handleSave = async () => {
-    if (!imageUrl) {
-      alert("Por favor ingresa la URL de la imagen");
+    if (!file && !imageUrl) {
+      alert("Por favor selecciona una imagen");
       return;
     }
     setLoading(true);
     try {
+      let finalImageUrl = imageUrl;
+
+      // 1. Si hay un archivo nuevo, subirlo
+      if (file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+        const filePath = `hero/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('app-assets')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('app-assets')
+          .getPublicUrl(filePath);
+        
+        finalImageUrl = publicUrl;
+      }
+
       const bannerData = {
-        image_url: imageUrl,
+        image_url: finalImageUrl,
         title_es: titleEs,
         title_en: titleEn,
         subtitle_es: subtitleEs,
@@ -76,6 +113,8 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
       }
 
       // Reset
+      setFile(null);
+      setFilePreview(null);
       setImageUrl("");
       setTitleEs("");
       setTitleEn("");
@@ -95,6 +134,7 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
   const handleEdit = (banner: any) => {
     setEditingId(banner.id);
     setImageUrl(banner.image_url);
+    setFilePreview(banner.image_url);
     setTitleEs(banner.title_es || "");
     setTitleEn(banner.title_en || "");
     setSubtitleEs(banner.subtitle_es || "");
@@ -155,29 +195,46 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                 </div>
                 
                 <div className="space-y-6 bg-[#191b23] p-6 rounded-2xl border border-white/5 shadow-inner">
-                  {/* URL image Input */}
+                  {/* Zona de Carga de Imagen */}
                   <div className="space-y-2.5">
                     <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
-                      URL DE LA IMAGEN
+                      IMAGEN DEL BANNER
                     </label>
-                    <div className="relative group">
-                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 text-lg transition-colors group-focus-within:text-primary">
-                        image
-                      </span>
+                    
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="relative group cursor-pointer"
+                    >
                       <input 
-                        className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-primary/50 rounded-xl pl-12 pr-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
-                        placeholder="https://example.com/banner.jpg" 
-                        type="text" 
-                        value={imageUrl}
-                        onChange={(e) => setImageUrl(e.target.value)}
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        className="hidden"
                       />
+                      
+                      <div className={`w-full aspect-[21/9] rounded-xl border-2 border-dashed transition-all flex flex-center items-center justify-center overflow-hidden ${filePreview ? 'border-primary/50' : 'border-white/5 hover:border-primary/30 bg-black/20'}`}>
+                        {filePreview ? (
+                          <div className="relative w-full h-full group/preview">
+                            <img src={filePreview} className="w-full h-full object-cover" alt="Preview" />
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-center justify-center">
+                              <span className="text-[10px] font-black text-white uppercase tracking-widest">Cambiar Imagen</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center gap-2 text-white/20 group-hover:text-primary/40 transition-colors">
+                            <span className="material-symbols-outlined text-4xl">cloud_upload</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">Seleccionar o Arrastrar Imagen</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
                   {/* ES Labels */}
                   <div className="pt-2 border-t border-white/5 mx-2" />
                   <div className="flex items-center gap-2 px-2">
-                    <img src="https://flagcdn.com/w40/es.png" className="w-4 h-3 rounded-sm opacity-50" />
+                    <img src="https://ryzjswxucuwwzqhdtjmo.supabase.co/storage/v1/object/public/app-assets/flags/espana_1775110789759.png" className="w-4 h-3 rounded-sm opacity-50" />
                     <span className="text-[9px] font-black uppercase text-white/20 tracking-widest">Contenido Español</span>
                   </div>
 
@@ -212,7 +269,7 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                   {/* EN Labels */}
                   <div className="pt-2 border-t border-white/5 mx-2" />
                   <div className="flex items-center gap-2 px-2">
-                    <img src="https://flagcdn.com/w40/us.png" className="w-4 h-3 rounded-sm opacity-50" />
+                    <img src="https://ryzjswxucuwwzqhdtjmo.supabase.co/storage/v1/object/public/app-assets/flags/usa_1775110111294.png" className="w-4 h-3 rounded-sm opacity-50" />
                     <span className="text-[9px] font-black uppercase text-white/20 tracking-widest">English Content</span>
                   </div>
 

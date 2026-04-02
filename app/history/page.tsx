@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { OrderDetailsView } from "@/components/ui/OrderDetailsView";
 import { AnimatePresence } from "framer-motion";
+import React from "react";
 
 export default function HistoryPage() {
   const { t, language } = useLanguage();
@@ -15,72 +16,76 @@ export default function HistoryPage() {
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
   const [transactions, setTransactions] = useState<any[]>([]);
+  const [regions, setRegions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let isMounted = true;
-    const fetchOrders = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-      
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          id,
-          amount,
-          payment_method,
-          created_at,
-          status,
-          quantity,
-          products(name, image_url, region),
-          inventory_codes!order_id(id, code)
-        `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+  // Fetch all regions once
+  const fetchRegions = async () => {
+    const { data } = await supabase.from('regions').select('name, flag_url');
+    if (data) setRegions(data);
+  };
 
-      if (error) {
-        console.error("DEBUG - Error completo de Supabase:", error);
-      } else if (data) {
-        const formatted = data.map((o: any) => ({
-          id: o.id.slice(0, 8),
-          product: o.products?.name || "Producto Digital",
-          amount: `${Number(o.amount).toFixed(2)} USDT`,
-          method: o.payment_method || "N/A",
-          date: new Date(o.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }),
-          fullDate: new Date(o.created_at).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-          status: o.status === 'completed' ? 'Completado' : (o.status === 'cancelled' ? 'Cancelado' : 'Pendiente'),
-          product_image: o.products?.image_url,
-          codesCount: o.quantity || (Array.isArray(o.inventory_codes) ? o.inventory_codes.length : 0),
-          code: Array.isArray(o.inventory_codes) && o.inventory_codes.length > 0
-            ? o.inventory_codes.map((c: any) => c.code).join('\n')
-            : "PENDIENTE",
-          region: o.products?.region || "Global",
-        }));
-        setTransactions(formatted);
-      }
+  const fetchOrders = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       setLoading(false);
-    };
+      return;
+    }
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .select(`
+        id,
+        amount,
+        payment_method,
+        created_at,
+        status,
+        quantity,
+        products(name, image_url, region),
+        inventory_codes!order_id(id, code)
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
 
+    if (error) {
+      console.error("DEBUG - Error completo de Supabase:", error);
+    } else if (data) {
+      const formatted = data.map((o: any) => ({
+        id: o.id.slice(0, 8),
+        product: o.products?.name || "Producto Digital",
+        amount: `${Number(o.amount).toFixed(2)} USDT`,
+        method: o.payment_method || "N/A",
+        date: new Date(o.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }),
+        fullDate: new Date(o.created_at).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        status: o.status === 'completed' ? 'Completado' : (o.status === 'cancelled' ? 'Cancelado' : 'Pendiente'),
+        product_image: o.products?.image_url,
+        codesCount: o.quantity || (Array.isArray(o.inventory_codes) ? o.inventory_codes.length : 0),
+        code: Array.isArray(o.inventory_codes) && o.inventory_codes.length > 0
+          ? o.inventory_codes.map((c: any) => c.code).join('\n')
+          : "PENDIENTE",
+        region: o.products?.region || "Global",
+      }));
+      setTransactions(formatted);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchRegions();
     fetchOrders();
 
-    // ESCUCHA TOTAL: INSERT, UPDATE y DELETE para que nada se escape
     const channel = supabase
       .channel('user-orders-all-changes')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'orders' },
         () => {
-          console.log("🔄 Realtime: Cambio detectado en órdenes, refrescando...");
           fetchOrders();
         }
       )
       .subscribe();
 
     return () => {
-      isMounted = false;
       supabase.removeChannel(channel);
     };
   }, []);
@@ -88,6 +93,12 @@ export default function HistoryPage() {
   const completedCount = transactions.filter(t => t.status === 'Completado').length;
   const pendingCount = transactions.filter(t => t.status === 'Pendiente').length;
   const totalCodesInOrders = transactions.reduce((acc, t) => acc + t.codesCount, 0);
+
+  // Filter transactions based on search term
+  const filteredTransactions = transactions.filter(tx => 
+    tx.id.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    tx.product.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-background text-on-surface">
@@ -180,13 +191,13 @@ export default function HistoryPage() {
                 <div className="animate-spin w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full mx-auto mb-4"></div>
                 <p className="text-white/40 font-bold tracking-widest text-[10px] uppercase">{language === 'es' ? 'Cargando...' : 'Loading...'}</p>
               </div>
-            ) : transactions.length === 0 ? (
+            ) : filteredTransactions.length === 0 ? (
               <div className="bg-[#191b23] rounded-[2rem] p-10 text-center border border-white/5 shadow-2xl">
                 <span className="material-symbols-outlined text-white/10 text-6xl mb-4">receipt_long</span>
-                <p className="text-white/30 font-bold">{language === 'es' ? 'No tienes órdenes aún.' : 'No orders yet.'}</p>
+                <p className="text-white/30 font-bold">{language === 'es' ? 'No se encontraron órdenes.' : 'No orders found.'}</p>
               </div>
             ) : (
-              transactions.map((tx) => (
+              filteredTransactions.map((tx) => (
                 <div key={tx.id} className="bg-[#191b23] rounded-[2.5rem] p-6 border border-white/5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden relative group">
                   <div className="flex justify-between items-start mb-6">
                     <div className="flex items-center gap-4">
@@ -201,7 +212,14 @@ export default function HistoryPage() {
                         <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-1">#{tx.id}</p>
                         <div className="flex items-center gap-2">
                            <h3 className="text-lg font-headline font-black text-white tracking-tight leading-none">{tx.product}</h3>
-                           <span className="text-[9px] font-black text-primary/60 bg-primary/5 px-2 py-0.5 rounded border border-primary/10 uppercase tracking-tighter">{tx.region}</span>
+                           <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
+                             <img 
+                               src={regions.find(r => r.name.toLowerCase() === tx.region.toLowerCase())?.flag_url || "/Logos/dacribel.png"} 
+                               alt={tx.region}
+                               className="w-4 h-2.5 rounded-[2px] object-cover shadow-sm"
+                             />
+                             <span className="text-[9px] font-black text-white/40 uppercase tracking-tighter">{tx.region}</span>
+                           </div>
                         </div>
                       </div>
                     </div>
@@ -289,18 +307,29 @@ export default function HistoryPage() {
               </thead>
               <tbody className="divide-y divide-outline-variant/5">
                 {loading ? (
-                  <tr><td colSpan={8} className="text-center py-10 opacity-50">Cargando...</td></tr>
-                ) : transactions.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center py-10 opacity-50">No hay órdenes.</td></tr>
+                  <tr><td colSpan={9} className="text-center py-20">
+                    <div className="animate-spin w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full mx-auto"></div>
+                  </td></tr>
+                ) : filteredTransactions.length === 0 ? (
+                  <tr><td colSpan={9} className="text-center py-20 opacity-30 font-bold uppercase tracking-widest text-xs">No se encontraron órdenes.</td></tr>
                 ) : (
-                  transactions.map((tx) => (
+                  filteredTransactions.map((tx) => (
                     <tr key={tx.id} className="hover:bg-surface-container-highest/30 transition-colors group">
                       <td className="px-6 py-6 text-sm font-mono text-on-surface-variant">#{tx.id}</td>
                       <td className="px-6 py-6 font-bold text-white">{tx.product}</td>
                       <td className="px-6 py-6">
-                        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest bg-white/5 px-2 py-1 rounded border border-white/5">
-                          {tx.region}
-                        </span>
+                        <div className="flex items-center gap-3 group/flag transition-transform hover:translate-x-1">
+                          <div className="w-10 h-7 rounded-lg overflow-hidden bg-[#0c0e15] border border-white/5 flex items-center justify-center p-0.5 shadow-2xl">
+                             <img 
+                               src={regions.find(r => r.name.toLowerCase() === tx.region.toLowerCase())?.flag_url || "/Logos/dacribel.png"} 
+                               alt={tx.region}
+                               className="w-full h-full object-cover rounded-sm opacity-80 group-hover/flag:opacity-100 transition-opacity"
+                             />
+                          </div>
+                          <span className="text-[10px] font-black text-white/20 uppercase tracking-widest group-hover/flag:text-white/60 transition-colors leading-none">
+                            {tx.region}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-6">
                         <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[11px] font-black text-primary border border-white/5">
@@ -325,7 +354,7 @@ export default function HistoryPage() {
                         {tx.status === 'Completado' ? (
                           <button 
                             onClick={() => setSelectedOrder(tx)}
-                            className="bg-primary/20 px-3 py-1.5 rounded-lg border border-primary/30 hover:bg-primary/30 transition-all flex items-center gap-2 group ml-auto shadow-[0_0_15px_rgba(247,190,52,0.1)]"
+                            className="bg-primary/20 px-3 py-1.5 rounded-lg border border-primary/30 hover:bg-primary/30 transition-all flex items-center gap-2 group ml-auto shadow-[0_0_15px_rgba(247,190,52,0.1)] active:scale-95"
                           >
                             <span className="material-symbols-outlined text-[14px] text-primary">visibility</span>
                             <span className="text-[10px] text-primary font-black tracking-widest">VER CÓDIGOS</span>
