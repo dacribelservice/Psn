@@ -34,7 +34,7 @@ export default function HistoryPage() {
           created_at,
           status,
           quantity,
-          products ( name, image_url ),
+          products ( name, image_url, region ),
           inventory_codes!order_id ( id, code )
         `)
         .eq('user_id', user.id)
@@ -56,6 +56,7 @@ export default function HistoryPage() {
           code: Array.isArray(o.inventory_codes) && o.inventory_codes.length > 0
             ? o.inventory_codes.map((c: any) => c.code).join('\n')
             : "PENDIENTE",
+          region: o.products?.region || "Global",
         }));
         setTransactions(formatted);
       }
@@ -196,7 +197,10 @@ export default function HistoryPage() {
                       </div>
                       <div>
                         <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-1">#{tx.id}</p>
-                        <h3 className="text-lg font-headline font-black text-white tracking-tight leading-none">{tx.product}</h3>
+                        <div className="flex items-center gap-2">
+                           <h3 className="text-lg font-headline font-black text-white tracking-tight leading-none">{tx.product}</h3>
+                           <span className="text-[9px] font-black text-primary/60 bg-primary/5 px-2 py-0.5 rounded border border-primary/10 uppercase tracking-tighter">{tx.region}</span>
+                        </div>
                       </div>
                     </div>
                     <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
@@ -264,6 +268,7 @@ export default function HistoryPage() {
                 <tr className="bg-surface-container-high/50 border-b border-outline-variant/5">
                   <th className="px-6 py-5 text-[0.6875rem] font-bold text-secondary-fixed-dim uppercase tracking-[0.15em]">Order #</th>
                   <th className="px-6 py-5 text-[0.6875rem] font-bold text-secondary-fixed-dim uppercase tracking-[0.15em]">{language === 'es' ? 'Producto' : 'Product'}</th>
+                  <th className="px-6 py-5 text-[0.6875rem] font-bold text-secondary-fixed-dim uppercase tracking-[0.15em]">{language === 'es' ? 'Región' : 'Region'}</th>
                   <th className="px-6 py-5 text-[0.6875rem] font-bold text-secondary-fixed-dim uppercase tracking-[0.15em]">{language === 'es' ? 'Cant' : 'Qty'}</th>
                   <th className="px-6 py-5 text-[0.6875rem] font-bold text-secondary-fixed-dim uppercase tracking-[0.15em]">{language === 'es' ? 'Monto' : 'Amount'}</th>
                   <th className="px-6 py-5 text-[0.6875rem] font-bold text-secondary-fixed-dim uppercase tracking-[0.15em]">{language === 'es' ? 'Método' : 'Method'}</th>
@@ -282,6 +287,11 @@ export default function HistoryPage() {
                     <tr key={tx.id} className="hover:bg-surface-container-highest/30 transition-colors group">
                       <td className="px-6 py-6 text-sm font-mono text-on-surface-variant">#{tx.id}</td>
                       <td className="px-6 py-6 font-bold text-white">{tx.product}</td>
+                      <td className="px-6 py-6">
+                        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest bg-white/5 px-2 py-1 rounded border border-white/5">
+                          {tx.region}
+                        </span>
+                      </td>
                       <td className="px-6 py-6">
                         <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-[11px] font-black text-primary border border-white/5">
                           {tx.codesCount.toString().padStart(2, '0')}

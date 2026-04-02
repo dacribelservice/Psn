@@ -42,21 +42,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let isMounted = true;
 
-    const initSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!isMounted) return;
-      
-      if (session) {
-        if (failedFetches.current.has(session.user.id)) return;
-        lastFetchedUserId.current = session.user.id;
-        await fetchProfile(session.user.id, session.user.email);
-      } else {
-        setLoading(false);
-      }
-    };
-
-    initSession();
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
       const currentId = session?.user?.id;
@@ -64,22 +49,40 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log(`AuthContext: [EVENT] ${event}`, { userId: currentId });
 
       if (session) {
-        // ANTI-BLOQUEO: Si ya intentamos cargar este ID y falló, o si ya se está cargando, ignoramos el evento
-        if (failedFetches.current.has(session.user.id) || fetchingUserId.current === session.user.id) {
-           console.log("🛡️ AuthContext: Evitando reintento de perfil fallido o en curso.");
+        // ANTI-BLOQUEO: Si ya se está cargando, evitamos duplicidad
+        if (fetchingUserId.current === currentId) {
            setLoading(false);
            return;
         }
 
-        if (lastFetchedUserId.current === session.user.id && user) {
+        // Si ya tenemos el usuario y no ha cambiado el ID, no re-cargamos
+        if (lastFetchedUserId.current === currentId && user) {
+           setLoading(false);
            return;
         }
+
+        lastFetchedUserId.current = currentId || null;
         
-        lastFetchedUserId.current = session.user.id;
-        await fetchProfile(session.user.id, session.user.email);
+        // --- POBLAR DESDE SESIÓN INMEDIATAMENTE ---
+        const meta = session.user.user_metadata;
+        const masterEmails = ["cangel@gmail.com", "cangelgames@gmail.com", "cangel@dacribel.com", "dacribel.service@gmail.com"];
+        const isMaster = session.user.email && masterEmails.includes(session.user.email.toLowerCase().trim());
+
+        setUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          role: isMaster ? 'admin' : (meta?.role || 'user'),
+          full_name: meta?.full_name || meta?.name || (isMaster ? 'Admin' : 'Usuario'),
+          avatar_url: meta?.avatar_url || meta?.picture
+        } as UserProfile);
+
+        // --- LIBERAR PANTALLA YA ---
+        setLoading(false);
+
+        // Intentar actualizar desde DB en segundo plano (sin bloquear)
+        fetchProfile(session.user.id, session.user.email || '');
       } else {
         lastFetchedUserId.current = null;
-        failedFetches.current.clear();
         setUser(null);
         setLoading(false);
       }
@@ -89,70 +92,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [user]);
 
-  const fetchProfile = async (userId: string, authEmail?: string, attempts = 0) => {
-    if (fetchingUserId.current === userId && attempts === 0) return;
+  const fetchProfile = async (userId: string, authEmail: string) => {
+    if (fetchingUserId.current === userId) return;
     fetchingUserId.current = userId;
-    
-    // MASTER OVERRIDE: Si es el correo del dueño, le damos el rol admin desde YA para evitar bloqueos
-    const masterEmails = ["cangel@gmail.com", "cangelgames@gmail.com", "cangel@dacribel.com", "dacribel.service@gmail.com"];
-    const currentEmail = authEmail?.toLowerCase().trim();
-    const isMasterAdmin = currentEmail && masterEmails.includes(currentEmail);
-
-    if (isMasterAdmin && attempts === 0) {
-      console.log("🚀 MASTER OVERRIDE: Acceso instantáneo por correo maestro.");
-      setUser({ id: userId, email: currentEmail!, role: 'admin', full_name: 'Administrador Boss' } as UserProfile);
-      setLoading(false);
-      // Continuamos el fetch en segundo plano para actualizar datos si es posible
-    }
 
     try {
-      console.log(`AuthContext: [DEBUG] Profile query starting for ${userId} (Tentativa ${attempts})`);
-      
-      // Consultamos a la base de datos (con timeout de 8s)
-      const { data, error } = await Promise.race([
+      const { data } = await Promise.race([
         supabase.from('profiles').select('*').eq('id', userId).single(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase request timeout')), 8000))
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
       ]) as any;
 
       if (data) {
-        console.log(`AuthContext: fetchProfile SUCCESS for ${userId}`, data);
+        const masterEmails = ["cangel@gmail.com", "cangelgames@gmail.com", "cangel@dacribel.com", "dacribel.service@gmail.com"];
+        const isMaster = authEmail && masterEmails.includes(authEmail.toLowerCase().trim());
         
-        const profileData = {
+        setUser(prev => ({
+          ...prev,
           ...data,
-          email: authEmail || data.email,
-          role: isMasterAdmin ? "admin" : data.role
-        };
-        
-        setUser(profileData as UserProfile);
-        setLoading(false);
-      } else {
-        throw error || new Error("No profile data");
+          role: isMaster ? 'admin' : data.role
+        }));
       }
-    } catch (err: any) {
-      console.warn(`AuthContext: [DEBUG] Carga fallida (Intento ${attempts}):`, err.message || err);
-      
-      if (attempts < 2) {
-        const backoff = 500 * (attempts + 1);
-        await new Promise(res => setTimeout(res, backoff));
-        return fetchProfile(userId, authEmail, attempts + 1);
-      } else {
-        console.error("FAIL SAFE: Agotados los intentos de perfil. Liberando pantalla.");
-        // MARCAMOS COMO FALLIDO
-        failedFetches.current.add(userId);
-        
-        // Si falló todo pero es master admin, ya lo seteamos arriba
-        if (!isMasterAdmin) {
-          setUser({ id: userId, email: authEmail || '', role: 'user' } as UserProfile);
-        }
-        setLoading(false);
-      }
-    }
- finally {
+    } catch (err) {
+      // Ignoramos silenciosamente, ya tenemos la sesión básica cargada
+    } finally {
       fetchingUserId.current = null;
     }
   };
+
 
   const signInWithGoogle = async () => {
     try {

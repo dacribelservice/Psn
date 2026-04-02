@@ -456,11 +456,7 @@ export default function AdminInventoryPage() {
                            </div>
                         </div>
 
-                        <div className="flex items-center justify-between pt-2">
-                           <div className="flex flex-col">
-                              <span className="text-[9px] font-black text-white/20 uppercase mb-1 tracking-[0.2em]">Código</span>
-                              <code className="text-[11px] font-mono text-white/30 group-hover:text-primary transition-all">{item.code}</code>
-                           </div>
+                        <div className="flex items-center justify-end pt-2">
                            <button 
                               onClick={() => handleDeleteCode(item.id)}
                               className="w-10 h-10 rounded-2xl bg-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500/20 active:scale-90 transition-all shadow-lg"
@@ -488,7 +484,6 @@ export default function AdminInventoryPage() {
                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Valor</th>
                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Región</th>
-                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Código</th>
                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-right">Acciones</th>
                      </tr>
                  </thead>
@@ -529,9 +524,7 @@ export default function AdminInventoryPage() {
                                 <span className="text-[10px] font-black text-white/60 uppercase">{item.region || 'Global'}</span>
                              </div>
                           </td>
-                          <td className="px-8 py-6">
-                             <code className="text-xs font-mono text-white/40 group-hover:text-primary transition-colors">{item.code}</code>
-                          </td>
+                         {/* Columna de código eliminada por seguridad */}
                           <td className="px-8 py-6 text-right">
                               <button 
                                 onClick={() => handleDeleteCode(item.id)}

@@ -78,7 +78,7 @@ export default function AdminFinancesPage() {
         // 1. Traer Órdenes
         const { data: ordersData, error: ordersError } = await supabase
           .from('orders')
-          .select('*, product:products(name, cost_price, sale_price)')
+          .select('*, product:products(name, cost_price, sale_price), profiles(email, full_name)')
           .order('created_at', { ascending: false });
 
         // 2. Traer Perfiles
@@ -130,7 +130,8 @@ export default function AdminFinancesPage() {
           if (o.created_at.startsWith(today)) todayTotal += amt;
 
           return {
-            email: profileMap[o.user_id] || "Usuario Desconocido",
+            email: o.profiles?.email || "N/A",
+            name: o.profiles?.full_name || "Usuario Desconocido",
             id: `#ORD-${o.id.substring(0, 6).toUpperCase()}`,
             amount: amt.toFixed(2),
             status: o.status,
@@ -336,11 +337,12 @@ export default function AdminFinancesPage() {
                             <td className="px-8 py-6">
                                <div className="flex items-center gap-4">
                                   <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-label-sm text-secondary">
-                                     {order.email.substring(0, 2).toUpperCase()}
+                                     {(order.name || order.email).substring(0, 2).toUpperCase()}
                                   </div>
                                   <div className="flex flex-col">
-                                     <span className="font-bold text-white/90">{order.email}</span>
-                                     <span className="text-label-sm text-white/20 uppercase">{order.id}</span>
+                                     <span className="font-bold text-white/90">{order.name}</span>
+                                     <span className="text-[10px] text-white/30 lowercase">{order.email}</span>
+                                     <span className="text-[9px] font-black text-primary/40 uppercase tracking-tighter mt-0.5">{order.id}</span>
                                   </div>
                                </div>
                             </td>
