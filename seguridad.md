@@ -42,12 +42,10 @@ Estrategia: Eliminar dependencias de dominios externos (Wikimedia, GameRant, etc
 
 ---
 
-## FASE 4: CONTROL DE ACCESO (MIDDLEWARE - CAPA 4)
-Estrategia: Validar al usuario en el servidor antes de que el navegador procese cualquier información sensible.
-
-*   [ ] **Paso 4.1: Activación del Session Refresher.** Unir el proceso de actualización de cookies de Supabase al Middleware.
-*   [ ] **Paso 4.2: Firewall de Rutas Administrativas.** Barrera estricta que redirige fuera de `/admin` si no hay sesión válida.
-*   [ ] **Paso 4.3: Protección del Flujo de Login.** Evitar que usuarios ya autenticados accedan a la página de inicio de sesión.
+*   [x] **Paso 4.1: Activación de Identidad de Búnker (SMTP Profesional).** (Transición de Gmail a Resend completada para asegurar entregas instantáneas).
+*   [ ] **Paso 4.2: Activación del Session Refresher.** Unir el proceso de actualización de cookies de Supabase al Middleware.
+*   [ ] **Paso 4.3: Firewall de Rutas Administrativas.** Barrera estricta que redirige fuera de `/admin` si no hay sesión válida.
+*   [ ] **Paso 4.4: Protección del Flujo de Login.** Evitar que usuarios ya autenticados accedan a la página de inicio de sesión.
 
 ---
 

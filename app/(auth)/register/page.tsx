@@ -20,6 +20,9 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendSuccess, setResendSuccess] = useState(false);
 
   // Redirect if already logged in and verified
   React.useEffect(() => {
@@ -52,6 +55,34 @@ export default function RegisterPage() {
       }
     } catch (error: any) {
       setError(error.message || (language === "es" ? "Error al registrarse. Prueba de nuevo." : "Sign up error. Please try again."));
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || isResending) return;
+    
+    setIsResending(true);
+    setResendSuccess(false);
+    try {
+      const { resendVerification } = useAuth() as any;
+      await resendVerification(email);
+      setResendSuccess(true);
+      setResendCooldown(60);
+      
+      const timer = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+    } catch (error: any) {
+      setError(error.message || (language === "es" ? "Error al reenviar. Espera un momento." : "Resend error. Wait a moment."));
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -96,9 +127,38 @@ export default function RegisterPage() {
               </Link>
             </div>
             
-            <p className="mt-8 text-[10px] text-white/20 uppercase font-black tracking-widest">
-              {language === "es" ? "¿No lo recibiste? Revisa tu carpeta de SPAM." : "Didn't receive it? Check your SPAM folder."}
-            </p>
+            <div className="mt-8 space-y-4">
+              <p className="text-[10px] text-white/20 uppercase font-black tracking-widest">
+                {language === "es" ? "¿No lo recibiste? Revisa tu carpeta de SPAM." : "Didn't receive it? Check your SPAM folder."}
+              </p>
+              
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendCooldown > 0 || isResending}
+                className={`text-[10px] font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 mx-auto ${
+                  resendCooldown > 0 || isResending 
+                    ? "text-white/10 cursor-not-allowed" 
+                    : "text-primary hover:text-primary/110 cursor-pointer"
+                }`}
+              >
+                {isResending ? (
+                  <div className="w-3 h-3 border border-primary/30 border-t-primary rounded-full animate-spin" />
+                ) : resendSuccess ? (
+                  <span className="flex items-center gap-1 text-green-500">
+                    <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                    {language === "es" ? "ENVIADO DE NUEVO" : "SENT AGAIN"}
+                  </span>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[14px]">refresh</span>
+                    {language === "es" 
+                      ? resendCooldown > 0 ? `REENVIAR EN ${resendCooldown}S` : "REENVIAR ENLACE" 
+                      : resendCooldown > 0 ? `RESEND IN ${resendCooldown}S` : "RESEND LINK"}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
           
           <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-primary/5 blur-[80px] rounded-full"></div>

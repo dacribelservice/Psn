@@ -7,7 +7,7 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 
 ## 🚀 ESTADO ACTUAL: PRODUCCIÓN 🌎🟢
 *   **App URL:** `https://psn-six.vercel.app` 🪐✨
-*   **Seguridad:** Autenticación robusta con roles (Admin/User), recuperación de claves y RLS activado.
+*   **Seguridad:** Autenticación robusta con roles (Admin/User), recuperación de claves y RLS activado. **SMTP Profesional (Resend) Activo.**
 *   **Inventario:** Realtime sync habilitado (Supabase).
 *   **Fase:** Implementando Automatización de Pagos (Fase 5).
 
@@ -41,6 +41,7 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 ### 🔐 Fase III & IV: Identidad y Seguridad
 *   Integración de **Supabase Auth**. Redirección inteligente: Administradores al panel, Clientes a la tienda.
 *   Implementación de políticas de seguridad (RLS) para proteger los códigos del inventario.
+*   **Blindaje de Identidad:** Migración de SMTP Gmail personal a Infraestructura Profesional (Resend).
 
 ### 💰 Fase V (Iniciada): Procesamiento de Pagos
 *   Diseño del flujo de pago con temporizadores de 10 min, QRs dinámicos y estados de validación.
