@@ -21,7 +21,7 @@ interface AuthContextType {
   role: UserRole;
   loading: boolean;
   signIn: (email: string, password?: string) => Promise<void>;
-  signUp: (email: string, password?: string) => Promise<void>;
+  signUp: (email: string, password?: string) => Promise<any>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => void;
   deleteAccount: () => Promise<void>;
@@ -160,8 +160,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       },
       signUp: async (email, pass) => {
         setLoading(true);
-        const { error } = await supabase.auth.signUp({ email, password: pass || '123456Ab*' });
+        const { data, error } = await supabase.auth.signUp({ email, password: pass || '123456Ab*' });
         if (error) { setLoading(false); throw error; }
+        return data; // Retornamos la respuesta completa para detectar si requiere confirmación
       },
       signInWithGoogle, 
       signOut, 
