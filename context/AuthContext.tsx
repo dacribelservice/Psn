@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         // --- POBLAR DESDE SESIÓN INMEDIATAMENTE ---
         const meta = session.user.user_metadata;
-        const masterEmails = ["dacribel.service@gmail.com", "cangelgames@gmail.com", "cangel@dacribel.com"];
+        const masterEmails = ["dacribel.service@gmail.com"];
         const isMaster = session.user.email && masterEmails.includes(session.user.email.toLowerCase().trim());
 
         setUser({
@@ -113,7 +113,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       ]) as any;
 
       if (data) {
-        const masterEmails = ["dacribel.service@gmail.com", "cangelgames@gmail.com", "cangel@dacribel.com"];
+        const masterEmails = ["dacribel.service@gmail.com"];
         const isMaster = authEmail && masterEmails.includes(authEmail.toLowerCase().trim());
         
         setUser(prev => ({

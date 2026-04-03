@@ -23,7 +23,7 @@ export default function LoginPage() {
     console.log("LoginPage: Effect triggered", { hasUser: !!user, loading, role });
     if (user && !loading) {
       // MASTER OVERRIDE: Owner is ALWAYS redirected to admin (with case-insensitiy)
-      const masterEmails = ["dacribel.service@gmail.com", "cangelgames@gmail.com"];
+      const masterEmails = ["dacribel.service@gmail.com"];
       const userEmail = user?.email?.toLowerCase().trim();
       const isMasterAdmin = masterEmails.includes(userEmail || "");
       const target = (role === "admin" || isMasterAdmin) ? "/admin/inventory" : "/";
