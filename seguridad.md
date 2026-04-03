@@ -31,7 +31,7 @@ Estrategia: Asegurar que la base de datos sea la última línea de defensa y que
 Estrategia: Evitar que el navegador sea utilizado como un arma contra el servidor a través de inyecciones o suplantaciones.
 
 *   [x] **Paso 2.1: Implementación de Cabeceras Globales.** (Configuración verificada: se añadió soporte para `flagcdn.com`, `wikimedia.org`, `gamerantimages.com` y `notebookcheck.org` para asegurar visualización total de banners e iconos).
-*   [ ] **Paso 2.2: Refinamiento de CSP (Content Security Policy).** Ajustar la política para ser más restrictiva con scripts inline (evaluación de riesgo).
+*   [x] **Paso 2.2: Refinamiento de CSP (Content Security Policy).** (Implementado: Lista blanca estricta para Google Auth y Dominios de Supabase en `next.config.mjs`).
 *   [ ] **Paso 2.3: Configuración de HSTS (Strict-Transport-Security).** Forzar HTTPS en todos los niveles del dominio.
 *   [ ] **Paso 2.4: Protección Anti-Sniffing y Clickjacking.** Activar `nosniff` y `DENY` para frames (Listo para despliegue).
 
@@ -72,4 +72,40 @@ Estrategia: Tratar todo input de usuario como una amenaza potencial y preparar e
 5.  Se marca como [x] y se avanza al siguiente micro-paso.
 
 ---
+---
+
+## 🚩 MATRIZ DE RIESGOS Y POSIBLES FALLOS (VIGILANCIA PROACTIVA)
+Estrategia: Anticipar el fallo para garantizar la continuidad del servicio en Dacribel.
+
+### FASE 1: CIMIENTOS DE DATOS (DB)
+*   **Posible Fallo:** **Recursión Infinita (Error 500).** 
+    *   *Causa:* Las políticas RLS intentan leer la misma tabla que protegen.
+    *   *Solución:* Uso de funciones auxiliares con `SECURITY DEFINER` para romper el bucle. (**Mitigado con `is_admin()`**).
+*   **Posible Fallo:** **Bloqueo Total de Registros.** 
+    *   *Causa:* Triggers de auditoría mal configurados que impiden el `INSERT`.
+    *   *Solución:* Probar cada trigger en una transacción aislada antes del despliegue masivo.
+
+### FASE 2: BLINDAJE DE RED (CSP & HEADERS)
+*   **Posible Fallo:** **"Pantalla Negra" de Imágenes.** 
+    *   *Causa:* Nuevas imágenes de productos subidas desde dominios no autorizados en el CSP.
+    *   *Solución:* Añadir dinámicamente el dominio a la lista blanca de `next.config.mjs` tras monitoreo en consola (F12).
+*   **Posible Fallo:** **Fallo de Login con Google.** 
+    *   *Causa:* Bloqueo de los scripts de OAuth de Google por políticas de red estrictas.
+    *   *Solución:* Autorizar explícitamente `accounts.google.com` y `content.googleapis.com` en los headers de seguridad.
+
+### FASE 3: ACTIVOS Y DATOS (STORAGE)
+*   **Posible Fallo:** **Error 403 (Acceso Denegado a Fotos).** 
+    *   *Causa:* Las políticas RLS del Bucket de Supabase no reconocen al usuario logueado.
+    *   *Solución:* Sincronizar las políticas de Storage con los roles de la tabla `profiles`.
+*   **Posible Fallo:** **Lentitud de Carga (LCP Alto).** 
+    *   *Causa:* Imágenes sin optimizar de varios megabytes subidas al servidor.
+    *   *Solución:* Implementar redimensionamiento automático o conversión a WebP antes de la carga.
+
+### FASE 5: VALIDACIÓN ATÓMICA (INPUTS)
+*   **Posible Fallo:** **Rechazo de Datos Válidos.** 
+    *   *Causa:* Esquemas de validación Zod demasiado estrictos (ej: no permitir tildes o caracteres especiales en nombres).
+    *   *Solución:* Test de entrada con "casos de borde" y refinamiento del Regex de validación.
+
+---
 *Dacribel: Bóveda Digital Inexpugnable en construcción.*
+
