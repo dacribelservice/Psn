@@ -10,10 +10,11 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 ---
 
 ## 🚀 ESTADO ACTUAL: PRODUCCIÓN 🌎🟢
-*   **App URL:** `https://psn-six.vercel.app` 🪐✨
-*   **Seguridad:** Autenticación robusta con roles (Admin/User), recuperación de claves y RLS activado. **SMTP Profesional (Resend) Activo.**
+*   **App URL:** `https://www.dacribel.shop` 🪐✨
+*   **Infraestructura:** Dominio propio (`dacribel.shop`) gestionado en Vercel DNS y HostGator.
+*   **Seguridad:** SMTP Profesional (Resend). Verificación de DKIM, SPF y MX activa.
+*   **Auth:** Bypass de Testing Mode exitoso; registro de usuarios externos habilitado.
 *   **Inventario:** Realtime sync habilitado (Supabase).
-*   **Fase:** Implementando Automatización de Pagos (Fase 5).
 
 ---
 
@@ -51,8 +52,15 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 *   Diseño del flujo de pago con temporizadores de 10 min, QRs dinámicos y estados de validación.
 *   Integración de lógica atómica para la liberación instantánea de códigos digitales.
 
-### 🌐 Fase Final: Despliegue Público
-*   Lanzamiento oficial en Vercel con soporte para recuperación de cuentas y términos de servicio legales.
+### 🌐 Fase Final: Identidad de Marca Pro (Abril 2026)
+*   **Dominio Propio:** Migración exitosa de `vercel.app` a `dacribel.shop` 🏯🛡️.
+*   **Infraestructura DNS:** Configuración de Vercel como manager de DNS para mayor velocidad.
+*   **Bypass de SMTP:** Verificación de dominio en Resend, permitiendo el registro global de usuarios sin restricciones de prueba.
+*   **Supabase SMTP:** Conexión segura vía registros DKIM/SPF y API Keys dedicadas.
+*   **Auth URL Configuration:** Sincronización de `Site URL` y `Redirect URLs` en Supabase para habilitar recuperación de contraseña en el nuevo dominio. 🛡️🔐
+*   **Identidad Visual:** Restauración de banderas (USA/España) usando recursos internos de Supabase Storage para cumplimiento de CSP. 🚩✨
+
+---
 
 ---
 

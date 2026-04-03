@@ -70,6 +70,19 @@ Para eliminar los bloqueos totales ("hangs") que sufría la web al intentar vali
 ## 🏁 Fallo VII: Resistencia al Pase Maestro (Marzo 2026)
 **Problema:** El override codificado en `AdminLayout` no se activa a pesar de usar `cangel@gmail.com`.
 **Investigación:** Se ha implementado un depurador visual en la pantalla de carga que muestra el contenido de `userEmail` y el booleano `isMasterAdmin`. 
-**Estado:** Esperando reporte del usuario sobre los valores de depuración para identificar si el objeto `user` está incompleto o si hay un fallo de tipos en la comparación.
+**Estado:** Resuelto (Análisis de bucle completado).
 
 ---
+
+## 🔒 Fallo VIII: El Bucle de "Guerra de Decisiones" (Abril 2026)
+**Problema:** Ciclo infinito de redirecciones entre el Login y el Admin (Parpadeo constante).
+**Causa:** "Inconsistencia de Autoridad" entre capas:
+1. **Login (`LoginPage.tsx`):** Detecta correctamente el correo maestro y envía al admin inmediatamente.
+2. **Admin (`AdminLayout.tsx`):** NO posee la lista de correos maestros. Solo verifica `role === 'admin'`.
+3. **Falla de Sincronía:** Al no ver el rol "admin" cargado instantáneamente desde la DB, el Admin expulsa al usuario al inicio (`/`). 
+4. **Resonancia:** El Login vuelve a intentar enviar al usuario al Admin tras el expulsión. Esto genera el **Bucle 307** infinito.
+**Conclusión:** Se requiere sincronización de la lista de correos maestros en la arquitectura de Layouts.
+
+---
+
+*Dacribel: Bóveda Digital Inexpugnable en construcción.*

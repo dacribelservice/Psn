@@ -153,7 +153,7 @@ export default function ForgotPasswordPage() {
                     : "text-secondary hover:text-on-surface bg-transparent"
                 }`}
               >
-                <img alt="USA" className="rounded-sm opacity-80" src="https://flagcdn.com/w40/us.png" width="20" />
+                <img alt="USA" className="rounded-sm opacity-80" src="https://ryzjswxucuwwzqhdtjmo.supabase.co/storage/v1/object/public/app-assets/flags/usa_1775110111294.png" width="20" />
                 EN
               </button>
               <button 
@@ -164,7 +164,7 @@ export default function ForgotPasswordPage() {
                     : "text-secondary hover:text-on-surface bg-transparent"
                 }`}
               >
-                <img alt="Spain" className="rounded-sm opacity-80" src="https://flagcdn.com/w40/es.png" width="20" />
+                <img alt="Spain" className="rounded-sm opacity-80" src="https://ryzjswxucuwwzqhdtjmo.supabase.co/storage/v1/object/public/app-assets/flags/espana_1775110789759.png" width="20" />
                 ES
               </button>
             </div>

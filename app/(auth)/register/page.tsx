@@ -45,6 +45,12 @@ export default function RegisterPage() {
       return;
     }
 
+    const translateError = (msg: string) => {
+      if (msg.includes("Confirmation email")) return language === "es" ? "Error al enviar el correo de confirmación" : "Error sending confirmation email";
+      if (msg.includes("Signup error")) return language === "es" ? "Error al registrarse. Prueba de nuevo." : "Sign up error. Please try again.";
+      return msg;
+    };
+
     try {
       const data = await signUp(email, password);
       
@@ -54,7 +60,7 @@ export default function RegisterPage() {
         setIsEmailSent(true);
       }
     } catch (error: any) {
-      setError(error.message || (language === "es" ? "Error al registrarse. Prueba de nuevo." : "Sign up error. Please try again."));
+      setError(translateError(error.message || (language === "es" ? "Error al registrarse. Prueba de nuevo." : "Sign up error. Please try again.")));
     }
   };
 
@@ -80,7 +86,12 @@ export default function RegisterPage() {
       }, 1000);
       
     } catch (error: any) {
-      setError(error.message || (language === "es" ? "Error al reenviar. Espera un momento." : "Resend error. Wait a moment."));
+      const msg = error.message || "";
+      let translated = language === "es" ? "Error al reenviar. Espera un momento." : "Resend error. Wait a moment.";
+      if (msg.includes("Confirmation email")) {
+        translated = language === "es" ? "Error al enviar el correo de confirmación" : "Error sending confirmation email";
+      }
+      setError(translated);
     } finally {
       setIsResending(false);
     }
