@@ -49,7 +49,7 @@ Estrategia: Eliminar dependencias de dominios externos (Wikimedia, GameRant, etc
 ---
 
 *   [x] **Paso 4.1: Activación de Identidad de Búnker (SMTP Profesional).** (Transición de Gmail a Resend completada para asegurar entregas instantáneas).
-*   [ ] **Paso 4.2: Activación del Session Refresher.** (Desactivado por conflictos en Vercel).
+*   [x] **Paso 4.2: Activación del Session Refresher.** (Implementado: Middleware pasivo para sincronización de cookies sin latencia de red).
 *   [ ] **Paso 4.3: Firewall de Rutas Administrativas.** (Desactivado por conflictos en Vercel).
 *   [ ] **Paso 4.4: Protección del Flujo de Login.** (Desactivado por conflictos en Vercel).
 
@@ -106,6 +106,14 @@ Estrategia: Anticipar el fallo para garantizar la continuidad del servicio en Da
 *   **Posible Fallo:** **Lentitud de Carga (LCP Alto).** 
     *   *Causa:* Imágenes sin optimizar de varios megabytes subidas al servidor.
     *   *Solución:* Implementar redimensionamiento automático o conversión a WebP antes de la carga.
+
+### FASE 4: MIDDLEWARE Y REDIRECCIÓN (CAPA 4)
+*   **Posible Fallo:** **Bucle de Guerra de Decisiones (Infinite Redirect).** 
+    *   *Causa:* Inconsistencia entre la lista de "Correos Maestros" en `middleware.ts` vs `AuthContext.tsx`. El servidor deja pasar y el cliente expulsa.
+    *   *Solución:* Uso de Mando Único (`dacribel.service@gmail.com`) en todo el proyecto y Middleware Pasivo que no toma decisiones de redirección de roles (**Implementado en Paso 4.2**).
+*   **Posible Fallo:** **Error de Hidratación en Redirección.** 
+    *   *Causa:* Intentar redirigir al administrador antes de que el rol `admin` haya cargado desde Supabase.
+    *   *Solución:* Implementación de un "Periodo de Gracia" (1.5s) en `AdminLayout` para permitir que el estado de autenticación se sincronice.
 
 ### FASE 5: VALIDACIÓN ATÓMICA (INPUTS)
 *   **Posible Fallo:** **Rechazo de Datos Válidos.** 
