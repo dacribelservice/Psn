@@ -51,7 +51,7 @@ Estrategia: Eliminar dependencias de dominios externos (Wikimedia, GameRant, etc
 *   [x] **Paso 4.1: Activación de Identidad de Búnker (SMTP Profesional).** (Transición de Gmail a Resend completada para asegurar entregas instantáneas).
 *   [x] **Paso 4.2: Activación del Session Refresher.** (Implementado: Middleware pasivo para sincronización de cookies sin latencia de red).
 *   [x] **Paso 4.3: Firewall de Rutas Administrativas.** (Implementado: Validación estricta de correo maestro y protección contra flash de contenido en AdminLayout).
-*   [ ] **Paso 4.4: Protección del Flujo de Login.** (Desactivado por conflictos en Vercel).
+*   [x] **Paso 4.4: Protección del Flujo de Login.** (Implementado: Normalización de identidad, saneamiento de errores y estabilización del flujo).
 
 ---
 
@@ -111,6 +111,15 @@ Estrategia: Anticipar el fallo para garantizar la continuidad del servicio en Da
 *   **Posible Fallo:** **Bucle de Guerra de Decisiones (Infinite Redirect).** 
     *   *Causa:* Inconsistencia entre la lista de "Correos Maestros" en `middleware.ts` vs `AuthContext.tsx`. El servidor deja pasar y el cliente expulsa.
     *   *Solución:* Uso de Mando Único (`dacribel.service@gmail.com`) en todo el proyecto y Middleware Pasivo que no toma decisiones de redirección de roles (**Implementado en Paso 4.2**).
+*   **Posible Fallo:** **Regresión de Fallo VIII (Infinite Redirect en Login).** 
+    *   *Causa:* Si la página de login intenta redirigir antes de que las cookies del `Step 4.2` se escriban en el navegador.
+    *   *Solución:* Uso de `window.location.href` forzado para asegurar la sincronía total del stack de autenticación al entrar al admin (Paso 4.4).
+*   **Posible Fallo:** **Falla Crítica en Google Login (Auth Bypass).** 
+    *   *Causa:* Modificaciones agresivas en la redirección final que impiden que el token de Google sea procesado por Supabase.
+    *   *Solución:* Proteger la ruta de callback oficial y no intervenir en el flujo nativo de autenticación OAuth de Supabase.
+*   **Posible Fallo:** **Falso Bloqueo de Acceso Maestro.** 
+    *   *Causa:* Normalización de correo demasiado estricta o inconsistente que impide que el administrador use mayúsculas por error en el correo maestro.
+    *   *Solución:* Forzar `.toLowerCase().trim()` en todos los campos de entrada de identidad antes de procesar el inicio de sesión.
 *   **Posible Fallo:** **Falso Bloqueo (Acceso Denegado al Admin).** 
     *   *Causa:* Si la base de datos de Supabase responde con lentitud extrema (más de 1.5s), el administrador legítimo podría ser expulsado por el firewall de rutas antes de que su rol sea verificado.
     *   *Solución:* El sistema prioriza el correo electrónico maestro sobre la base de datos; mientras el correo sea el oficial, tiene paso inmediato.

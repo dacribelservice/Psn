@@ -46,10 +46,16 @@ export default function LoginPage() {
     }
 
     try {
-      await signIn(email, password);
+      // 4.4 NORMALIZACIÓN: Blindaje contra errores de mayúsculas o espacios en el Pase Maestro
+      const cleanEmail = email.toLowerCase().trim();
+      await signIn(cleanEmail, password);
     } catch (error: any) {
-      console.error("Login failed:", error);
-      setError(error.message || (language === "es" ? "Error al iniciar sesión." : "Login failed."));
+      console.error("Login failure handled by 4.4 firewall:", error.message);
+      // 4.4 SANEAMIENTO: Mensajes profesionales que no revelan existencia de cuentas
+      const translatedError = language === "es" 
+        ? "Credenciales inválidas o cuenta no confirmada." 
+        : "Invalid credentials or unconfirmed account.";
+      setError(translatedError);
     }
   };
 
