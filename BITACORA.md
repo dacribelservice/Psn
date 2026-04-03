@@ -57,10 +57,12 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 *   **Infraestructura DNS:** Configuración de Vercel como manager de DNS para mayor velocidad.
 *   **Bypass de SMTP:** Verificación de dominio en Resend, permitiendo el registro global de usuarios sin restricciones de prueba.
 *   **Supabase SMTP:** Conexión segura vía registros DKIM/SPF y API Keys dedicadas.
-*   **Auth URL Configuration:** Sincronización de `Site URL` y `Redirect URLs` en Supabase para habilitar recuperación de contraseña en el nuevo dominio. 🛡️🔐
+*   **Seguridad de Identidades (Paso 1.3):** Blindaje total del campo `role` en la tabla `profiles` para prevenir escalada de privilegios. 🔒✨
+*   **Reparación de RLS (Bucle 500):** Implementación de la función suprema `is_admin()` con privilegios `SECURITY DEFINER` para solucionar la recursión infinita y optimizar el servidor. 🚀🔒✨
+*   **Purga de Identidad:** El correo `dacribel.service@gmail.com` ha sido instaurado como el nuevo Pase Maestro oficial en toda la infraestructura. 🚥🚩✨🛡️🏰
 *   **Identidad Visual:** Restauración de banderas (USA/España) usando recursos internos de Supabase Storage para cumplimiento de CSP. 🚩✨
 *   **Recuperación de Contraseña:** Reparación del error 404 al redirigir el flujo directamente a `/update-password`. 🛡️🔐
-*   **UpdatePassword Pro:** Implementación de la pantalla de cambio de clave con diseño premium y lógica de intercepción de eventos en `AuthContext`. 🚩✨🏰
+*   **Reparación de RLS (Bucle 500):** Implementación de función `is_admin()` con `SECURITY DEFINER` para eliminar la recursión infinita y optimizar el rendimiento del servidor. 🛡️🚀✨🏰
 
 ---
 

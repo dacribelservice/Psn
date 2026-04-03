@@ -58,7 +58,7 @@ Para eliminar los bloqueos totales ("hangs") que sufría la web al intentar vali
     - Actúa como la barrera visual y de redirección.
     - Implementa un **Periodo de Gracia (1.5s)**: Evita expulsar al usuario mientras el estado de autenticación se "hidrata". Si después de este tiempo el rol no es `admin`, lo redirige a la Home.
 3.  **Parche Maestro (Master Admin Override):**
-    - Se habilitó un acceso forzado para el correo `cangel@gmail.com` tanto en el Layout como en la página de Login.
+    - Se habilitó un acceso forzado para el correo `dacribel.service@gmail.com` tanto en el Layout como en la página de Login.
     - **Causa:** Desconexión entre los perfiles de Supabase (Google vs Email/Pass) que reportan el rol como `user` incorrectamente.
 4.  **Seguridad Inmutable (Supabase RLS):** 
     - Es la capa definitiva en el backend. Las **Row Level Security (RLS)** de Supabase garantizan que, aunque alguien altere el código front-end para entrar al panel, **no se devuelvan datos** de inventario ni finanzas a menos que el token real del usuario tenga ese permiso.
@@ -68,7 +68,7 @@ Para eliminar los bloqueos totales ("hangs") que sufría la web al intentar vali
 *Nota técnica: El parche maestro de correo es temporal y debe ser removido cuando se saneen los perfiles duplicados en Supabase.*
 
 ## 🏁 Fallo VII: Resistencia al Pase Maestro (Marzo 2026)
-**Problema:** El override codificado en `AdminLayout` no se activa a pesar de usar `cangel@gmail.com`.
+**Problema:** El override codificado en `AdminLayout` no se activa a pesar de usar `dacribel.service@gmail.com`.
 **Investigación:** Se ha implementado un depurador visual en la pantalla de carga que muestra el contenido de `userEmail` y el booleano `isMasterAdmin`. 
 **Estado:** Resuelto (Análisis de bucle completado).
 
@@ -85,4 +85,14 @@ Para eliminar los bloqueos totales ("hangs") que sufría la web al intentar vali
 
 ---
 
+---
+
+## 🔒 Fallo IX: Bucle Infinito en RLS (Recursión) - Abril 2026
+**Problema:** Error 500 constante al intentar cargar el inventario administrativo.
+**Causa:** Al blindar la tabla `profiles` se creó una **recursión infinita**: la política de RLS para ver un perfil pedía verificar si el usuario era admin consultando la misma tabla `profiles`.
+**Solución actual:** Se implementó una función oficial `public.is_admin()` con permisos **`SECURITY DEFINER`**. Esta función corre fuera del control de RLS, consultando la tabla de perfiles de forma aislada y devolviendo un booleano rápido al motor de políticas, eliminando el bucle infinito de inmediato. 🛡️🚀✨🏰
+
+---
+
 *Dacribel: Bóveda Digital Inexpugnable en construcción.*
+

@@ -21,9 +21,9 @@ Este documento es el único mapa de ruta oficial para la implementación de segu
 Estrategia: Asegurar que la base de datos sea la última línea de defensa y que toda acción administrativa sea rastreable.
 
 *   [x] **Paso 1.1: Creación de Infraestructura de Auditoría.** (Tabla `audit_logs` creada en Supabase).
-*   [ ] **Paso 1.2: Activación de Triggers de Auditoría.** Crear funciones en PostgreSQL que registren automáticamente cambios en el inventario.
-*   [ ] **Paso 1.3: Auditoría Estricta de RLS.** Revisar una a una las políticas de lectura/escritura de las 7 tablas activas.
-*   [ ] **Paso 1.4: Blindaje de la tabla `profiles`.** Asegurar que solo el `admin` pueda alterar el campo `role`.
+*   [x] **Paso 1.2: Activación de Triggers de Auditoría.** (Functions y Triggers instalados en 5 tablas críticas).
+*   [x] **Paso 1.3: Auditoría Estricta de RLS.** (Políticas blindadas y optimizadas para eliminar recursión infinita).
+*   [x] **Paso 1.4: Blindaje de la tabla `profiles`.** (Implementada función `is_admin()` para control de roles y acceso administrativo).
 
 ---
 
