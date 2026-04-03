@@ -9,7 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { UserTermsBottomSheet } from "@/components/ui/UserTermsBottomSheet";
 
 export default function UpdatePasswordPage() {
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const { updatePassword } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -148,7 +148,32 @@ export default function UpdatePasswordPage() {
             </form>
           </motion.div>
 
-          <footer className="mt-8 pt-8 border-t border-white/5">
+          <footer className="mt-8 pt-8 border-t border-white/5 flex flex-col items-center gap-6">
+             <div className="flex items-center gap-2 p-1 bg-surface-container-low/50 rounded-full border border-secondary/10">
+              <button 
+                onClick={() => setLanguage("en")}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-200 ${
+                  language === "en" 
+                    ? "bg-[#f2b92f] text-[#402d00] shadow-[0_2px_10px_rgba(242,185,47,0.2)]" 
+                    : "text-secondary hover:text-on-surface bg-transparent"
+                }`}
+              >
+                <img alt="USA" className="rounded-sm opacity-80" src="https://ryzjswxucuwwzqhdtjmo.supabase.co/storage/v1/object/public/app-assets/flags/usa_1775110111294.png" width="20" />
+                EN
+              </button>
+              <button 
+                onClick={() => setLanguage("es")}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all duration-200 ${
+                  language === "es" 
+                    ? "bg-[#f2b92f] text-[#402d00] shadow-[0_2px_10px_rgba(242,185,47,0.2)]" 
+                    : "text-secondary hover:text-on-surface bg-transparent"
+                }`}
+              >
+                <img alt="Spain" className="rounded-sm opacity-80" src="https://ryzjswxucuwwzqhdtjmo.supabase.co/storage/v1/object/public/app-assets/flags/espana_1775110789759.png" width="20" />
+                ES
+              </button>
+            </div>
+
              <button 
                 onClick={() => setIsTermsOpen(true)}
                 className="text-[10px] font-bold uppercase tracking-widest hover:text-[#f2b92f] transition-all cursor-pointer opacity-50 hover:opacity-100"

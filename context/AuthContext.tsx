@@ -45,9 +45,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
-      const currentId = session?.user?.id;
       
-      console.log(`AuthContext: [EVENT] ${event}`, { userId: currentId });
+      console.log(`AuthContext: [EVENT] ${event}`, { userId: session?.user?.id });
+
+      if (event === 'PASSWORD_RECOVERY') {
+        router.push("/update-password");
+        setLoading(false);
+        return;
+      }
+
+      const currentId = session?.user?.id;
 
       if (session) {
         // ANTI-BLOQUEO: Si ya se está cargando, evitamos duplicidad
@@ -179,7 +186,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       resetPassword: async (email: string) => {
         setLoading(true);
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
+          redirectTo: `${window.location.origin}/update-password`,
         });
         setLoading(false);
         if (error) throw error;

@@ -59,6 +59,8 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 *   **Supabase SMTP:** Conexión segura vía registros DKIM/SPF y API Keys dedicadas.
 *   **Auth URL Configuration:** Sincronización de `Site URL` y `Redirect URLs` en Supabase para habilitar recuperación de contraseña en el nuevo dominio. 🛡️🔐
 *   **Identidad Visual:** Restauración de banderas (USA/España) usando recursos internos de Supabase Storage para cumplimiento de CSP. 🚩✨
+*   **Recuperación de Contraseña:** Reparación del error 404 al redirigir el flujo directamente a `/update-password`. 🛡️🔐
+*   **UpdatePassword Pro:** Implementación de la pantalla de cambio de clave con diseño premium y lógica de intercepción de eventos en `AuthContext`. 🚩✨🏰
 
 ---
 
