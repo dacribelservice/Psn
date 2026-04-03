@@ -50,7 +50,7 @@ Estrategia: Eliminar dependencias de dominios externos (Wikimedia, GameRant, etc
 
 *   [x] **Paso 4.1: Activación de Identidad de Búnker (SMTP Profesional).** (Transición de Gmail a Resend completada para asegurar entregas instantáneas).
 *   [x] **Paso 4.2: Activación del Session Refresher.** (Implementado: Middleware pasivo para sincronización de cookies sin latencia de red).
-*   [ ] **Paso 4.3: Firewall de Rutas Administrativas.** (Desactivado por conflictos en Vercel).
+*   [x] **Paso 4.3: Firewall de Rutas Administrativas.** (Implementado: Validación estricta de correo maestro y protección contra flash de contenido en AdminLayout).
 *   [ ] **Paso 4.4: Protección del Flujo de Login.** (Desactivado por conflictos en Vercel).
 
 ---
@@ -111,9 +111,15 @@ Estrategia: Anticipar el fallo para garantizar la continuidad del servicio en Da
 *   **Posible Fallo:** **Bucle de Guerra de Decisiones (Infinite Redirect).** 
     *   *Causa:* Inconsistencia entre la lista de "Correos Maestros" en `middleware.ts` vs `AuthContext.tsx`. El servidor deja pasar y el cliente expulsa.
     *   *Solución:* Uso de Mando Único (`dacribel.service@gmail.com`) en todo el proyecto y Middleware Pasivo que no toma decisiones de redirección de roles (**Implementado en Paso 4.2**).
-*   **Posible Fallo:** **Error de Hidratación en Redirección.** 
-    *   *Causa:* Intentar redirigir al administrador antes de que el rol `admin` haya cargado desde Supabase.
-    *   *Solución:* Implementación de un "Periodo de Gracia" (1.5s) en `AdminLayout` para permitir que el estado de autenticación se sincronice.
+*   **Posible Fallo:** **Falso Bloqueo (Acceso Denegado al Admin).** 
+    *   *Causa:* Si la base de datos de Supabase responde con lentitud extrema (más de 1.5s), el administrador legítimo podría ser expulsado por el firewall de rutas antes de que su rol sea verificado.
+    *   *Solución:* El sistema prioriza el correo electrónico maestro sobre la base de datos; mientras el correo sea el oficial, tiene paso inmediato.
+*   **Posible Fallo:** **Flash de Contenido (Fuga de Datos).** 
+    *   *Causa:* El panel administrativo se muestra por una fracción de segundo antes de que el firewall lo bloquee.
+    *   *Solución:* Mostrar pantalla de carga protectora ("Sincronizando Bóveda") hasta que el estado de autorización sea confirmado al 100%.
+*   **Posible Fallo:** **Bloqueo Total de ERP (Lockout).** 
+    *   *Causa:* Error en la comparación de correo maestro (ej: error tipográfico) impidiendo que el dueño entre.
+    *   *Solución:* Verificar estrictamente en cada despliegue que el correo no ha sido alterado y realizar pruebas en modo incógnito.
 
 ### FASE 5: VALIDACIÓN ATÓMICA (INPUTS)
 *   **Posible Fallo:** **Rechazo de Datos Válidos.** 

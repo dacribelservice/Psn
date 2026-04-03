@@ -9,18 +9,23 @@ import { AdminBottomNav } from "@/components/layout/AdminBottomNav";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { role, loading } = useAuth();
+  const { user, role, loading } = useAuth();
   const router = useRouter();
 
-  const isAdmin = role === "admin";
+  // ESTRATEGIA DE FIREWALL: Validación de Pase Maestro Directa + Rol en DB
+  const masterEmail = "dacribel.service@gmail.com";
+  const isMaster = user?.email?.toLowerCase().trim() === masterEmail;
+  const isAdmin = role === "admin" || isMaster;
 
   useEffect(() => {
+    // Solo actuamos cuando la sesión de Auth ha terminado de cargar
     if (!loading && !isAdmin) {
-      console.warn("Acceso denegado al Administrador. Redirigiendo a Usuario.");
+      console.warn("ERP FIREWALL: Acceso No Autorizado. Redirigiendo a zona segura.");
       router.push("/");
     }
   }, [loading, isAdmin, router]);
 
+  // PANTALLA PROTECTORA (Evita el "Flash de Contenido" de datos sensibles)
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0b10] flex flex-col items-center justify-center p-4">
@@ -35,25 +40,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </motion.div>
         <p className="mt-8 text-white/40 font-black uppercase tracking-[0.3em] text-[10px] animate-pulse">
-          Sincronizando Bóveda...
+          Sincronizando Bóveda Administrativa...
         </p>
       </div>
     );
   }
 
+  // BLOQUEO ATÓMICO (Si no eres admin, no renderizamos nada del panel)
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-[#0a0b10] flex flex-col items-center justify-center p-4 text-center">
-        <span className="material-symbols-outlined text-red-500 text-6xl mb-6 animate-bounce">gpp_maybe</span>
-        <h1 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Acceso Restringido</h1>
+        <span className="material-symbols-outlined text-red-500 text-6xl mb-6">gpp_maybe</span>
+        <h1 className="text-2xl font-black text-white mb-2 uppercase tracking-tighter">Acceso Denegado</h1>
         <p className="text-white/40 text-sm max-w-xs mb-8 font-bold">
-          Tu cuenta no tiene privilegios administrativos suficientes.
+          Tu identidad no coincide con el registro administrativo maestro.
         </p>
         <button 
-          onClick={() => window.location.reload()}
+          onClick={() => window.location.href = "/"}
           className="bg-primary/20 hover:bg-primary/30 text-primary px-8 py-3 rounded-xl font-black uppercase text-xs tracking-widest transition-all border border-primary/30"
         >
-          Reintentar Carga
+          Volver a Seguridad
         </button>
       </div>
     );
