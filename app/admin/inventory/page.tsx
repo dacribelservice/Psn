@@ -128,6 +128,10 @@ export default function AdminInventoryPage() {
   const [filterCountry, setFilterCountry] = useState("Todos");
   const [filterValue, setFilterValue] = useState("Todos");
 
+  // Product Deletion State
+  const [isProductDeleteModalOpen, setIsProductDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<any>(null);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -190,6 +194,25 @@ export default function AdminInventoryPage() {
     } catch (err) {
       console.error("Error deleting code:", err);
       alert("Error al eliminar el código");
+    }
+  };
+
+  const handleDeleteProduct = (product: any) => {
+    if (product.stock > 0) return;
+    setProductToDelete(product);
+    setIsProductDeleteModalOpen(true);
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!productToDelete) return;
+    try {
+      const { error } = await supabase.from('products').delete().eq('id', productToDelete.id);
+      if (error) throw error;
+      fetchData();
+      setProductToDelete(null);
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      alert("Error al eliminar el producto");
     }
   };
 
@@ -338,10 +361,26 @@ export default function AdminInventoryPage() {
                            </div>
                         </div>
                      </div>
-                     <div className="flex flex-col items-end gap-1">
-                        <span className="text-[10px] font-black text-white/20 uppercase tracking-widest leading-none">STOCK</span>
-                        <span className={`text-xl font-display leading-none ${(item.stock || 0) <= 5 ? 'text-red-400' : 'text-white'}`}>{item.stock || 0}</span>
-                     </div>
+                      <div className="flex items-center gap-6">
+                        <div className="flex flex-col items-end gap-1">
+                           <span className="text-[10px] font-black text-white/20 uppercase tracking-widest leading-none">STOCK</span>
+                           <span className={`text-xl font-display leading-none ${(item.stock || 0) <= 5 ? 'text-red-400' : 'text-white'}`}>{item.stock || 0}</span>
+                        </div>
+                        
+                        {/* Botón de borrar condicional */}
+                        <button 
+                          onClick={() => handleDeleteProduct(item)}
+                          disabled={item.stock > 0}
+                          className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                            item.stock > 0 
+                              ? 'bg-white/5 text-white/10 cursor-not-allowed opacity-20' 
+                              : 'bg-red-500/10 text-red-500 hover:bg-red-500/20 active:scale-95 shadow-lg border border-red-500/20'
+                          }`}
+                          title={item.stock > 0 ? "No puedes borrar un producto con stock activo" : "Borrar producto"}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                        </button>
+                      </div>
                   </div>
                 );
              })}
@@ -563,6 +602,17 @@ export default function AdminInventoryPage() {
         message="Esta acción no se puede deshacer. El código desaparecerá permanentemente del inventario."
         confirmText="Eliminar"
         cancelText="Cancelar"
+        type="danger"
+      />
+
+      <ConfirmationModal
+        isOpen={isProductDeleteModalOpen}
+        onClose={() => { setIsProductDeleteModalOpen(false); setProductToDelete(null); }}
+        onConfirm={confirmDeleteProduct}
+        title="¿Eliminar Producto?"
+        message={`¿Estás seguro de que deseas eliminar ${productToDelete?.name}? Esta acción es permanente.`}
+        confirmText="Borrar Definitivamente"
+        cancelText="Conservar"
         type="danger"
       />
 
