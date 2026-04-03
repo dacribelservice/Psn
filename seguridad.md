@@ -32,8 +32,8 @@ Estrategia: Evitar que el navegador sea utilizado como un arma contra el servido
 
 *   [x] **Paso 2.1: Implementación de Cabeceras Globales.** (Configuración verificada: se añadió soporte para `flagcdn.com`, `wikimedia.org`, `gamerantimages.com` y `notebookcheck.org` para asegurar visualización total de banners e iconos).
 *   [x] **Paso 2.2: Refinamiento de CSP (Content Security Policy).** (Implementado: Lista blanca estricta para Google Auth y Dominios de Supabase en `next.config.mjs`).
-*   [ ] **Paso 2.3: Configuración de HSTS (Strict-Transport-Security).** Forzar HTTPS en todos los niveles del dominio.
-*   [ ] **Paso 2.4: Protección Anti-Sniffing y Clickjacking.** Activar `nosniff` y `DENY` para frames (Listo para despliegue).
+*   [x] **Paso 2.3: Configuración de HSTS (Strict-Transport-Security).** (Verificado y Activo: max-age 1 año con preload habilitado en `next.config.mjs`).
+*   [x] **Paso 2.4: Protección Anti-Sniffing y Clickjacking.** (Implementado: X-Frame-Options: DENY y X-Content-Type-Options: nosniff activos en `next.config.mjs`).
 
 ---
 
@@ -92,6 +92,12 @@ Estrategia: Anticipar el fallo para garantizar la continuidad del servicio en Da
 *   **Posible Fallo:** **Fallo de Login con Google.** 
     *   *Causa:* Bloqueo de los scripts de OAuth de Google por políticas de red estrictas.
     *   *Solución:* Autorizar explícitamente `accounts.google.com` y `content.googleapis.com` en los headers de seguridad.
+*   **Posible Fallo:** **Bloqueo Total de Visualización Externa (iframes).** 
+    *   *Causa:* Implementación de `X-Frame-Options: DENY` (Paso 2.4).
+    *   *Solución:* Entender que Dacribel no puede ser incrustada en otras webs por seguridad (Clickjacking). Si es vital para un socio, cambiar temporalmente a `SAMEORIGIN`.
+*   **Posible Fallo:** **Recursos Estáticos no Cargan (CSS/JS).** 
+    *   *Causa:* `X-Content-Type-Options: nosniff` (Paso 2.4) rechaza archivos con "MIME type" incorrecto.
+    *   *Solución:* Verificar que el servidor de activos (Vercel/Supabase) envíe los encabezados de tipo de archivo correctos (`text/css`, `application/javascript`).
 
 ### FASE 3: ACTIVOS Y DATOS (STORAGE)
 *   **Posible Fallo:** **Error 403 (Acceso Denegado a Fotos).** 
