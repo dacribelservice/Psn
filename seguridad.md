@@ -58,8 +58,9 @@ Estrategia: Eliminar dependencias de dominios externos (Wikimedia, GameRant, etc
 ## FASE 5: VALIDACIÓN ATÓMICA Y SEGURIDAD PROACTIVA (CAPA 5)
 Estrategia: Tratar todo input de usuario como una amenaza potencial y preparar el sistema para ataques de fuerza bruta.
 
-*   [ ] **Paso 5.1: Esquemas de Validación (Zod).** Implementar validación estricta de tipos de datos en el lado del servidor.
-*   [ ] **Paso 5.2: Sanitización contra XSS.** Asegurar que ningún campo de texto libre pueda inyectar código malicioso.
+*   [x] **Paso 5.1: Esquemas de Validación (Zod).** Implementada infraestructura centralizada de validación en `lib/schemas` para Auth, Inventario y Categorías.
+
+*   [x] **Paso 5.2: Sanitización contra XSS.** Implementada limpieza de texto vinculada a `isomorphic-dompurify` en todos los puntos de entrada administrativa (Banners, Categorías y Productos).
 *   [ ] **Paso 5.3: Cifrado y Rate Limiting.** Limitar intentos de acceso y cifrar datos sensibles en la base de datos.
 
 ---
@@ -130,10 +131,34 @@ Estrategia: Anticipar el fallo para garantizar la continuidad del servicio en Da
     *   *Causa:* Error en la comparación de correo maestro (ej: error tipográfico) impidiendo que el dueño entre.
     *   *Solución:* Verificar estrictamente en cada despliegue que el correo no ha sido alterado y realizar pruebas en modo incógnito.
 
-### FASE 5: VALIDACIÓN ATÓMICA (INPUTS)
-*   **Posible Fallo:** **Rechazo de Datos Válidos.** 
-    *   *Causa:* Esquemas de validación Zod demasiado estrictos (ej: no permitir tildes o caracteres especiales en nombres).
-    *   *Solución:* Test de entrada con "casos de borde" y refinamiento del Regex de validación.
+### FASE 5: VALIDACIÓN ATÓMICA (INPUTS - ZOD)
+*   **Posible Fallo:** **Rechazo de Datos Válidos (Falso Bloqueo).** 
+    *   *Causa:* Esquemas de validación Zod demasiado estrictos (ej: no permitir tildes, "ñ" o caracteres especiales en nombres).
+    *   *Solución:* Probar esquemas con "casos de borde" reales y usar expresiones regulares (Regex) permisivas para nombres pero estrictas para tipos de archivo/slugs.
+*   **Posible Fallo:** **Inconsistencia entre Esquemas y Base de Datos.** 
+    *   *Causa:* Definir un campo como obligatorio en Zod que es opcional (`nullable`) en Supabase, provocando errores internos inesperados.
+    *   *Solución:* Sincronizar el tipado de TypeScript generado por Supabase con los esquemas de Zod y realizar revisiones cruzadas antes de liberar nuevas rutas de API.
+*   **Posible Fallo:** **Manejo de Errores Pobre (UX Rota).** 
+    *   *Causa:* No devolver los mensajes de error específicos de Zod al frontend, dejando al usuario sin saber por qué falló su envío de formulario.
+    *   *Solución:* Implementar un formateador global de errores de Zod que devuelva respuestas claras (ej: "El precio debe ser un número positivo") en lugar de códigos de error genéricos.
+*   **Posible Fallo:** **Impacto en Rendimiento (Latencia de Validación).** 
+    *   *Causa:* Validar objetos extremadamente grandes o listas masivas de códigos digitales en tiempo real en cada petición.
+    *   *Solución:* Optimizar las validaciones distribuyéndolas entre el cliente (para feedback inmediato) y el servidor (para seguridad final), evitando re-validaciones innecesarias de datos estáticos.
+
+### FASE 5: SANITIZACIÓN CONTRA XSS
+*   **Posible Fallo:** **Pérdida de Formato (Sobre-sanitización).** 
+    *   *Causa:* Un filtro demasiado agresivo que elimine etiquetas legítimas de diseño (ej: `<b>`, `<br>`, `<i>`).
+    *   *Solución:* Implementar una configuración de "whitelist" (lista blanca) que permita únicamente el formato visual esencial pero bloquee cualquier script.
+*   **Posible Fallo:** **Visualización de Código "Sucio" (Doble Escapado).** 
+    *   *Causa:* Aplicar escapado de caracteres (`&lt;`, `&gt;`) tanto en el cliente como en el servidor simultáneamente.
+    *   *Solución:* Estandarizar la sanitización únicamente en el punto de entrada (Server Actions/APIs) y dejar que React maneje el renderizado seguro de forma nativa.
+*   **Posible Fallo:** **Fugas de Seguridad (Entry Points Olvidados).** 
+    *   *Causa:* Omitir la limpieza en campos "insignificantes" como la barra de búsqueda o mensajes de soporte.
+    *   *Solución:* Auditoría total de todos los `props` que se inyectan en el DOM y uso de middlewares de sanitización global.
+*   **Posible Fallo:** **Conflictos con la política de red (CSP).** 
+    *   *Causa:* Intentar usar estilos en línea (`style="..."`) que son bloqueados por las cabeceras de la Fase 2.
+    *   *Solución:* Migrar estilos dinámicos a clases de Tailwind o variables CSS (`CSS Variables`) seguras.
+
 
 ---
 *Dacribel: Bóveda Digital Inexpugnable en construcción.*

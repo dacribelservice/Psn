@@ -3,6 +3,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { sanitizePlainText, sanitizeURL } from "@/lib/sanitizer";
 
 interface BannersModalProps {
   isOpen: boolean;
@@ -69,7 +70,7 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
     }
     setLoading(true);
     try {
-      let finalImageUrl = imageUrl;
+      let finalImageUrl = sanitizeURL(imageUrl);
 
       // 1. Si hay un archivo nuevo, subirlo
       if (file) {
@@ -92,11 +93,11 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
 
       const bannerData = {
         image_url: finalImageUrl,
-        title_es: titleEs,
-        title_en: titleEn,
-        subtitle_es: subtitleEs,
-        subtitle_en: subtitleEn,
-        redirect_url: redirectUrl,
+        title_es: sanitizePlainText(titleEs),
+        title_en: sanitizePlainText(titleEn),
+        subtitle_es: sanitizePlainText(subtitleEs),
+        subtitle_en: sanitizePlainText(subtitleEn),
+        redirect_url: sanitizeURL(redirectUrl),
       };
 
       if (editingId) {

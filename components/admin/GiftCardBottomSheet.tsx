@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { type Category } from "@/services/inventory";
+import { sanitizeHTML } from "@/lib/sanitizer";
 
 interface GiftCardBottomSheetProps {
   isOpen: boolean;
@@ -60,11 +61,11 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
         .eq('name', productName)
         .eq('category_id', selectedCategory.id)
         .eq('region', selectedRegion)
-        .single();
+        .maybeSingle();
 
-      const productDescription = description || `Tarjeta digital original para ${selectedCategory.name} ${selectedRegion}. Entrega inmediata y segura.`;
+      const productDescription = sanitizeHTML(description) || `Tarjeta digital original para ${selectedCategory.name} ${selectedRegion}. Entrega inmediata y segura.`;
 
-      if (pError && pError.code === 'PGRST116') {
+      if (!product) {
         const { data: newProd, error: iError } = await supabase
           .from('products')
           .insert([{ 
@@ -92,7 +93,7 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
             face_value: value,
             cost_price: costPrice,
             sale_price: salePrice,
-            description, 
+            description: sanitizeHTML(description), 
             stock_alert_threshold: lowStockAlert 
           })
           .eq('id', product.id);

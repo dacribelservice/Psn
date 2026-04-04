@@ -108,7 +108,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     try {
       const { data } = await Promise.race([
-        supabase.from('profiles').select('*').eq('id', userId).single(),
+        supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
         new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
       ]) as any;
 

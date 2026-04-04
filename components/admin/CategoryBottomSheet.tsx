@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { sanitizePlainText, sanitizeURL } from "@/lib/sanitizer";
 
 interface CategoryBottomSheetProps {
   isOpen: boolean;
@@ -56,10 +57,11 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
     setStatusMessage("PROCESANDO...");
     
     try {
-      let finalImageUrl = imageUrlInput;
+      let finalImageUrl = sanitizeURL(imageUrlInput);
 
+      const cleanName = sanitizePlainText(name);
       setStatusMessage("GENERANDO SLUG...");
-      const slug = name.toLowerCase().trim()
+      const slug = cleanName.toLowerCase().trim()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-]/g, '');
@@ -97,14 +99,14 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
       if (editingId) {
         const { error } = await supabase
           .from('categories')
-          .update({ name, slug, image_url: finalImageUrl })
+          .update({ name: cleanName, slug, image_url: finalImageUrl })
           .eq('id', editingId)
           .select();
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('categories')
-          .insert([{ name, slug, image_url: finalImageUrl }])
+          .insert([{ name: cleanName, slug, image_url: finalImageUrl }])
           .select();
         if (error) throw error;
       }
