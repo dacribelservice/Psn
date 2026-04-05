@@ -10,57 +10,78 @@ function CheckoutProcessingContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   
+  const [paymentDetails, setPaymentDetails] = useState<any>(null);
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [timeLeft, setTimeLeft] = useState(600);
   const [copied, setCopied] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [validationStatus, setValidationStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [transactionHash, setTransactionHash] = useState(""); // 🗝️ Campo para el TxID
 
   useEffect(() => {
     if (!orderId) return;
 
-    async function loadOrder() {
-       const { data, error } = await supabase
-         .from('orders')
-         .select('*, products(name, region)')
-         .eq('id', orderId)
-         .single();
-       
-       if (error) {
-         console.error("❌ Error cargando orden:", error);
-         setErrorMessage("No pudimos encontrar los detalles de tu orden.");
-         return;
+       async function loadOrderAndPayment() {
+          // 1. Cargar Orden (Solo para obtener monto y detalles)
+          const { data: order, error: orderError } = await supabase
+            .from('orders')
+            .select('*, products(name, region)')
+            .eq('id', orderId)
+            .single();
+          
+          if (orderError || !order) {
+            console.error("❌ Error cargando orden:", orderError);
+            setErrorMessage("No pudimos encontrar los detalles de tu orden.");
+            return;
+          }
+          
+          setOrderDetails(order);
+          // Modo Billetera Maestra: No necesitamos crear transacciones al cargar la página. 🛡️🛰️
+          console.log("🦾 Búnker: Modo Billetera Maestra Activo - Interfaz Blindada.");
        }
-       
-       if (data) {
-         setOrderDetails(data);
-         
-         // 🎯 Sintonía de Tiempo Real Profesional basado en DB
-         const createdAt = new Date(data.created_at).getTime();
-         const now = new Date().getTime();
-         const secondsPassed = Math.floor((now - createdAt) / 1000);
-         const remaining = Math.max(0, 600 - secondsPassed);
-         
-         setTimeLeft(remaining);
+    loadOrderAndPayment();
+  }, [orderId]);
 
-         // Si la orden ya está cancelada o expiró, bloquear
-         if (data.status === 'cancelled' || (data.status === 'pending' && remaining <= 0)) {
+  // SUSCRIPCIÓN EN TIEMPO REAL (Fase 5.3)
+  useEffect(() => {
+    if (!orderId) return;
+
+    const channel = supabase
+      .channel(`order-status-${orderId}`)
+      .on(
+        'postgres_changes',
+        { 
+          event: 'UPDATE', 
+          schema: 'public', 
+          table: 'orders',
+          filter: `id=eq.${orderId}`
+        },
+        (payload: any) => {
+          const newStatus = payload.new.status;
+          console.log(`🔔 Cambio de estado detectado: ${newStatus}`);
+          if (newStatus === 'completed') {
+            setValidationStatus("success");
+            setIsValidating(true);
+          } else if (newStatus === 'cancelled') {
             setValidationStatus("error");
-            setErrorMessage("Esta solicitud de pago ha expirado o fue cancelada.");
-            if (data.status === 'pending') {
-               await supabase.rpc('cancel_order', { p_order_id: orderId });
-            }
-         }
-       }
-    }
-    loadOrder();
+            setErrorMessage("La orden ha sido cancelada.");
+            setIsValidating(true);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [orderId]);
 
   const amount = orderDetails?.amount || "0.00";
   const method = orderDetails?.payment_method?.toUpperCase() || "CARGANDO...";
-  const networkName = method.includes("BEP20") ? "Binance Smart Chain (BEP20)" : "TRON (TRC20)";
-  const walletAddress = method.includes("BEP20") ? "0x7C187c1Fc9A9C96E5B" : "T96vE6A7L8M9N1O2P";
+  const networkName = "BSC (BEP20)"; // 🛰️ Red Invariable
+  const walletAddress = "0xeBea384dF41C9B3f841AD50ADaa4408E4751e3d8"; // 🏦 Billetera Maestra (Case Corrected)
+  const qrCodeUrl = "/images/qr-maestro.png"; // 🛡️ Usamos la imagen local cargada por el dueño
 
   // Hook del Reloj con Auto-Cancelación Estricta
   useEffect(() => {
@@ -150,25 +171,50 @@ function CheckoutProcessingContent() {
 
             {/* QR Code Container */}
             <div className="p-4 bg-white rounded-3xl shadow-[0_0_40px_rgba(247,190,52,0.2)] mb-8 transform hover:scale-[1.02] transition-transform duration-500">
-              <img 
-                alt="Payment QR Code" 
-                className="w-44 h-44" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2PQGUY1e2HZD1u7WqI4xjzdiq_aSzi6s_J_dIVxNSl61temjJ6Rd6i97XqfV5F4Q1nZxRMhv2Qa6gbbEVjfOBZR2jsvts5uGF_XZ7XMr_OY_0BiJAU-Gs6rLLP6n0vPVQ64YaqB1hoZeVEF5aie_RHrmzZo7DpcGO67A8cbS_Yn5ZKsjIAkiPD6civOQouHVQvNxSKz_dIDhD0JXEsHnIEMOY6UBcEBDYKW2IOowaoSWyloXWiOu2AF_kg6S6WcIolvSilxmCRWkj" 
-              />
+              {qrCodeUrl ? (
+                <img 
+                  alt="Payment QR Code" 
+                  className="w-44 h-44" 
+                  src={qrCodeUrl} 
+                />
+              ) : (
+                <div className="w-44 h-44 flex items-center justify-center text-black font-bold text-[10px] text-center p-4">
+                  Generando código QR...
+                </div>
+              )}
             </div>
 
-            {/* Wallet Address */}
-            <div className="w-full">
-              <label className="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] mb-3 block text-center opacity-60">Dirección de Billetera</label>
-              <div className="flex items-center justify-between bg-surface-container-lowest/80 rounded-2xl p-4 border border-white/5 shadow-2xl">
-                <span className="font-mono text-xs text-on-surface truncate pr-4 opacity-90">{walletAddress}</span>
-                <button 
-                  onClick={handleCopy}
-                  className={`flex items-center gap-2 px-5 py-2.5 ${copied ? 'bg-green-500/20 text-green-400' : 'bg-primary-container text-on-primary-fixed'} font-black text-[10px] rounded-xl active:scale-95 transition-all shadow-lg shadow-primary-container/20 uppercase tracking-widest`}
-                >
-                  <span className="material-symbols-outlined text-[14px]">{copied ? 'check' : 'content_copy'}</span>
-                  {copied ? 'Listo' : 'Copiar'}
-                </button>
+            {/* Wallet Address & TxID Input Area */}
+            <div className="w-full space-y-6">
+              {/* Dirección de Billetera */}
+              <div>
+                <label className="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.15em] mb-2 block text-center opacity-70">Dirección de Depósito (BEP20)</label>
+                <div className="flex items-center justify-between bg-black/40 rounded-2xl p-4 border border-white/5 shadow-xl">
+                  <span className="font-mono text-[10px] text-on-surface truncate pr-4 opacity-90">{walletAddress}</span>
+                  <button 
+                    onClick={handleCopy}
+                    className={`flex items-center gap-2 px-4 py-2 ${copied ? 'bg-green-500/20 text-green-400' : 'bg-[#f7be34] text-black'} font-black text-[10px] rounded-lg active:scale-95 transition-all uppercase tracking-widest`}
+                  >
+                    <span className="material-symbols-outlined text-[14px]">{copied ? 'check' : 'content_copy'}</span>
+                    {copied ? 'LIBRE' : 'COPIAR'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Input de TxID - El Guardián de la Orden */}
+              <div className="pt-2">
+                <label className="text-[#f7be34] text-[10px] font-black uppercase tracking-[0.2em] mb-2 block text-center">Pega aquí tu TxID de Binance</label>
+                <div className="relative">
+                  <input 
+                    type="text"
+                    placeholder="Ej: 0xa45c269f8c88ebac20b18d8234..."
+                    value={transactionHash}
+                    onChange={(e) => setTransactionHash(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-5 text-xs font-mono text-[#f7be34] focus:outline-none focus:border-[#f7be34]/50 transition-colors placeholder:opacity-30"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/20 text-lg">receipt_long</span>
+                </div>
+                <p className="text-[9px] text-on-surface-variant/50 mt-3 text-center italic">Lo encuentras en los "Detalles de Retiro" de tu APP de Binance.</p>
               </div>
             </div>
           </div>
@@ -200,32 +246,33 @@ function CheckoutProcessingContent() {
               Cancelar Orden
             </button>
             <button 
+              disabled={!transactionHash}
               onClick={async () => {
-                if (!orderId) return;
+                if (!orderId || !transactionHash) return;
                 setIsValidating(true);
                 setValidationStatus("loading");
                 
                 try {
-                  // Simular tiempo de validación premium
-                  await new Promise(r => setTimeout(r, 4000));
-                  
-                  // COMPLETAR LA ORDEN OFICIALMENTE EN DB
-                  const { data: success, error: rpcError } = await supabase.rpc('complete_order', {
-                    p_order_id: orderId
+                  const res = await fetch('/api/payments/verify', {
+                    method: 'POST',
+                    body: JSON.stringify({ orderId, txid: transactionHash }),
+                    headers: { 'Content-Type': 'application/json' }
                   });
-
-                  if (rpcError) throw rpcError;
+                  
+                  const result = await res.json();
+                  
+                  if (!result.success) throw new Error(result.error);
                   
                   setValidationStatus("success");
                 } catch (err: any) {
                   setValidationStatus("error");
-                  setErrorMessage(err.message || "Error al validar el pago");
+                  setErrorMessage(err.message || "No pudimos confirmar tu TxID. Verifica que el envío esté 'Completado' en Binance.");
                 }
               }}
-              className="flex-1 py-6 bg-surface-container-highest border border-white/5 text-on-surface font-black text-[11px] rounded-[1.25rem] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest shadow-xl"
+              className={`flex-1 py-6 ${!transactionHash ? 'opacity-50 grayscale cursor-not-allowed' : 'bg-[#f7be34]'} border border-white/5 text-black font-extrabold text-[11px] rounded-[1.25rem] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest shadow-xl`}
             >
-              Validar Pago
-              <span className="material-symbols-outlined text-[16px]">check</span>
+              Confirmar Pago
+              <span className="material-symbols-outlined text-[16px]">verified</span>
             </button>
           </div>
         </div>

@@ -65,6 +65,33 @@ Estrategia: Tratar todo input de usuario como una amenaza potencial y preparar e
 
 ---
 
+## FASE 6: AUTOMATIZACIÓN DE PAGOS Y WEBHOOKS (CAPA 6)
+Estrategia: Asegurar la integridad de los fondos y la entrega instantánea mediante validación criptográfica y blindaje de endpoints de pago.
+
+*   [x] **Paso 6.1: Blindaje de Webhooks (HMAC-SHA256).** Implementada validación de firma con Personal Secret de Chaingateway para evitar suplantaciones.
+*   [x] **Paso 6.2: Aislamiento de Wallets (Supabase RLS).** Políticas creadas para que solo el dueño de la orden pueda ver su dirección de pago.
+*   [!] **Paso 6.3: Refinamiento de Autenticación de Bóveda (Mini-Checklist):**
+    *   [x] **Paso 6.3.1: Configuración de Credenciales Fetch.** (Intentado: Falló por bloqueo de puerto/protocolo). ✅🛡️
+    *   [x] **Paso 6.3.2: Sincronización de Cookies en Route Handler.** (Intentado: Falló por invisibilidad de sesión en SSR). ✅🛡️
+    *   [x] **Paso 6.3.2 Bis: Refuerzo de Identidad (Fallback de Sesión).** (Intentado: Falló por persistencia de 401). ✅🛡️
+    *   [x] **Paso 6.3.3: Validación de Integridad de Orden.** (Intentado: Falló por RLS-Lockout de la DB). ✅🛡️🔓
+    *   [x] **Paso 6.3.4: Implementación de Validación de Grado Industrial (Service Role).** (Éxito: Bloqueo de identidad 401 superado). ✅🛡️🗝️
+    *   [!] **Paso 6.4: Sincronización de Rutas Chaingateway v2 (Mini-Checklist):**
+        *   [x] **Ruta `v2/bsc/addresses`:** (Fallo: Error 404).
+        *   [x] **Ruta `v2/binance-smart-chain/addresses`:** (Fallo: Error 404).
+        *   [x] **Paso 6.6: Ruta Universal `v1/newAddress`:** (Fallo: Error 404). ✅🛡️
+        *   [x] **Paso 6.7: Identificación de "Inexistencia de Testnet".** (Éxito: Se concluye que el 404 es por falta de red configurada). ✅🛡️🔓
+    *   [!] **Fase 7: Sincronización de Red y Testnet Hub:**
+        *   [x] **Paso 7.3: Hallazgo Maestro: Header `X-Network` obligatorio.** ✅🛡️🗝️
+        *   [x] **Paso 7.4 (Hallazgo):** Chaingateway persiste en 404 (Saturación/Routing). ✅
+        *   [!] **ESTADO: FASES OBSOLETAS (PASARELAS EXTERNAS).** 🛡️🧹
+    *   [!] **Fase 8: Billetera Maestra (Independencia Total):**
+        *   [ ] **Paso 8.1: Implementación de Dirección Estática.** (En curso). 🛡️🗝️
+        *   [ ] **Paso 8.2: Creación del Verificador de Blockchain (TxID Check).** (Pendiente). 🤖🔍
+        *   [ ] **Paso 8.3: Registro de TxIDs en BD (Antifraude).** (Pendiente). 🛡️🔐
+
+---
+
 ## PROTOCOLO DE AVANCE
 1.  Se define el paso a ejecutar (ejemplo: **Paso 1.2**).
 2.  Se analiza el código afectado.
@@ -173,6 +200,14 @@ Estrategia: Anticipar el fallo para garantizar la continuidad del servicio en Da
 *   **Posible Fallo:** **Cierre de Sesión Inesperado (Session Refresher Block).** 
     *   *Causa:* El limitador de velocidad bloquea las peticiones automáticas de refresco de sesión del middleware.
     *   *Solución:* Excluir las rutas de `/auth/*` y `/api/refresh` de los límites estrictos de petición por segundo.
+
+### FASE 6: AUTOMATIZACIÓN DE PAGOS (WEBHOOKS)
+*   **Posible Fallo: "RLS-Lockout" (Seguridad nivel Búnker).**
+    *   *Causa:* Las políticas RLS de Supabase impiden que el servidor lea una orden si no hay una sesión de usuario válida. Incluso si el API es permisiva, la DB no lo es.
+    *   *Solución Definitiva:* Utilizar una instancia de Supabase con `SERVICE_ROLE` únicamente para la verificación de existencia de la orden en el backend, saltando el RLS de forma controlada y segura para este proceso administrativo. (**Identificado en Sesión XVIII - Bloqueo de QR**).
+*   **Posible Fallo: "API Route Mismatch" (Chaingateway v2 Drift).**
+    *   *Causa:* Desincronización entre la documentación oficial de Chaingateway y la respuesta real del servidor para el endpoint de BSC.
+    *   *Solución:* Pruebas iterativas de rutas (`bsc` vs `binance`) y uso del subdominio dedicado `v2.api` si la ruta `api/.../v2` falla. (**En curso - Fase 6.4**).
 
 ---
 *Dacribel: Bóveda Digital Inexpugnable en construcción.*
