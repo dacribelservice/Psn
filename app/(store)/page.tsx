@@ -160,8 +160,9 @@ export default function StorePage() {
       // 2. Redirigir usando el ID real de la orden generada
       router.push(`/payment/processing?orderId=${orderId}`);
     } catch (err: any) {
-      console.error("❌ Error al crear orden:", err.message);
-      alert("Lo sentimos, no pudimos procesar tu orden en este momento.");
+      console.error("❌ Error al crear orden:", err);
+      // 🛡️ Diagnóstico de Búnker: Mostrar el error real para identificar la causa
+      alert(`Error de Búnker: ${err.message || 'Error desconocido'}`);
     }
   };
 
