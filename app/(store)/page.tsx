@@ -135,9 +135,11 @@ export default function StorePage() {
     setQuantity(selectedQuantity);
     setSelectedProductId(productId);
     setIsProductSheetOpen(false);
+    
+    // 🛡️ FASE 8: Suprimimos el paso de elegir canal. Procedemos directo a BEP20.
     setTimeout(() => {
-      setIsPaymentSheetOpen(true);
-    }, 400); // Wait for first modal to exit partially
+      handleConfirmPayment('bep20');
+    }, 400); 
   };
 
   const handleConfirmPayment = async (method: string) => {

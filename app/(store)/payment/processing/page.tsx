@@ -154,7 +154,23 @@ function CheckoutProcessingContent() {
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary-container/10 blur-[80px] rounded-full"></div>
           
           <div className="relative z-10 flex flex-col items-center">
-            {/* Amount */}
+            {/* Método de Pago Badge - RESALTADO BEP20 🛰️ */}
+            <div className="flex flex-col items-center gap-4 mb-4">
+              <div className="inline-flex items-center gap-2 px-6 py-2 bg-blue-500/10 border border-blue-500/30 rounded-xl animate-pulse">
+                <span className="material-symbols-outlined text-blue-400 text-lg">router</span>
+                <span className="text-xs font-black text-blue-400 tracking-wider">
+                  RED BEP-20 (BSC)
+                </span>
+              </div>
+              
+              <div className="max-w-[300px] px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-center">
+                <p className="text-[9px] text-red-400 font-bold leading-tight uppercase">
+                  ASEGÚRATE DE USAR LA RED BEP20. <br/>OTRAS REDES PERDERÁN TU DINERO.
+                </p>
+              </div>
+            </div>
+
+            {/* Total a transferir Area */}
             <div className="text-center mb-6">
               <span className="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] block mb-2 opacity-60">Total a transferir</span>
               <h2 className="text-4xl font-black text-[#f2b92f] tracking-tighter">

@@ -71,6 +71,7 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 *   **Fase 4 (Identidad Social):** Integración exitosa de **Google OAuth**. Corrección de ID de cliente (`...pbknqk...`) para habilitar login con un solo clic. Los administradores supremos son mapeados por correo automáticamente. 🔑🛡️✨ Google Cloud & Supabase sincronizados al 100%.
 *   **Paso 5.1 (Inteligencia de Inventario):** Implementación de **Umbrales Dinámicos por Producto**. El sistema ahora respeta alertas personalizadas (ej. avisar con 1 para Xbox, con 10 para Amazon) y muestra banderas regionales en las notificaciones. 🚩🧠🛡️
 *   **Control de Versiones:** Sincronización total de cambios en el repositorio GitHub `dacribelservice/Psn`. 📂🛸
+*   **Fase 8 (Independencia Blockchain Total):** Implementación de Billetera Maestra fija y verificación directa por TxID en red BSC. Suprimido el modal de selección para un flujo de pago directo y sin fricciones. 🛡️🛰️🦾⚡
 
 ---
 
