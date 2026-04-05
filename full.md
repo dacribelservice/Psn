@@ -20,8 +20,8 @@ Este documento es el mapa de ruta final para llevar a Dacribel de una plataforma
 *   [x] **Paso 1.4: Esquema Zod en Términos.** Crear y aplicar validación para el contenido bilingüe de políticas.
 
 ### 2. ESCALABILIDAD Y RENDIMIENTO (SCALE READY)
-*   [ ] **Paso 2.1: Paginación de Inventario.** Implementar carga por lotes (Pagination) en la tabla de códigos para evitar que el navegador se congele con miles de registros.
-*   [ ] **Paso 2.2: Optimización de Consultas (Joins).** Reemplazar el filtrado en JS (`.find`) por uniones directas de Postgres (`select('*, stock:product_stock_view!product_id(stock_available)')`).
+*   [x] **Paso 2.1: Paginación de Inventario.** Implementar carga por lotes (Pagination) en la tabla de códigos para evitar que el navegador se congele con miles de registros.
+*   [x] **Paso 2.2: Optimización de Consultas (Joins).** Reemplazar el filtrado en JS (`.find`) por uniones directas de Postgres (`select('*, stock:product_stock_view!product_id(stock_available)')`).
 *   [ ] **Paso 2.3: Limpieza de Hardcode.** Mover URLs directas de banderas y storage a variables de entorno o constantes centralizadas.
 
 ### 3. UTILIDAD ADMINISTRATIVA (ADMIN UX)

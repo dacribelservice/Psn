@@ -59,10 +59,11 @@ export const inventoryService = {
   },
 
   // Admin: Get all inventory including stock details
+  // Admin: Get all inventory including stock details
   async getAdminInventory() {
     const { data, error } = await supabase
       .from('products')
-      .select('*, categories(name, slug, image_url)')
+      .select('*, categories(name, slug, image_url), region_info:regions(flag_url)')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -73,7 +74,8 @@ export const inventoryService = {
 
     return data.map(p => ({
       ...p,
-      stock: stockData?.find(s => s.product_id === p.id)?.stock_available || 0
+      stock: stockData?.find(s => s.product_id === p.id)?.stock_available || 0,
+      region_flag: p.region_info?.flag_url
     }));
   },
 

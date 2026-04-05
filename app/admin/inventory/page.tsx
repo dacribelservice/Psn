@@ -26,25 +26,25 @@ const StatCard = ({ label, value, sub, secondaryValue, icon, color = "primary", 
       
       <div className="z-10 mt-auto flex flex-col gap-1">
          {children ? children : (
-           <>
-             <div className="flex items-baseline gap-2">
-                <span className="text-2xl md:text-3xl font-display text-white tracking-tight drop-shadow-lg">
-                  {value}
-                </span>
-                {label !== "CÓDIGOS ACTIVOS" && <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">USDT</span>}
-             </div>
-             
-             {secondaryValue && (
-               <div className="flex items-center justify-between mt-0.5">
-                  <span className="text-[13px] font-display text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)] flex items-center gap-1.5">
-                    ${secondaryValue} <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest">COP</span>
-                  </span>
-               </div>
-             )}
-             {label === "CÓDIGOS ACTIVOS" && (
-                <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">Sincronizado</div>
-             )}
-           </>
+            <>
+              <div className="flex items-baseline gap-2">
+                 <span className="text-2xl md:text-3xl font-display text-white tracking-tight drop-shadow-lg">
+                   {value}
+                 </span>
+                 {label !== "CÓDIGOS ACTIVOS" && <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">USDT</span>}
+              </div>
+              
+              {secondaryValue && (
+                <div className="flex items-center justify-between mt-0.5">
+                   <span className="text-[13px] font-display text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)] flex items-center gap-1.5">
+                     ${secondaryValue} <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest">COP</span>
+                   </span>
+                </div>
+              )}
+              {label === "CÓDIGOS ACTIVOS" && (
+                 <div className="text-[10px] font-black text-white/20 uppercase tracking-widest mt-1">Sincronizado</div>
+              )}
+            </>
          )}
       </div>
       
@@ -128,6 +128,11 @@ export default function AdminInventoryPage() {
   const [filterCountry, setFilterCountry] = useState("Todos");
   const [filterValue, setFilterValue] = useState("Todos");
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalCodes, setTotalCodes] = useState(0);
+  const pageSize = 20;
+
   // Product Deletion State
   const [isProductDeleteModalOpen, setIsProductDeleteModalOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<any>(null);
@@ -144,12 +149,35 @@ export default function AdminInventoryPage() {
       const { data: regs } = await supabase.from('regions').select('*');
       setRegions(regs || []);
 
-      const { data: realCodes } = await supabase
+      // 3. Obtener Códigos con Paginación y Filtros de Servidor (JOIN REGIONS)
+      let codesQuery = supabase
         .from('inventory_codes')
-        .select('*, product:products(name, price, face_value, cost_price, sale_price, category_id, region)')
-        .order('created_at', { ascending: false });
+        .select(`
+          *, 
+          product:products!inner(name, price, face_value, cost_price, sale_price, category_id, region),
+          region_info:regions(flag_url)
+        `, { count: 'exact' });
+      
+      // Aplicar filtros de servidor
+      if (filterPlatform !== "Todos") {
+        codesQuery = codesQuery.eq('product.category_id', filterPlatform);
+      }
+      if (filterCountry !== "Todos") {
+        codesQuery = codesQuery.eq('region', filterCountry);
+      }
+      if (filterValue !== "Todos") {
+        // Como face_value es numeric, buscamos coincidencia exacta
+        codesQuery = codesQuery.or(`face_value.eq.${filterValue},product.face_value.eq.${filterValue}`);
+      }
+
+      const { data: realCodes, count, error: codesError } = await codesQuery
+        .order('created_at', { ascending: false })
+        .range(currentPage * pageSize, (currentPage + 1) * pageSize - 1);
+      
+      if (codesError) throw codesError;
       
       setCodes(realCodes || []);
+      setTotalCodes(count || 0);
 
       // 4. Calcular Ventas de Hoy
       const { data: todayOrders } = await supabase
@@ -218,21 +246,15 @@ export default function AdminInventoryPage() {
 
   React.useEffect(() => {
     if (user) fetchData();
-  }, [user]);
+  }, [user, currentPage, filterPlatform, filterCountry, filterValue]);
 
-  // Derived Metrics (Active Inventory Investment)
-  const activeCodes = codes.filter(c => c.status === 'available');
-  const totalInvertedUSDT = activeCodes.reduce((acc, item) => acc + (item.product?.cost_price || 0), 0);
-  const totalInvertedCOP = activeCodes.reduce((acc, item) => acc + ((item.product?.cost_price || 0) * (item.usd_rate || 4000)), 0);
+  // Derived Metrics (Calculated from aggregated product stock)
+  const activeCodesCount = products.reduce((acc, p) => acc + (Number(p.stock) || 0), 0);
+  const totalInvertedUSDT = products.reduce((acc, p) => acc + ((Number(p.stock) || 0) * (Number(p.cost_price) || 0)), 0);
+  const totalInvertedCOP = products.reduce((acc, p) => acc + ((Number(p.stock) || 0) * (Number(p.cost_price) || 0) * 4000), 0);
   const criticalItems = products.filter(item => (item.stock || 0) <= (item.stock_alert_threshold || 5)).map(item => ({ name: item.name, stock: item.stock || 0 }));
-  const activeCodesCount = activeCodes.length;
 
-  const filteredCodes = codes.filter(item => {
-    const matchPlatform = filterPlatform === "Todos" || item.product?.category_id === filterPlatform;
-    const matchCountry = filterCountry === "Todos" || item.region === filterCountry;
-    const matchValue = filterValue === "Todos" || (item.product?.face_value?.toString() === filterValue || item.product?.price?.toString() === filterValue);
-    return matchPlatform && matchCountry && matchValue;
-  });
+  const filteredCodes = codes; // Pre-filtered by server
 
   // Inteligent Relational Filters Logic
   const availableCountries = Array.from(new Set(
@@ -264,13 +286,6 @@ export default function AdminInventoryPage() {
   const valueOptions = [
     { label: "Valor: Todos", value: "Todos" },
     ...availableValues.map(v => ({ label: `$${v}`, value: v }))
-  ];
-
-  const metrics = [
-    { label: t("total_invested"), value: totalInvertedUSDT.toLocaleString(), sub: `$${totalInvertedCOP.toLocaleString()} COP`, unit: "USDT", icon: "payments", color: "primary" },
-    { label: t("daily_sales"), value: "0", sub: "$0 COP", unit: "USDT", icon: "point_of_sale", color: "primary" },
-    { label: t("critical_inventory"), alerts: criticalItems.slice(0, 2), icon: "warning", color: criticalItems.length > 0 ? "red" : "primary" },
-    { label: t("active_codes"), value: activeCodesCount.toString(), sub: "Actualizado", icon: "sync", color: "primary" },
   ];
 
   return (
@@ -329,7 +344,7 @@ export default function AdminInventoryPage() {
         {/* Stock Summary */}
         <section className="bg-[#191b23] rounded-[2rem] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.5)] border-none">
           <div className="px-8 py-5 border-b border-white/5 bg-white/5 flex items-center justify-between">
-            <h4 className="text-label-sm text-white/40 uppercase">{t("stock_summary")}</h4>
+            <h4 className="text-label-sm text-white/40 uppercase tracking-widest">{t("stock_summary")}</h4>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 divide-y divide-white/5 md:divide-y-0">
              {products.map((item, idx) => {
@@ -352,8 +367,8 @@ export default function AdminInventoryPage() {
                         </div>
                         <div className="flex flex-col">
                            <div className="flex items-center gap-2">
-                              {regionData?.flag_url ? (
-                                <img src={regionData.flag_url} className="w-3.5 h-2.5 object-cover rounded-px opacity-60" alt={regionName} />
+                              {item.region_flag ? (
+                                <img src={item.region_flag} className="w-3.5 h-2.5 object-cover rounded-px opacity-60" alt={regionName} />
                               ) : (
                                 <span className="material-symbols-outlined text-[10px] text-white/20">public</span>
                               )}
@@ -416,6 +431,7 @@ export default function AdminInventoryPage() {
                       setFilterPlatform(val);
                       setFilterCountry("Todos");
                       setFilterValue("Todos");
+                      setCurrentPage(0);
                     }}
                   />
 
@@ -427,6 +443,7 @@ export default function AdminInventoryPage() {
                     onChange={(val: any) => {
                       setFilterCountry(val);
                       setFilterValue("Todos");
+                      setCurrentPage(0);
                     }}
                   />
 
@@ -435,13 +452,21 @@ export default function AdminInventoryPage() {
                     icon="payments"
                     options={valueOptions}
                     value={filterValue}
-                    onChange={(val: any) => setFilterValue(val)}
+                    onChange={(val: any) => {
+                      setFilterValue(val);
+                      setCurrentPage(0);
+                    }}
                   />
 
                   {/* Reset Filter Button */}
                   {(filterPlatform !== "Todos" || filterCountry !== "Todos" || filterValue !== "Todos") && (
                      <button 
-                        onClick={() => { setFilterPlatform("Todos"); setFilterCountry("Todos"); setFilterValue("Todos"); }}
+                        onClick={() => { 
+                          setFilterPlatform("Todos"); 
+                          setFilterCountry("Todos"); 
+                          setFilterValue("Todos"); 
+                          setCurrentPage(0);
+                        }}
                         className="w-10 h-10 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center hover:bg-red-500/20 active:scale-90 transition-all"
                         title="Limpiar Filtros"
                      >
@@ -458,9 +483,9 @@ export default function AdminInventoryPage() {
                      {/* Flag & Region floating */}
                      <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-full border border-white/5">
-                           {regions.find(r => r.name === item.region)?.flag_url ? (
+                           {item.region_info?.flag_url ? (
                              <img 
-                                src={regions.find(r => r.name === item.region)?.flag_url} 
+                                src={item.region_info.flag_url} 
                                 className="w-4 h-2.5 object-cover rounded-sm" 
                                 alt={item.region} 
                              />
@@ -514,20 +539,20 @@ export default function AdminInventoryPage() {
                )}
             </div>
 
-           <div className="hidden lg:block bg-[#191b23] rounded-[2.5rem] overflow-hidden shadow-2xl">
-              <table className="w-full border-separate border-spacing-0">
-                 <thead>
-                     <tr className="bg-white/5">
-                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Producto</th>
-                        <th className="px-8 py-6 text-label-sm text-[#f2b92f]/50 uppercase text-left">Costo</th>
-                        <th className="px-8 py-6 text-label-sm text-primary uppercase text-left">Precio</th>
-                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Valor</th>
-                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
-                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Región</th>
-                        <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-right">Acciones</th>
-                     </tr>
-                 </thead>
-                 <tbody className="divide-y divide-white/5">
+            <div className="hidden lg:block bg-[#191b23] rounded-[2.5rem] overflow-hidden shadow-2xl">
+               <table className="w-full border-separate border-spacing-0">
+                  <thead>
+                      <tr className="bg-white/5">
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Producto</th>
+                         <th className="px-8 py-6 text-label-sm text-[#f2b92f]/50 uppercase text-left">Costo</th>
+                         <th className="px-8 py-6 text-label-sm text-primary uppercase text-left">Precio</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Valor</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Región</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-right">Acciones</th>
+                      </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
                     {filteredCodes.map((item, idx) => (
                        <tr key={idx} className="group hover:bg-white/5 transition-all">
                            <td className="px-8 py-6 font-bold text-white text-sm">
@@ -549,9 +574,9 @@ export default function AdminInventoryPage() {
                           </td>
                           <td className="px-8 py-6">
                              <div className="flex items-center gap-2">
-                                {regions.find(r => r.name === item.region)?.flag_url ? (
+                                {item.region_info?.flag_url ? (
                                    <img 
-                                      src={regions.find(r => r.name === item.region)?.flag_url} 
+                                      src={item.region_info.flag_url} 
                                       className="w-5 h-3.5 object-cover rounded-sm border border-white/10" 
                                       alt={item.region} 
                                    />
@@ -573,8 +598,44 @@ export default function AdminInventoryPage() {
                        </tr>
                     ))}
                  </tbody>
-              </table>
-           </div>
+               </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalCodes > pageSize && (
+               <div className="flex items-center justify-center gap-4 py-8 border-t border-white/5 mt-4">
+                  <button 
+                    disabled={currentPage === 0}
+                    onClick={() => {
+                        setCurrentPage(prev => Math.max(0, prev - 1));
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${currentPage === 0 ? 'bg-white/5 text-white/10 cursor-not-allowed' : 'bg-primary text-black hover:scale-105 active:scale-95 shadow-lg shadow-primary/20 cursor-pointer'}`}
+                  >
+                    <span className="material-symbols-outlined font-black">chevron_left</span>
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                     <span className="text-[10px] font-black text-white/40 uppercase tracking-widest bg-white/5 px-4 py-2 rounded-full border border-white/5">
+                        Página {currentPage + 1} de {Math.ceil(totalCodes / pageSize)}
+                     </span>
+                     <span className="text-[9px] font-bold text-primary/40 uppercase tracking-widest hidden sm:inline">
+                        — {totalCodes} Total
+                     </span>
+                  </div>
+
+                  <button 
+                    disabled={(currentPage + 1) * pageSize >= totalCodes}
+                    onClick={() => {
+                        setCurrentPage(prev => prev + 1);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${(currentPage + 1) * pageSize >= totalCodes ? 'bg-white/5 text-white/10 cursor-not-allowed' : 'bg-primary text-black hover:scale-105 active:scale-95 shadow-lg shadow-primary/20 cursor-pointer'}`}
+                  >
+                    <span className="material-symbols-outlined font-black">chevron_right</span>
+                  </button>
+               </div>
+            )}
         </section>
       </div>
 
