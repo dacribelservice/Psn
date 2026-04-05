@@ -69,6 +69,7 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 *   **Paso 2.3 (Precisión Contable):** Creación de la función RPC `get_inventory_financials` para calcular el valor del inventario basado en el **costo histórico (USDT/COP)** de cada código individual. Adiós a las estimaciones, hola a la contabilidad exacta. 💰🛡️📊
 *   **Paso 3.0 (Centralización de Lógica):** Creación de `lib/constants.ts` como cerebro de configuración única para tasas de cambio, umbrales de stock y tamaños de página. 🧠⚙️
 *   **Fase 4 (Identidad Social):** Integración exitosa de **Google OAuth**. Corrección de ID de cliente (`...pbknqk...`) para habilitar login con un solo clic. Los administradores supremos son mapeados por correo automáticamente. 🔑🛡️✨ Google Cloud & Supabase sincronizados al 100%.
+*   **Paso 5.1 (Inteligencia de Inventario):** Implementación de **Umbrales Dinámicos por Producto**. El sistema ahora respeta alertas personalizadas (ej. avisar con 1 para Xbox, con 10 para Amazon) y muestra banderas regionales en las notificaciones. 🚩🧠🛡️
 *   **Control de Versiones:** Sincronización total de cambios en el repositorio GitHub `dacribelservice/Psn`. 📂🛸
 
 ---
