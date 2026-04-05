@@ -160,6 +160,20 @@ Estrategia: Anticipar el fallo para garantizar la continuidad del servicio en Da
     *   *Solución:* Migrar estilos dinámicos a clases de Tailwind o variables CSS (`CSS Variables`) seguras.
 
 
+### FASE 5: CIFRADO Y RATE LIMITING
+*   **Posible Fallo:** **Bloqueo de Usuarios Legítimos (Falsos Positivos).** 
+    *   *Causa:* Configuración de "Rate Limit" (límite de velocidad) demasiado agresiva para IPs compartidas o usuarios muy rápidos.
+    *   *Solución:* Establecer umbrales dinámicos y una lista blanca para administradores y servicios internos conocidos.
+*   **Posible Fallo:** **Pérdida Irrecuperable de Datos (Master Key Loss).** 
+    *   *Causa:* Implementar cifrado de datos en la DB y perder la clave maestra de cifrado en las variables de entorno.
+    *   *Solución:* Almacenar copias de seguridad de las claves en un gestor de secretos profesional (como Supabase Vault o Doppler) y nunca persistirlas en el código.
+*   **Posible Fallo:** **Latencia Aumentada (Pérdida de Performance).** 
+    *   *Causa:* El proceso de cifrar/descifrar cada registro en tiempo real añade milisegundos a cada petición.
+    *   *Solución:* Cifrar únicamente campos críticos (ej: códigos de tarjetas) y usar algoritmos de alto rendimiento (AES-256-GCM).
+*   **Posible Fallo:** **Cierre de Sesión Inesperado (Session Refresher Block).** 
+    *   *Causa:* El limitador de velocidad bloquea las peticiones automáticas de refresco de sesión del middleware.
+    *   *Solución:* Excluir las rutas de `/auth/*` y `/api/refresh` de los límites estrictos de petición por segundo.
+
 ---
 *Dacribel: Bóveda Digital Inexpugnable en construcción.*
 

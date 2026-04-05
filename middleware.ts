@@ -1,12 +1,45 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Módulo de Rate Limiting (In-memory para desarrollo)
+// Nota: En producción escalar a Upstash Redis para consistencia entre nodos
+const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+const LIMIT = 15; // 15 peticiones
+const WINDOW = 60 * 1000; // 1 minuto
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   })
+
+  // --- CAPA 5.3: RATE LIMITING ---
+  const ip = request.ip ?? '127.0.0.1';
+  const path = request.nextUrl.pathname;
+  
+  // Solo aplicar a rutas sensibles
+  const isSensitive = path.startsWith('/api') || path.startsWith('/auth') || path.startsWith('/admin');
+  
+  if (isSensitive) {
+    const now = Date.now();
+    const userLimit = rateLimitMap.get(ip) || { count: 0, lastReset: now };
+
+    if (now - userLimit.lastReset > WINDOW) {
+      userLimit.count = 0;
+      userLimit.lastReset = now;
+    }
+
+    userLimit.count++;
+    rateLimitMap.set(ip, userLimit);
+
+    if (userLimit.count > LIMIT) {
+      return new NextResponse(
+        JSON.stringify({ error: 'Demasiadas peticiones. Intenta de nuevo en un minuto.' }),
+        { status: 429, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  }
 
   // ESTRATEGIA: SESSION REFRESHER PASIVO (Sin consulta a base de datos de perfiles)
   try {

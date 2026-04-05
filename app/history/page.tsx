@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { useLanguage } from "@/context/LanguageContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { decrypt } from "@/lib/crypto";
 import { OrderDetailsView } from "@/components/ui/OrderDetailsView";
 import { AnimatePresence } from "framer-motion";
 import React from "react";
@@ -61,7 +62,7 @@ export default function HistoryPage() {
         product_image: o.products?.image_url,
         codesCount: o.quantity || (Array.isArray(o.inventory_codes) ? o.inventory_codes.length : 0),
         code: Array.isArray(o.inventory_codes) && o.inventory_codes.length > 0
-          ? o.inventory_codes.map((c: any) => c.code).join('\n')
+          ? o.inventory_codes.map((c: any) => decrypt(c.code)).join('\n')
           : "PENDIENTE",
         region: o.products?.region || "Global",
       }));

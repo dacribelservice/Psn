@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { encrypt } from '@/lib/crypto';
 
 export interface Category {
   id: string;
@@ -80,7 +81,7 @@ export const inventoryService = {
   async addInventoryCodes(productId: string, codes: string[]) {
     const inserts = codes.map(code => ({
       product_id: productId,
-      code,
+      code: encrypt(code),
       status: 'available'
     }));
 
