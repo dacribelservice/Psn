@@ -95,7 +95,7 @@ export async function POST(request: Request) {
         amount_usdt: order.amount,
         status: 'waiting',
         network: chaingatewayResult.network,
-        expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+        expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString()
       })
       .select()
       .single();

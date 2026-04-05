@@ -51,6 +51,20 @@ export async function GET(request: Request) {
       throw new Error(`Error updating orders: ${orderUpdateError.message}`);
     }
 
+    // 🛡️ FALLBACK: Limpiar órdenes 'pending' o 'payment_pending' que tengan más de 12 minutos
+    // Esto es por seguridad en caso de que fallen los registros de transacciones
+    const twelveMinutesAgo = new Date(Date.now() - 12 * 60 * 1000).toISOString();
+    
+    const { error: fallbackError } = await supabase
+      .from('orders')
+      .update({ status: 'cancelled' })
+      .in('status', ['pending', 'payment_pending'])
+      .lt('created_at', twelveMinutesAgo);
+
+    if (fallbackError) {
+      console.warn('⚠️ Fallback cleanup warning:', fallbackError.message);
+    }
+
     console.log(`✅ Se han expirado ${expiredPayments.length} pagos y órdenes.`);
 
     return NextResponse.json({

@@ -11,6 +11,50 @@ import { OrderDetailsView } from "@/components/ui/OrderDetailsView";
 import { AnimatePresence } from "framer-motion";
 import React from "react";
 
+const CountdownTimer = ({ createdAt, onExpire }: { createdAt: string, onExpire: () => void }) => {
+  const [timeLeft, setTimeLeft] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    const calculateTime = () => {
+      const created = new Date(createdAt).getTime();
+      const expires = created + (10 * 60 * 1000); // 10 Minutos exactos
+      const now = new Date().getTime();
+      return Math.max(0, Math.floor((expires - now) / 1000));
+    };
+
+    const initialTime = calculateTime();
+    setTimeLeft(initialTime);
+
+    if (initialTime <= 0) {
+      onExpire();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      const remaining = calculateTime();
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        clearInterval(timer);
+        onExpire();
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [createdAt, onExpire]);
+
+  if (timeLeft <= 0) return null;
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  return (
+    <div className="flex items-center gap-1.5 text-[9px] font-black text-primary/70 animate-pulse mb-1.5 justify-center tracking-tighter">
+      <span className="material-symbols-outlined text-[10px]">timer</span>
+      <span>{mins}:{secs < 10 ? `0${secs}` : secs}</span>
+    </div>
+  );
+};
+
 export default function HistoryPage() {
   const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,6 +103,9 @@ export default function HistoryPage() {
         date: new Date(o.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }),
         fullDate: new Date(o.created_at).toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
         status: o.status === 'completed' ? 'Completado' : (o.status === 'cancelled' ? 'Cancelado' : 'Pendiente'),
+        originalStatus: o.status,
+        realId: o.id,
+        createdAt: o.created_at,
         product_image: o.products?.image_url,
         codesCount: o.quantity || (Array.isArray(o.inventory_codes) ? o.inventory_codes.length : 0),
         code: Array.isArray(o.inventory_codes) && o.inventory_codes.length > 0
@@ -224,15 +271,17 @@ export default function HistoryPage() {
                         </div>
                       </div>
                     </div>
-                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
-                      tx.status === 'Completado' 
-                        ? 'bg-green-500/10 text-green-400 border-green-500/20' 
-                        : tx.status === 'Cancelado'
-                          ? 'bg-red-500/10 text-red-500 border-red-500/20'
-                          : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
-                    }`}>
-                      {tx.status}
-                    </span>
+                    <div className="flex flex-col items-center">
+                      <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                        tx.status === 'Completado' 
+                          ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                          : tx.status === 'Cancelado'
+                            ? 'bg-red-500/10 text-red-500 border-red-500/20'
+                            : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20'
+                      }`}>
+                        {tx.status}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-8 pt-6 border-t border-white/5">
@@ -270,17 +319,22 @@ export default function HistoryPage() {
                         <span className="material-symbols-outlined text-[18px]">visibility</span>
                         <span className="text-[11px] uppercase tracking-widest">{language === 'es' ? 'VER MIS CÓDIGOS' : 'VIEW MY CODES'}</span>
                       </>
+                    ) : tx.status === 'Cancelado' ? (
+                      <span className="text-[14px] font-mono font-black text-white/20 tracking-tighter italic">00:00</span>
                     ) : (
                       <div className="flex flex-col items-center">
-                        <div className="flex items-center gap-2 mb-1">
-                          <div className="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></div>
-                          <span className="text-[11px] uppercase tracking-widest font-black">
+                        <CountdownTimer 
+                          createdAt={tx.createdAt} 
+                          onExpire={async () => {
+                            await supabase.from('orders').update({ status: 'cancelled' }).eq('id', tx.realId);
+                          }} 
+                        />
+                        <div className="flex items-center gap-2 -mt-1">
+                          <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/50 animate-pulse"></div>
+                          <span className="text-[9px] uppercase tracking-widest font-black opacity-30">
                             {language === 'es' ? 'PROCESANDO PAGO' : 'PROCESSING PAYMENT'}
                           </span>
                         </div>
-                        <span className="text-[9px] opacity-40 font-bold uppercase tracking-tighter">
-                          {language === 'es' ? 'Tu pedido aparecerá aquí en segundos' : 'Your order will appear here in seconds'}
-                        </span>
                       </div>
                     )}
                   </button>
@@ -355,15 +409,25 @@ export default function HistoryPage() {
                         {tx.status === 'Completado' ? (
                           <button 
                             onClick={() => setSelectedOrder(tx)}
-                            className="bg-primary/20 px-3 py-1.5 rounded-lg border border-primary/30 hover:bg-primary/30 transition-all flex items-center gap-2 group ml-auto shadow-[0_0_15px_rgba(247,190,52,0.1)] active:scale-95"
+                            className="bg-primary/20 px-4 py-2.5 rounded-xl border border-primary/30 hover:bg-primary/40 transition-all flex items-center gap-2 group ml-auto shadow-[0_0_15px_rgba(247,190,52,0.1)] active:scale-95"
                           >
-                            <span className="material-symbols-outlined text-[14px] text-primary">visibility</span>
+                            <span className="material-symbols-outlined text-[16px] text-primary">visibility</span>
                             <span className="text-[10px] text-primary font-black tracking-widest">VER CÓDIGOS</span>
                           </button>
+                        ) : tx.status === 'Cancelado' ? (
+                          <span className="text-[16px] font-mono font-black text-white/10 tracking-widest ml-auto block">00:00</span>
                         ) : (
-                          <span className="text-[9px] text-white/20 font-black tracking-widest animate-pulse uppercase">
-                            {language === 'es' ? 'Procesando...' : 'Processing...'}
-                          </span>
+                          <div className="flex flex-col items-end">
+                             <CountdownTimer 
+                               createdAt={tx.createdAt} 
+                               onExpire={async () => {
+                                 await supabase.from('orders').update({ status: 'cancelled' }).eq('id', tx.realId);
+                               }} 
+                             />
+                             <span className="text-[9px] text-white/20 font-black tracking-widest animate-pulse uppercase -mt-0.5">
+                               {language === 'es' ? 'Procesando...' : 'Processing...'}
+                             </span>
+                          </div>
                         )}
                       </td>
                     </tr>

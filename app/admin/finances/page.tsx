@@ -5,6 +5,50 @@ import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
+const CountdownTimer = ({ createdAt, onExpire }: { createdAt: string, onExpire: () => void }) => {
+  const [timeLeft, setTimeLeft] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    const calculateTime = () => {
+      const created = new Date(createdAt).getTime();
+      const expires = created + (10 * 60 * 1000); // 10 Minutos
+      const now = new Date().getTime();
+      return Math.max(0, Math.floor((expires - now) / 1000));
+    };
+
+    const initialTime = calculateTime();
+    setTimeLeft(initialTime);
+
+    if (initialTime <= 0) {
+      onExpire();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      const remaining = calculateTime();
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        clearInterval(timer);
+        onExpire();
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [createdAt, onExpire]);
+
+  if (timeLeft <= 0) return null;
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+
+  return (
+    <div className="flex items-center gap-1.5 text-[9px] font-black text-primary/70 animate-pulse mb-1.5 justify-center tracking-tighter">
+      <span className="material-symbols-outlined text-[10px]">timer</span>
+      <span>{mins}:{secs < 10 ? `0${secs}` : secs}</span>
+    </div>
+  );
+};
+
 const StatCard = ({ label, value, sub, trend, icon, color = "primary" }: any) => {
   // Parsing value to ensure it's a number for COP calculation
   const numericVal = typeof value === 'string' ? parseFloat(value.replace(/[^\d.]/g, '')) : value;
@@ -127,7 +171,7 @@ export default function AdminFinancesPage() {
             monthlySummary[monthKey].profit += (amt - Number(o.product?.cost_price || 0));
           }
           
-          if (o.created_at.startsWith(today)) todayTotal += amt;
+          if (o.created_at.startsWith(today) && isCompleted) todayTotal += amt;
 
           return {
             email: o.profiles?.email || "N/A",
@@ -135,8 +179,10 @@ export default function AdminFinancesPage() {
             id: `#ORD-${o.id.substring(0, 6).toUpperCase()}`,
             amount: amt.toFixed(2),
             status: o.status,
+            realId: o.id,
+            createdAt: o.created_at,
             hash: o.id.substring(0, 8),
-            active: o.status === 'pending'
+            active: o.status === 'pending' || o.status === 'payment_pending'
           }
         });
         // --- Calcular Tendencias Mensuales ---
@@ -353,7 +399,10 @@ export default function AdminFinancesPage() {
                                </div>
                             </td>
                             <td className="px-8 py-6">
-                               <span className={`inline-flex px-3 py-1 rounded-full text-label-sm font-black uppercase tracking-widest ${order.status === 'completed' ? 'bg-green-500/10 text-green-400' : 'bg-primary/10 text-primary'}`}>
+                               <span className={`inline-flex px-3 py-1 rounded-full text-label-sm font-black uppercase tracking-widest ${
+                                 order.status === 'completed' ? 'bg-green-500/10 text-green-400' : 
+                                 order.status === 'cancelled' ? 'bg-red-500/10 text-red-500' :
+                                 'bg-primary/10 text-primary'}`}>
                                   {order.status}
                                </span>
                             </td>
