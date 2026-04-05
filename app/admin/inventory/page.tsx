@@ -10,6 +10,7 @@ import { inventoryService } from "@/services/inventory";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/AuthContext";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
+import { APP_CONFIG } from "@/lib/constants";
 
 const StatCard = ({ label, value, sub, secondaryValue, icon, color = "primary", children }: any) => {
   return (
@@ -118,6 +119,11 @@ export default function AdminInventoryPage() {
   const [codes, setCodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [todaySales, setTodaySales] = useState({ usdt: 0, cop: 0 });
+  const [financials, setFinancials] = useState({ 
+    total_inverted_usdt: 0, 
+    total_inverted_cop: 0, 
+    active_codes_count: 0 
+  });
 
   // Confirmation Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -140,6 +146,12 @@ export default function AdminInventoryPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      
+      // 1. Get Financial Totals (True Historical Accuracy)
+      const stats = await inventoryService.getFinancials();
+      if (stats) setFinancials(stats);
+
+      // 2. Get Products for the list
       const adminProducts = await inventoryService.getAdminInventory();
       setProducts(adminProducts);
 
@@ -198,7 +210,7 @@ export default function AdminInventoryPage() {
 
       setTodaySales({ 
         usdt: totalToday, 
-        cop: totalToday * 3650 // Tasa estándar para concordancia
+        cop: totalToday * APP_CONFIG.FINANCE.DEFAULT_SALE_RATE
       });
     } catch (err) {
       console.error("Error fetching admin inventory:", err);
@@ -248,11 +260,11 @@ export default function AdminInventoryPage() {
     if (user) fetchData();
   }, [user, currentPage, filterPlatform, filterCountry, filterValue]);
 
-  // Derived Metrics (Calculated from aggregated product stock)
-  const activeCodesCount = products.reduce((acc, p) => acc + (Number(p.stock) || 0), 0);
-  const totalInvertedUSDT = products.reduce((acc, p) => acc + ((Number(p.stock) || 0) * (Number(p.cost_price) || 0)), 0);
-  const totalInvertedCOP = products.reduce((acc, p) => acc + ((Number(p.stock) || 0) * (Number(p.cost_price) || 0) * 4000), 0);
-  const criticalItems = products.filter(item => (item.stock || 0) <= (item.stock_alert_threshold || 5)).map(item => ({ name: item.name, stock: item.stock || 0 }));
+  // Derived Metrics from RPC and State
+  const activeCodesCount = financials.active_codes_count || 0;
+  const totalInvertedUSDT = financials.total_inverted_usdt || 0;
+  const totalInvertedCOP = financials.total_inverted_cop || 0;
+  const criticalItems = products.filter(item => (item.stock || 0) <= (APP_CONFIG.STOCK.CRITICAL_THRESHOLD)).map(item => ({ name: item.name, stock: item.stock || 0 }));
 
   const filteredCodes = codes; // Pre-filtered by server
 

@@ -104,5 +104,12 @@ export const inventoryService = {
     
     if (error) throw error;
     return data;
+  },
+
+  // Get true financial metrics using RPC
+  async getFinancials() {
+    const { data, error } = await supabase.rpc('get_inventory_financials');
+    if (error) throw error;
+    return data[0]; // Returns single row results
   }
 };
