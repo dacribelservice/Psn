@@ -44,6 +44,26 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
     if (isOpen) fetchData();
   }, [isOpen]);
 
+  // Inteligent threshold detection for existing products
+  useEffect(() => {
+    const detectExistingProduct = async () => {
+      if (!selectedCategory || !value || !selectedRegion) return;
+      const productName = `${selectedCategory.name} $${value}`;
+      const { data } = await supabase
+        .from('products')
+        .select('stock_alert_threshold')
+        .eq('name', productName)
+        .eq('category_id', selectedCategory.id)
+        .eq('region', selectedRegion)
+        .maybeSingle();
+      
+      if (data?.stock_alert_threshold) {
+        setLowStockAlert(data.stock_alert_threshold);
+      }
+    };
+    detectExistingProduct();
+  }, [selectedCategory, value, selectedRegion]);
+
   const handleCreate = async () => {
     if (!selectedCategory || !value || !codesText.trim()) {
       alert("Por favor completa todos los campos");

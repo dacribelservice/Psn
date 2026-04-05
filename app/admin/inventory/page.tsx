@@ -264,7 +264,9 @@ export default function AdminInventoryPage() {
   const activeCodesCount = financials.active_codes_count || 0;
   const totalInvertedUSDT = financials.total_inverted_usdt || 0;
   const totalInvertedCOP = financials.total_inverted_cop || 0;
-  const criticalItems = products.filter(item => (item.stock || 0) <= (APP_CONFIG.STOCK.CRITICAL_THRESHOLD)).map(item => ({ name: item.name, stock: item.stock || 0 }));
+  const criticalItems = products
+    .filter(item => (item.stock || 0) <= (item.stock_alert_threshold ?? APP_CONFIG.STOCK.CRITICAL_THRESHOLD))
+    .map(item => ({ name: item.name, stock: item.stock || 0 }));
 
   const filteredCodes = codes; // Pre-filtered by server
 
@@ -391,7 +393,7 @@ export default function AdminInventoryPage() {
                       <div className="flex items-center gap-6">
                         <div className="flex flex-col items-end gap-1">
                            <span className="text-[10px] font-black text-white/20 uppercase tracking-widest leading-none">STOCK</span>
-                           <span className={`text-xl font-display leading-none ${(item.stock || 0) <= 5 ? 'text-red-400' : 'text-white'}`}>{item.stock || 0}</span>
+                           <span className={`text-xl font-display leading-none ${(item.stock || 0) <= (item.stock_alert_threshold ?? 5) ? 'text-red-400' : 'text-white'}`}>{item.stock || 0}</span>
                         </div>
                         
                         {/* Botón de borrar condicional */}

@@ -3,7 +3,8 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
-import { supabase } from "@/lib/supabase";
+import { inventoryService } from "@/services/inventory";
+import { APP_CONFIG } from "@/lib/constants";
 
 interface NotificationsPopupProps {
   isOpen: boolean;
@@ -21,30 +22,20 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
     const fetchCriticalInventory = async () => {
       try {
         setLoading(true);
-        // Usamos la misma lógica que en el dashboard de inventario
-        const { data: products, error } = await supabase
-          .from('products')
-          .select('name, id');
+        // Usamos el servicio centralizado que ya trae stock y banderas
+        const products = await inventoryService.getAdminInventory();
         
-        if (error) throw error;
-
-        // Para cada producto, contar códigos disponibles
-        const itemsWithStock = await Promise.all((products || []).map(async (p: any) => {
-          const { count } = await supabase
-            .from('inventory_codes')
-            .select('*', { count: 'exact', head: true })
-            .eq('product_id', p.id)
-            .eq('status', 'available');
-          
-          return {
+        // Aplicar lógica dinámica de umbral por producto
+        const lowStock = products
+          .filter(p => (p.stock || 0) <= (p.stock_alert_threshold ?? APP_CONFIG.STOCK.CRITICAL_THRESHOLD))
+          .map(p => ({
+            id: p.id,
             label: p.name,
             icon: p.name.toLowerCase().includes('xbox') ? "videogame_asset" : "sports_esports",
-            count: count || 0
-          };
-        }));
+            count: p.stock || 0,
+            flag: p.region_flag
+          }));
 
-        // Filtrar solo los que tienen poco stock (<= 5)
-        const lowStock = itemsWithStock.filter(item => item.count <= 5);
         setCriticalItems(lowStock);
       } catch (err) {
         console.error("Error fetching notifications:", err);
@@ -113,23 +104,27 @@ export const NotificationsPopup = ({ isOpen, onClose }: NotificationsPopupProps)
                 criticalItems.map((item: any, idx: number) => (
                   <div key={idx} className="flex flex-col">
                     <div className="flex items-center justify-between py-2.5 group cursor-pointer">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-primary/30 transition-all">
-                          <span className="material-symbols-outlined text-primary text-[16px]">
-                            {item.icon}
-                          </span>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-primary/30 transition-all relative">
+                          {item.flag ? (
+                            <img src={item.flag} className="w-full h-full object-cover rounded-lg opacity-40 group-hover:opacity-80 transition-opacity" alt={item.label} />
+                          ) : (
+                            <span className="material-symbols-outlined text-primary text-[16px]">
+                              {item.icon}
+                            </span>
+                          )}
                         </div>
-                        <div>
-                          <h3 className="font-bold text-white text-[11px] mb-0.5 tracking-tight truncate max-w-[120px]">{item.label}</h3>
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-white text-[11px] mb-0.5 tracking-tight truncate max-w-[110px] uppercase">{item.label}</h3>
                           <div className="flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(247,190,52,0.4)]"></span>
-                            <span className="text-[9px] text-primary/80 font-black uppercase tracking-tighter">
+                            <span className="text-[9px] text-primary/80 font-black uppercase tracking-tighter shrink-0">
                               {t("low_stock")}
                             </span>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right shrink-0">
                         <p className="font-black text-primary text-base leading-none tracking-tighter">{item.count}</p>
                         <p className="uppercase tracking-widest font-black text-white/20 text-[7px]">
                           {t("units")}
