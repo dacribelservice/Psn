@@ -61,7 +61,7 @@ Estrategia: Tratar todo input de usuario como una amenaza potencial y preparar e
 *   [x] **Paso 5.1: Esquemas de Validación (Zod).** Implementada infraestructura centralizada de validación en `lib/schemas` para Auth, Inventario y Categorías.
 
 *   [x] **Paso 5.2: Sanitización contra XSS.** Implementada limpieza de texto vinculada a `isomorphic-dompurify` en todos los puntos de entrada administrativa (Banners, Categorías y Productos).
-*   [ ] **Paso 5.3: Cifrado y Rate Limiting.** Limitar intentos de acceso y cifrar datos sensibles en la base de datos.
+*   [x] **Paso 5.3: Cifrado y Rate Limiting.** Implementado cifrado AES-256 en códigos digitales y limitador de peticiones por IP en middleware.
 
 ---
 
