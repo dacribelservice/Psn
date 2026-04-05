@@ -17,9 +17,9 @@ Esta fase marca el fin de la dependencia de pasarelas externas (Chaingateway/NOW
     - [x] Crear el servicio de validación que consulta la red BSC para confirmar el Txid. 🤖🔍
     - [x] Validar: Monto, Dirección de Destino y Confirmación de Red. ✅
 
-- [ ] **Paso 8.4: Automatización de Entrega**
-    - [ ] Al detectar Txid válido, marcar orden como "Pagada" en Supabase. 🏧
-    - [ ] Disparar el evento de "Éxito" y mostrar confeti/descarga al cliente. 🎇💎
+- [x] **Paso 8.4: Automatización de Entrega**
+    - [x] Al detectar Txid válido, marcar orden como "Pagada" en Supabase. ✅🏧
+    - [x] Disparar el evento de "Éxito" y mostrar confeti/descarga al cliente. (VERIFICADO ✅) 🎇💎
 
 ---
 

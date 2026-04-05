@@ -136,23 +136,28 @@ export default function StorePage() {
     setSelectedProductId(productId);
     setIsProductSheetOpen(false);
     
-    // 🛡️ FASE 8: Suprimimos el paso de elegir canal. Procedemos directo a BEP20.
+    // 🛡️ FASE 8: Inyectamos los datos directamente para evitar el delay del estado de React
     setTimeout(() => {
-      handleConfirmPayment('bep20');
+      handleConfirmPayment('bep20', productId, selectedAmount, selectedQuantity);
     }, 400); 
   };
 
-  const handleConfirmPayment = async (method: string) => {
+  const handleConfirmPayment = async (method: string, directProductId?: string, directAmount?: number, directQuantity?: number) => {
     console.log("🛠️ Inregrity - Creando orden pendiente...");
     setIsPaymentSheetOpen(false);
     
+    // Usar valores directos si existen, o caer al estado (fallback)
+    const finalProductId = directProductId || selectedProductId;
+    const finalAmount = directAmount !== undefined ? directAmount : amount;
+    const finalQuantity = directQuantity !== undefined ? directQuantity : quantity;
+
     try {
       // 1. Crear la orden PENDIENTE en la base de datos de inmediato
       const { data: orderId, error } = await supabase.rpc('process_checkout', {
-        p_product_id: selectedProductId,
-        p_amount: amount,
+        p_product_id: finalProductId,
+        p_amount: finalAmount,
         p_method: method,
-        p_quantity: quantity
+        p_quantity: finalQuantity
       });
 
       if (error) throw error;
