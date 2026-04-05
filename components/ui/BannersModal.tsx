@@ -4,6 +4,8 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { sanitizePlainText, sanitizeURL } from "@/lib/sanitizer";
+import { bannerSchema } from "@/lib/schemas/banners";
+import { z } from "zod";
 
 interface BannersModalProps {
   isOpen: boolean;
@@ -91,13 +93,36 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
         finalImageUrl = publicUrl;
       }
 
+      const finalTitleEs = sanitizePlainText(titleEs);
+      const finalTitleEn = sanitizePlainText(titleEn);
+      const finalSubtitleEs = sanitizePlainText(subtitleEs);
+      const finalSubtitleEn = sanitizePlainText(subtitleEn);
+      const finalRedirectUrl = sanitizeURL(redirectUrl);
+
+      // --- VALIDACIÓN CON ZOD ---
+      const validation = bannerSchema.safeParse({
+        image_url: finalImageUrl,
+        title_es: finalTitleEs,
+        title_en: finalTitleEn,
+        subtitle_es: finalSubtitleEs,
+        subtitle_en: finalSubtitleEn,
+        redirect_url: finalRedirectUrl || null
+      });
+
+      if (!validation.success) {
+        const errorMsg = validation.error.issues[0]?.message || "Error de validación";
+        alert(errorMsg);
+        setLoading(false);
+        return;
+      }
+
       const bannerData = {
         image_url: finalImageUrl,
-        title_es: sanitizePlainText(titleEs),
-        title_en: sanitizePlainText(titleEn),
-        subtitle_es: sanitizePlainText(subtitleEs),
-        subtitle_en: sanitizePlainText(subtitleEn),
-        redirect_url: sanitizeURL(redirectUrl),
+        title_es: finalTitleEs,
+        title_en: finalTitleEn,
+        subtitle_es: finalSubtitleEs,
+        subtitle_en: finalSubtitleEn,
+        redirect_url: finalRedirectUrl || null,
       };
 
       if (editingId) {

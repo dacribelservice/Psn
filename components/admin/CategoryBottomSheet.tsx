@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { sanitizePlainText, sanitizeURL } from "@/lib/sanitizer";
+import { categorySchema } from "@/lib/schemas/categories";
+import { z } from "zod";
 
 interface CategoryBottomSheetProps {
   isOpen: boolean;
@@ -52,19 +54,33 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
   };
 
   const handleSave = async () => {
-    if (!name.trim()) return;
     setLoading(true);
-    setStatusMessage("PROCESANDO...");
+    setStatusMessage("VALIDANDO...");
     
     try {
-      let finalImageUrl = sanitizeURL(imageUrlInput);
-
       const cleanName = sanitizePlainText(name);
-      setStatusMessage("GENERANDO SLUG...");
+      let finalImageUrl = sanitizeURL(imageUrlInput);
+      
       const slug = cleanName.toLowerCase().trim()
         .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-]/g, '');
+
+      // --- VALIDACIÓN CON ZOD ---
+      const validation = categorySchema.safeParse({
+        name: cleanName,
+        slug: slug,
+        image_url: finalImageUrl || null,
+        display_order: 0
+      });
+
+      if (!validation.success) {
+        const errorMsg = validation.error.issues[0]?.message || "Error de validación";
+        alert(errorMsg);
+        setLoading(false);
+        setStatusMessage(null);
+        return;
+      }
 
       // 1. Si hay un archivo nuevo, subirlo a storage
       if (file) {

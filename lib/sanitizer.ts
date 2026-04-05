@@ -7,7 +7,7 @@ import DOMPurify from 'isomorphic-dompurify';
 export const sanitizeHTML = (html: string): string => {
   if (!html) return '';
   return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'br', 'p', 'span'],
+    ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'br', 'p', 'span', 'ul', 'ol', 'li', 'u'],
     ALLOWED_ATTR: ['class'], // Permitimos class por si usamos utilidades de estilo seguras
   });
 };

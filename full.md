@@ -14,10 +14,10 @@ Este documento es el mapa de ruta final para llevar a Dacribel de una plataforma
 ## 🛠️ CHECKLIST DE ACCIONES PENDIENTES
 
 ### 1. UNIFICACIÓN DE SEGURIDAD (VALIDACIÓN ATÓMICA)
-*   [ ] **Paso 1.1: Esquema Zod en Categorías.** Integrar `CategorySchema` en `CategoryBottomSheet.tsx`.
-*   [ ] **Paso 1.2: Esquema Zod en Banners.** Integrar `BannerSchema` en `BannersModal.tsx`.
-*   [ ] **Paso 1.3: Blindaje de Términos (XSS).** Aplicar `sanitizeHTML` en `AdminTermsModal.tsx` para prevenir inyecciones.
-*   [ ] **Paso 1.4: Esquema Zod en Términos.** Crear y aplicar validación para el contenido bilingüe de políticas.
+*   [x] **Paso 1.1: Esquema Zod en Categorías.** Integrar `CategorySchema` en `CategoryBottomSheet.tsx`.
+*   [x] **Paso 1.2: Esquema Zod en Banners.** Integrar `BannerSchema` en `BannersModal.tsx`.
+*   [x] **Paso 1.3: Blindaje de Términos (XSS).** Aplicar `sanitizeHTML` en `AdminTermsModal.tsx` para prevenir inyecciones.
+*   [x] **Paso 1.4: Esquema Zod en Términos.** Crear y aplicar validación para el contenido bilingüe de políticas.
 
 ### 2. ESCALABILIDAD Y RENDIMIENTO (SCALE READY)
 *   [ ] **Paso 2.1: Paginación de Inventario.** Implementar carga por lotes (Pagination) en la tabla de códigos para evitar que el navegador se congele con miles de registros.

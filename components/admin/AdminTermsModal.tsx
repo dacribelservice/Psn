@@ -4,6 +4,9 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/lib/supabase";
+import { sanitizeHTML } from "@/lib/sanitizer";
+import { termsSchema } from "@/lib/schemas/settings";
+import { z } from "zod";
 import { useAuth } from "@/context/AuthContext";
 
 interface AdminTermsModalProps {
@@ -41,11 +44,27 @@ export const AdminTermsModal = ({ isOpen, onClose }: AdminTermsModalProps) => {
     setIsSaving(true);
     
     try {
+      const finalTermsEs = sanitizeHTML(termsEs);
+      const finalTermsEn = sanitizeHTML(termsEn);
+
+      // --- VALIDACIÓN CON ZOD ---
+      const validation = termsSchema.safeParse({
+        content: finalTermsEs,
+        content_en: finalTermsEn
+      });
+
+      if (!validation.success) {
+        const errorMsg = validation.error.issues[0]?.message || "Error de validación";
+        alert(errorMsg);
+        setIsSaving(false);
+        return;
+      }
+
       const { error } = await supabase
         .from("settings")
         .upsert({ 
           key: "terms_conditions", 
-          value: { content: termsEs, content_en: termsEn },
+          value: { content: finalTermsEs, content_en: finalTermsEn },
           updated_by: user.id,
           updated_at: new Date().toISOString()
         });
