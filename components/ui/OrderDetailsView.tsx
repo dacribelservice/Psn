@@ -20,6 +20,7 @@ export const OrderDetailsView = ({ orderData, onClose, showConfetti = true }: Or
         particleCount: 150,
         spread: 70,
         origin: { y: 0.4 },
+        zIndex: 9999, // Asegurar que esté por encima de todo el modal
         colors: ["#22c55e", "#f2b92f", "#ffffff"],
       });
     }
