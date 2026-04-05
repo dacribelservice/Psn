@@ -78,6 +78,9 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 
 ## 📜 DOCUMENTACIÓN DE APOYO
 *   [**PAGOS.md**](file:///c:/Users/cange/Documents/Psn/pagos.md): Hoja de ruta para la automatización BEP20/TRC20.
+*   [**SEGURIDAD.md**](file:///c:/Users/cange/Documents/Psn/seguridad.md): Manual de blindaje de RLS y Firewall administrativo.
+*   [**DISEÑO.md**](file:///c:/Users/cange/Documents/Psn/Diseño.md): Lineamientos estéticos del sistema "Ethereal Vault".
+*   [**APP.md**](file:///c:/Users/cange/Documents/Psn/app.md): Arquitectura de componentes y flujos de usuario.
 *   [**MID.md**](file:///c:/Users/cange/Documents/Psn/mid.md): Bitácora técnica de incidentes de seguridad y middleware.
 
 ---
