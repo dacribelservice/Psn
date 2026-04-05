@@ -74,13 +74,13 @@ const StatCard = ({ label, value, sub, trend, icon, color = "primary" }: any) =>
             <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">USDT</span>
          </div>
          
-         <div className="flex items-center justify-between mt-0.5">
+         <div className="flex flex-col md:flex-row md:items-center justify-between gap-1.5 md:gap-0 mt-0.5">
             <span className="text-[13px] font-display text-green-400 drop-shadow-[0_0_10px_rgba(74,222,128,0.3)] flex items-center gap-1.5">
               ${Number(copVal).toLocaleString()} <span className="text-[8px] font-bold opacity-40 uppercase tracking-widest">COP</span>
             </span>
             
             {trend && (
-              <div className={`flex items-center px-2 py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-tighter ${trend.includes('+') ? 'text-green-400 shadow-[0_0_10px_rgba(74,222,128,0.1)]' : 'text-red-400'}`}>
+              <div className={`flex items-center self-start md:self-auto px-2 py-0.5 md:py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-tighter ${trend.includes('+') ? 'text-green-400 shadow-[0_0_10px_rgba(74,222,128,0.1)]' : 'text-red-400'}`}>
                 <span className="material-symbols-outlined text-[12px] mr-1">
                   {trend.includes('+') ? 'trending_up' : 'trending_down'}
                 </span> 

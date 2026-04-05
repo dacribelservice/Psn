@@ -20,9 +20,11 @@ const StatCard = ({ label, value, sub, secondaryValue, icon, color = "primary", 
           <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{label}</span>
           <span className={`text-[9px] font-bold ${color === 'red' ? 'text-red-400/40' : 'text-primary/40'} uppercase tracking-widest leading-none drop-shadow-sm`}>{sub}</span>
         </div>
-        <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 shadow-inner group-hover:border-primary/20 transition-colors">
-          <span className={`material-symbols-outlined text-[20px] ${color === 'red' ? 'text-red-400/60 group-hover:text-red-400' : 'text-primary/60 group-hover:text-primary'} transition-all duration-500 group-hover:scale-110 drop-shadow-[0_0_12px_rgba(242,185,47,0.3)]`}>{icon}</span>
-        </div>
+        {icon && (
+          <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 shadow-inner group-hover:border-primary/20 transition-colors shrink-0">
+            <span className={`material-symbols-outlined text-[20px] ${color === 'red' ? 'text-red-400/60 group-hover:text-red-400' : 'text-primary/60 group-hover:text-primary'} transition-all duration-500 group-hover:scale-110 drop-shadow-[0_0_12px_rgba(242,185,47,0.3)]`}>{icon}</span>
+          </div>
+        )}
       </div>
       
       <div className="z-10 mt-auto flex flex-col gap-1">
@@ -327,18 +329,17 @@ export default function AdminInventoryPage() {
 
           <StatCard 
             label="INVENTARIO CRÍTICO" 
-            icon="warning" 
             color={criticalItems.length > 0 ? "red" : "primary"} 
-            sub="ALERTA DE STOCK"
+            sub="ESTADO DE STOCK"
           >
-            <div className="space-y-1.5 max-h-[80px] overflow-y-auto pr-1">
-              {criticalItems.length > 0 ? criticalItems.slice(0, 2).map((alert, i) => (
+            <div className="space-y-2 mt-1">
+              {criticalItems.length > 0 ? criticalItems.slice(0, 3).map((alert, i) => (
                 <div key={i} className="flex justify-between items-center bg-white/5 px-2.5 py-1.5 rounded-xl border border-white/5">
-                  <span className="text-[9px] font-black text-white/40 truncate mr-2 uppercase tracking-tighter">{alert.name}</span>
-                  <span className="text-[9px] font-black text-red-400 whitespace-nowrap">STOCK: {alert.stock}</span>
+                  <span className="text-[10px] font-black text-white/40 truncate mr-2 uppercase">{alert.name}</span>
+                  <span className="text-[10px] font-black text-red-400">STOCK: {alert.stock}</span>
                 </div>
               )) : (
-                <div className="text-[11px] font-black text-green-400 uppercase flex items-center gap-2">
+                <div className="text-[12px] font-black text-green-400 uppercase flex items-center gap-2 py-1">
                   <span className="material-symbols-outlined text-sm">check_circle</span>
                   Suficiente Stock
                 </div>
@@ -349,7 +350,6 @@ export default function AdminInventoryPage() {
           <StatCard 
             label="CÓDIGOS ACTIVOS" 
             value={activeCodesCount.toString()} 
-            icon="sync" 
             color="primary" 
             sub="STOCK DISPONIBLE" 
           />
