@@ -132,16 +132,6 @@ function CheckoutProcessingContent() {
       </header>
 
       <main className="pt-24 px-6 max-w-lg mx-auto">
-        {/* Payment Info Section */}
-        <section className="mb-8 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary-container/30 text-secondary mb-4 border border-secondary/10">
-            <span className="material-symbols-outlined text-[18px]">account_balance_wallet</span>
-            <span className="text-[10px] font-black tracking-widest uppercase">Método de pago: [{method}]</span>
-          </div>
-          <p className="text-on-surface-variant text-sm leading-relaxed px-4 opacity-70">
-            Por favor abre tu APP para escanear el código y pagar. El periodo de validez es de 10 minutos.
-          </p>
-        </section>
 
         {/* Main Payment Card (Glassmorphism) */}
         <motion.div 
@@ -155,28 +145,52 @@ function CheckoutProcessingContent() {
           
           <div className="relative z-10 flex flex-col items-center">
             {/* Método de Pago Badge - RESALTADO BEP20 🛰️ */}
-            <div className="flex flex-col items-center gap-4 mb-4">
-              <div className="inline-flex items-center gap-2 px-6 py-2 bg-blue-500/10 border border-blue-500/30 rounded-xl animate-pulse">
-                <span className="material-symbols-outlined text-blue-400 text-lg">router</span>
-                <span className="text-xs font-black text-blue-400 tracking-wider">
-                  RED BEP-20 (BSC)
-                </span>
+            {/* Network Info Box Styled from Reference */}
+            <div className="w-full bg-white/[0.03] border border-white/10 rounded-[1.5rem] p-6 mb-10 shadow-2xl relative overflow-hidden group hover:border-primary/30 transition-colors">
+              <div className="flex items-baseline gap-2 mb-5 pb-4 border-b border-white/5">
+                <span className="text-white font-black text-xl tracking-tighter">BSC</span>
+                <span className="text-white/30 text-[10px] font-bold uppercase tracking-widest leading-none">BNB Smart Chain (BEP20)</span>
               </div>
               
-              <div className="max-w-[300px] px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-lg text-center">
-                <p className="text-[9px] text-red-400 font-bold leading-tight uppercase">
-                  ASEGÚRATE DE USAR LA RED BEP20. <br/>OTRAS REDES PERDERÁN TU DINERO.
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-white/40 text-[9px] font-black uppercase tracking-wider">Comisión</span>
+                  <span className="text-[#f7be34] text-[11px] font-black">0.01 USDT</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/40 text-[9px] font-black uppercase tracking-wider">Retiro mínimo</span>
+                  <span className="text-white/80 text-[11px] font-black">6.50 USDT</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/40 text-[9px] font-black uppercase tracking-wider">Tiempo de llegada</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="text-white/80 text-[11px] font-black">≈ 1 minutos</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Red Warning integrated subtly */}
+              <div className="mt-6 pt-4 border-t border-white/5">
+                <p className="text-[9px] text-red-500/80 font-black text-center uppercase leading-tight tracking-tighter">
+                  SOLO RED BEP20. <br/>OTRAS REDES PERDERÁN TU DINERO.
                 </p>
               </div>
             </div>
 
             {/* Total a transferir Area */}
-            <div className="text-center mb-6">
-              <span className="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.2em] block mb-2 opacity-60">Total a transferir</span>
-              <h2 className="text-4xl font-black text-[#f2b92f] tracking-tighter">
-                {amount} <span className="text-xl font-medium opacity-60 ml-1">USDT</span>
-              </h2>
-              <p className="text-[#c3c4e2]/60 text-[9px] mt-2 font-mono uppercase tracking-widest">Red: {networkName}</p>
+            <div className="text-center mb-8 flex flex-col items-center">
+              <span className="text-white text-base font-black uppercase tracking-[0.3em] block mb-4 opacity-90">Total a transferir</span>
+              
+              <div className="flex flex-col items-center">
+                 <h2 className="text-5xl md:text-6xl font-black text-[#f2b92f] tracking-tighter drop-shadow-[0_10px_30px_rgba(242,185,47,0.3)]">
+                    {parseFloat(amount).toFixed(2)} <span className="text-xl font-black opacity-40 ml-0.5">USDT</span>
+                 </h2>
+                 <span className="text-[11px] font-bold text-white/30 tracking-widest mt-2 block italic uppercase">Subtotal base: {(parseFloat(amount) - 0.01).toFixed(2)} USDT</span>
+                 <div className="bg-blue-500/10 px-4 py-1.5 rounded-full mt-4 border border-blue-500/20 shadow-inner">
+                    <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">+ 0.01 Comisión BEP20 integrada</span>
+                 </div>
+              </div>
             </div>
 
             {/* Timer */}
@@ -186,18 +200,32 @@ function CheckoutProcessingContent() {
             </div>
 
             {/* QR Code Container */}
-            <div className="p-4 bg-white rounded-3xl shadow-[0_0_40px_rgba(247,190,52,0.2)] mb-8 transform hover:scale-[1.02] transition-transform duration-500">
-              {qrCodeUrl ? (
-                <img 
-                  alt="Payment QR Code" 
-                  className="w-44 h-44" 
-                  src={qrCodeUrl} 
-                />
-              ) : (
-                <div className="w-44 h-44 flex items-center justify-center text-black font-bold text-[10px] text-center p-4">
-                  Generando código QR...
-                </div>
-              )}
+            <div className="flex flex-col items-center">
+              <div className="p-4 bg-white rounded-3xl shadow-[0_0_40px_rgba(247,190,52,0.2)] mb-4 transform hover:scale-[1.02] transition-transform duration-500">
+                {qrCodeUrl ? (
+                  <img 
+                    alt="Payment QR Code" 
+                    className="w-44 h-44" 
+                    src={qrCodeUrl} 
+                  />
+                ) : (
+                  <div className="w-44 h-44 flex items-center justify-center text-black font-bold text-[10px] text-center p-4">
+                    Generando código QR...
+                  </div>
+                )}
+              </div>
+              
+              {/* Resumen dinámico bajo QR */}
+              <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 w-full flex items-center justify-between mb-8 shadow-inner ring-1 ring-white/5">
+                 <div className="flex flex-col items-center flex-1 border-r border-white/5">
+                    <span className="text-[8px] font-black text-[#c3c4e2]/40 uppercase tracking-widest mb-1">Monto Base</span>
+                    <span className="text-xs font-black text-[#c3c4e2]/60 italic">{(parseFloat(amount) - 0.01).toFixed(2)} USDT</span>
+                 </div>
+                 <div className="flex flex-col items-center flex-1">
+                    <span className="text-[8px] font-black text-primary uppercase tracking-widest mb-1">Enviar Exacto</span>
+                    <span className="text-sm font-black text-primary tracking-tighter animate-pulse">{parseFloat(amount).toFixed(2)} USDT</span>
+                 </div>
+              </div>
             </div>
 
             {/* Wallet Address & TxID Input Area */}
@@ -236,18 +264,6 @@ function CheckoutProcessingContent() {
           </div>
         </motion.div>
 
-        {/* Security Alert Footer */}
-        <div className="bg-error-container/10 border border-error/20 rounded-[2rem] p-5 flex gap-4 items-start mb-12">
-          <span className="material-symbols-outlined text-[#f2b92f] mt-0.5" >warning</span>
-          <div className="flex flex-col gap-1.5">
-            <p className="text-xs text-on-surface-variant leading-relaxed">
-              <strong className="text-error font-black uppercase tracking-[0.05em]">Atención:</strong> El monto indicado <span className="text-[#f2b92f] font-bold">no incluye</span> las comisiones de red del exchange o billetera emisora. 
-            </p>
-            <p className="text-[10px] text-on-surface-variant/60 italic leading-snug">
-              Debes asegurar que el receptor reciba el monto exacto para que la orden se complete automáticamente.
-            </p>
-          </div>
-        </div>
       </main>
 
       {/* Bottom Action Footer */}
@@ -285,7 +301,7 @@ function CheckoutProcessingContent() {
                   setErrorMessage(err.message || "No pudimos confirmar tu TxID. Verifica que el envío esté 'Completado' en Binance.");
                 }
               }}
-              className={`flex-1 py-6 ${!transactionHash ? 'opacity-50 grayscale cursor-not-allowed' : 'bg-[#f7be34]'} border border-white/5 text-black font-extrabold text-[11px] rounded-[1.25rem] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest shadow-xl`}
+              className={`flex-1 py-6 ${!transactionHash ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-[#f7be34] text-black'} border border-white/5 font-extrabold text-[11px] rounded-[1.25rem] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest shadow-xl`}
             >
               Confirmar Pago
               <span className="material-symbols-outlined text-[16px]">verified</span>

@@ -30,6 +30,7 @@ export const ProductBottomSheet = ({
   const [selectedRegion, setSelectedRegion] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isRegionDropdownOpen, setIsRegionDropdownOpen] = useState(false);
+  const [showMinAmountAlert, setShowMinAmountAlert] = useState(false);
   
   const [allRegions, setAllRegions] = useState<any[]>([]);
 
@@ -296,21 +297,34 @@ export const ProductBottomSheet = ({
                 </div>
             </div>
 
-            {/* Total & Action */}
             <div className="mt-4 p-6 pb-28 md:pb-6 bg-white/50 backdrop-blur-xl flex items-center justify-between shrink-0">
-               <div>
-                  <p className="text-[11px] font-black text-black/30 uppercase tracking-[0.25em] mb-0.5">{t("total_to_pay")}</p>
-                  <p className="text-2xl font-black text-[#11131b] tracking-tighter">${(unitPrice * quantity).toFixed(2)} <span className="text-[11px] text-[#f7be34] uppercase font-black">USDT</span></p>
+               <div className="flex flex-col">
+                  <p className="text-[9px] font-black text-black uppercase tracking-[0.2em] mb-0.5">{t("total_to_pay") || "Total a pagar"}</p>
+                  <div className="flex flex-col leading-none">
+                    <span className="text-[11px] font-black text-black/30 tracking-tight opacity-50">${(unitPrice * quantity).toFixed(2)} USDT</span>
+                    <p className="text-2xl font-black text-[#11131b] tracking-tighter shadow-sm">
+                      ${((unitPrice * quantity) + 0.01).toFixed(2)} 
+                      <span className="text-[10px] text-[#f7be34] uppercase font-black ml-1">USDT</span>
+                    </p>
+                    <span className="text-[8px] font-black text-blue-500/60 uppercase tracking-widest mt-1">Incluye comisión BEP-20 (0.01)</span>
+                  </div>
                </div>
                 <button 
                   onClick={() => {
+                    const totalWithCommission = (unitPrice * quantity) + 0.01;
+                    
+                    if (totalWithCommission < 6.5) {
+                      setShowMinAmountAlert(true);
+                      return;
+                    }
+
                     if (!user) {
                       router.push("/login");
                       onClose();
                       return;
                     }
                     if ((selectedProduct?.stock || 0) <= 0) return;
-                    onProceed?.(unitPrice * quantity, selectedProduct?.id || '', quantity);
+                    onProceed?.(totalWithCommission, selectedProduct?.id || '', quantity);
                   }}
                   disabled={(selectedProduct?.stock || 0) <= 0}
                   className={`font-black py-4 px-8 rounded-xl transition-all uppercase tracking-[0.05em] text-[11px] ${
@@ -323,6 +337,40 @@ export const ProductBottomSheet = ({
                 </button>
             </div>
           </motion.div>
+
+          {/* Min Amount Alert */}
+          <AnimatePresence>
+            {showMinAmountAlert && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 flex items-center justify-center z-[200] p-6"
+              >
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowMinAmountAlert(false)} />
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                  className="bg-[#11131b] border border-white/10 p-8 rounded-[2rem] w-full max-w-xs relative shadow-2xl text-center"
+                >
+                  <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <span className="material-symbols-outlined text-red-500 text-3xl">warning</span>
+                  </div>
+                  <h3 className="text-white font-black text-xl mb-3 tracking-tight">Monto Insuficiente</h3>
+                  <p className="text-white/60 text-sm font-bold leading-relaxed mb-8">
+                    El monto mínimo requerido es de <span className="text-[#f7be34]">6.50 USDT</span>. La red BEP-20 (Binance Smart Chain) no permite procesar pagos inferiores a este valor.
+                  </p>
+                  <button 
+                    onClick={() => setShowMinAmountAlert(false)}
+                    className="w-full py-4 bg-white text-black font-black uppercase text-[10px] tracking-widest rounded-xl active:scale-95 transition-all shadow-lg"
+                  >
+                    Entendido
+                  </button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </>
       )}
     </AnimatePresence>
