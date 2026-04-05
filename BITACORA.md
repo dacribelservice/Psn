@@ -10,10 +10,12 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 ---
 
 ## 🚀 ESTADO ACTUAL: PRODUCCIÓN 🌎🟢
-*   **App URL:** `https://www.dacribel.shop` 🪐✨
+*   **Enlace Local:** `http://localhost:3003` 🏗️🛠️
+*   **Web Oficial:** `https://www.dacribel.shop` 🪐✨
 *   **Infraestructura:** Dominio propio (`dacribel.shop`) gestionado en Vercel DNS y HostGator.
 *   **Seguridad:** SMTP Profesional (Resend). Verificación de DKIM, SPF y MX activa.
-*   **Auth:** Bypass de Testing Mode exitoso; registro de usuarios externos habilitado.
+*   **Auth (Fase 4):** Google OAuth Activo y Verificado (Dacribel App). 🔑🛡️
+*   **Finanzas (Fase 2.3):** Sistema de Precisión Histórica RPC (Inversión Capital) activo. 💰🛡️
 *   **Inventario:** Realtime sync habilitado (Supabase).
 
 ---
@@ -63,6 +65,11 @@ Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, 
 *   **Identidad Visual:** Restauración de banderas (USA/España) usando recursos internos de Supabase Storage para cumplimiento de CSP. 🚩✨
 *   **Recuperación de Contraseña:** Reparación del error 404 al redirigir el flujo directamente a `/update-password`. 🛡️🔐
 *   **Reparación de RLS (Bucle 500):** Implementación de función `is_admin()` con `SECURITY DEFINER` para eliminar la recursión infinita y optimizar el rendimiento del servidor. 🛡️🚀✨🏰
+*   **Paso 2.1 & 2.2 (Escalibilidad Masiva):** Migración total a paginación nativa en Postgres (`.range()`) y consolidación de datos mediante JOINS físicos entre `products`, `categories` y `regions`. 🛰️📉✨
+*   **Paso 2.3 (Precisión Contable):** Creación de la función RPC `get_inventory_financials` para calcular el valor del inventario basado en el **costo histórico (USDT/COP)** de cada código individual. Adiós a las estimaciones, hola a la contabilidad exacta. 💰🛡️📊
+*   **Paso 3.0 (Centralización de Lógica):** Creación de `lib/constants.ts` como cerebro de configuración única para tasas de cambio, umbrales de stock y tamaños de página. 🧠⚙️
+*   **Fase 4 (Identidad Social):** Integración exitosa de **Google OAuth**. Corrección de ID de cliente (`...pbknqk...`) para habilitar login con un solo clic. Los administradores supremos son mapeados por correo automáticamente. 🔑🛡️✨ Google Cloud & Supabase sincronizados al 100%.
+*   **Control de Versiones:** Sincronización total de cambios en el repositorio GitHub `dacribelservice/Psn`. 📂🛸
 
 ---
 
