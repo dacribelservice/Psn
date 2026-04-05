@@ -8,10 +8,22 @@ export async function POST(request: Request) {
   const adminClient = createSupabaseAdminClient();
   
   try {
-    const { orderId, txid } = await request.json();
+    const body = await request.text();
+    if (!body) {
+      return NextResponse.json({ success: false, error: 'Cuerpo de petición vacío.' }, { status: 400 });
+    }
+
+    let payload;
+    try {
+      payload = JSON.parse(body);
+    } catch (e) {
+      return NextResponse.json({ success: false, error: 'Formato JSON inválido.' }, { status: 400 });
+    }
+
+    const { orderId, txid } = payload;
 
     if (!orderId || !txid) {
-      return NextResponse.json({ error: 'Order ID and TxID are required' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Order ID y TxID son obligatorios.' }, { status: 400 });
     }
 
     // 1. Limpieza de TxID (Eliminar posibles espacios)

@@ -29,6 +29,8 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
   const [subtitleEs, setSubtitleEs] = React.useState("");
   const [subtitleEn, setSubtitleEn] = React.useState("");
   const [redirectUrl, setRedirectUrl] = React.useState("");
+  const [videoUrl, setVideoUrl] = React.useState("");
+  const [type, setType] = React.useState<'home' | 'tutorial'>('home');
 
   const fetchBanners = async () => {
     const { data, error } = await supabase
@@ -98,6 +100,7 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
       const finalSubtitleEs = sanitizePlainText(subtitleEs);
       const finalSubtitleEn = sanitizePlainText(subtitleEn);
       const finalRedirectUrl = sanitizeURL(redirectUrl);
+      const finalVideoUrl = sanitizeURL(videoUrl);
 
       // --- VALIDACIÓN CON ZOD ---
       const validation = bannerSchema.safeParse({
@@ -106,7 +109,9 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
         title_en: finalTitleEn,
         subtitle_es: finalSubtitleEs,
         subtitle_en: finalSubtitleEn,
-        redirect_url: finalRedirectUrl || null
+        type: type,
+        redirect_url: finalRedirectUrl || null,
+        video_url: finalVideoUrl || null
       });
 
       if (!validation.success) {
@@ -122,7 +127,9 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
         title_en: finalTitleEn,
         subtitle_es: finalSubtitleEs,
         subtitle_en: finalSubtitleEn,
+        type: type,
         redirect_url: finalRedirectUrl || null,
+        video_url: finalVideoUrl || null,
       };
 
       if (editingId) {
@@ -147,7 +154,9 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
       setSubtitleEs("");
       setSubtitleEn("");
       setRedirectUrl("");
+      setVideoUrl("");
       setEditingId(null);
+      setType('home');
       fetchBanners();
     } catch (err) {
       console.error("Error saving banner:", err);
@@ -166,6 +175,8 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
     setSubtitleEs(banner.subtitle_es || "");
     setSubtitleEn(banner.subtitle_en || "");
     setRedirectUrl(banner.redirect_url || "");
+    setVideoUrl(banner.video_url || "");
+    setType(banner.type || 'home');
     // Scroll to top of section
     const main = document.querySelector('main');
     if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
@@ -221,10 +232,39 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                 </div>
                 
                 <div className="space-y-6 bg-[#191b23] p-6 rounded-2xl border border-white/5 shadow-inner">
-                  {/* Zona de Carga de Imagen */}
+                  {/* Selector de Tipo de Banner (Fase 2) */}
+                  <div className="space-y-4 pt-2">
+                    <label className="font-headline text-[9px] uppercase tracking-widest text-[#f7be34] font-black ml-1">
+                      UBICACIÓN DEL BANNER
+                    </label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button 
+                        onClick={() => setType('home')}
+                        className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${type === 'home' ? 'bg-primary/10 border-primary shadow-[0_0_20px_rgba(247,190,52,0.1)]' : 'bg-black/10 border-white/5 hover:border-white/10'}`}
+                      >
+                        <span className={`material-symbols-outlined text-[20px] ${type === 'home' ? 'text-primary' : 'text-white/20'}`}>home</span>
+                        <div className="text-left">
+                           <p className={`text-[10px] font-black uppercase tracking-widest ${type === 'home' ? 'text-white' : 'text-white/40'}`}>Inicio / PC</p>
+                           <p className="text-[8px] text-white/20 font-bold uppercase">(Relación 21:9)</p>
+                        </div>
+                      </button>
+                      <button 
+                        onClick={() => setType('tutorial')}
+                        className={`flex items-center justify-center gap-3 p-4 rounded-xl border transition-all ${type === 'tutorial' ? 'bg-primary/10 border-primary shadow-[0_0_20px_rgba(247,190,52,0.1)]' : 'bg-black/10 border-white/5 hover:border-white/10'}`}
+                      >
+                        <span className={`material-symbols-outlined text-[20px] ${type === 'tutorial' ? 'text-primary' : 'text-white/20'}`}>auto_stories</span>
+                        <div className="text-left">
+                           <p className={`text-[10px] font-black uppercase tracking-widest ${type === 'tutorial' ? 'text-white' : 'text-white/40'}`}>Tutorial Pago</p>
+                           <p className="text-[8px] text-white/20 font-bold uppercase">(Relación 9:16)</p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Imagen del Banner (Dinámica según tipo) */}
                   <div className="space-y-2.5">
                     <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
-                      IMAGEN DEL BANNER
+                      IMAGEN {type === 'tutorial' ? 'MÓVIL / VERTICAL' : 'GENERAL'}
                     </label>
                     
                     <div 
@@ -239,7 +279,7 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                         className="hidden"
                       />
                       
-                      <div className={`w-full aspect-[21/9] rounded-xl border-2 border-dashed transition-all flex flex-center items-center justify-center overflow-hidden ${filePreview ? 'border-primary/50' : 'border-white/5 hover:border-primary/30 bg-black/20'}`}>
+                      <div className={`w-full ${type === 'tutorial' ? 'aspect-[9/16] max-w-[200px] mx-auto' : 'aspect-[21/9]'} rounded-xl border-2 border-dashed transition-all flex flex-center items-center justify-center overflow-hidden ${filePreview ? 'border-primary/50' : 'border-white/5 hover:border-primary/30 bg-black/20'}`}>
                         {filePreview ? (
                           <div className="relative w-full h-full group/preview">
                             <img src={filePreview} className="w-full h-full object-cover" alt="Preview" />
@@ -248,23 +288,23 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                             </div>
                           </div>
                         ) : (
-                          <div className="flex flex-col items-center gap-2 text-white/20 group-hover:text-primary/40 transition-colors">
+                          <div className="flex flex-col items-center gap-2 text-white/20 group-hover:text-primary/40 transition-colors text-center p-4">
                             <span className="material-symbols-outlined text-4xl">cloud_upload</span>
-                            <span className="text-[10px] font-black uppercase tracking-widest">Seleccionar o Arrastrar Imagen</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                {type === 'tutorial' ? 'Cargar Imagen Vertical' : 'Cargar Imagen Horizontal'}
+                            </span>
                           </div>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  {/* ES Labels */}
                   <div className="pt-2 border-t border-white/5 mx-2" />
                   <div className="flex items-center gap-2 px-2">
                     <img src="https://ryzjswxucuwwzqhdtjmo.supabase.co/storage/v1/object/public/app-assets/flags/espana_1775110789759.png" className="w-4 h-3 rounded-sm opacity-50" />
                     <span className="text-[9px] font-black uppercase text-white/20 tracking-widest">Contenido Español</span>
                   </div>
 
-                  {/* Text Inputs ES */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-2.5">
                       <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
@@ -292,14 +332,12 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                     </div>
                   </div>
 
-                  {/* EN Labels */}
                   <div className="pt-2 border-t border-white/5 mx-2" />
                   <div className="flex items-center gap-2 px-2">
                     <img src="https://ryzjswxucuwwzqhdtjmo.supabase.co/storage/v1/object/public/app-assets/flags/usa_1775110111294.png" className="w-4 h-3 rounded-sm opacity-50" />
                     <span className="text-[9px] font-black uppercase text-white/20 tracking-widest">English Content</span>
                   </div>
 
-                  {/* Text Inputs EN */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="space-y-2.5">
                       <label className="font-headline text-[9px] uppercase tracking-widest text-white/40 font-black ml-1">
@@ -354,7 +392,29 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                         </span>
                       </div>
                     </div>
-                                        <button 
+                    
+                    {type === 'tutorial' && (
+                      <div className="space-y-2.5">
+                        <label className="font-headline text-[9px] uppercase tracking-widest text-[#f7be34] font-black ml-1">
+                          LINK VIDEO TUTORIAL (YOUTUBE)
+                        </label>
+                        <div className="relative group">
+                          <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#f7be34]/40 text-lg group-focus-within:text-[#f7be34] transition-colors pointer-events-none">
+                            play_circle
+                          </span>
+                          <input 
+                            className="w-full bg-[#0c0e15] text-white border-none ring-1 ring-white/5 focus:ring-2 focus:ring-[#f7be34]/50 rounded-xl pl-12 pr-4 py-3.5 placeholder:text-white/10 text-sm transition-all outline-none" 
+                            placeholder="https://www.youtube.com/watch?v=..." 
+                            type="text" 
+                            value={videoUrl}
+                            onChange={(e) => setVideoUrl(e.target.value)}
+                          />
+                        </div>
+                        <p className="text-[8px] text-white/20 font-bold uppercase ml-2 italic tracking-widest">Este link se abrirá cuando el cliente haga clic en "Ver Tutorial"</p>
+                      </div>
+                    )}
+                    
+                    <button 
                       onClick={handleSave}
                       disabled={loading}
                       className="w-full bg-primary text-[#402d00] font-black py-4 rounded-xl shadow-lg shadow-primary/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase text-[11px] tracking-widest"
@@ -370,6 +430,7 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                         </>
                       )}
                     </button>
+
                     {editingId && (
                       <button 
                         onClick={() => {
@@ -380,6 +441,8 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                           setSubtitleEs("");
                           setSubtitleEn("");
                           setRedirectUrl("");
+                          setVideoUrl("");
+                          setType('home');
                         }}
                         className="w-full bg-white/5 text-white/40 font-black py-3 rounded-xl hover:bg-white/10 transition-all uppercase text-[10px] tracking-widest"
                       >
@@ -421,11 +484,18 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-xs font-black truncate text-white uppercase tracking-tight">{banner.title_es || "Sin título"}</h4>
-                        <div className="flex items-center gap-1.5 overflow-hidden">
-                          <span className="material-symbols-outlined text-[10px] text-primary">link</span>
-                          <span className="text-[10px] text-white/30 truncate font-bold">
-                            {categories.find(c => c.id === banner.redirect_url)?.name || "Categoría no encontrada"}
-                          </span>
+                        <div className="flex items-center gap-2 mt-1">
+                           <div className={`px-2 py-0.5 rounded-full border ${banner.type === 'tutorial' ? 'bg-primary/10 border-primary/20' : 'bg-white/5 border-white/5'}`}>
+                              <span className={`text-[7px] font-black uppercase tracking-widest ${banner.type === 'tutorial' ? 'text-primary' : 'text-white/30'}`}>
+                                 {banner.type === 'tutorial' ? 'Tutorial' : 'Inicio'}
+                              </span>
+                           </div>
+                           <div className="flex items-center gap-1 overflow-hidden">
+                              <span className="material-symbols-outlined text-[10px] text-white/20">link</span>
+                              <span className="text-[9px] text-white/20 truncate font-bold uppercase tracking-tighter">
+                                 {categories.find(c => c.id === banner.redirect_url)?.name || "Sin link"}
+                              </span>
+                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 pr-1">

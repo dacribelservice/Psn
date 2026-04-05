@@ -4,13 +4,16 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
+import { TutorialSlider } from "@/components/ui/TutorialSlider";
+import { useLanguage } from "@/context/LanguageContext";
 
 function CheckoutProcessingContent() {
+  const { language } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
   
-  const [paymentDetails, setPaymentDetails] = useState<any>(null);
+  const [tutorialBanners, setTutorialBanners] = useState<any[]>([]);
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [timeLeft, setTimeLeft] = useState(600);
   const [copied, setCopied] = useState(false);
@@ -37,6 +40,17 @@ function CheckoutProcessingContent() {
           }
           
           setOrderDetails(order);
+
+          // 2. Cargar Banners del Tutorial 📸
+          const { data: bans, error: banError } = await supabase
+            .from('banners')
+            .select('*')
+            .eq('type', 'tutorial')
+            .eq('is_active', true)
+            .order('display_order', { ascending: true });
+          
+          if (!banError) setTutorialBanners(bans || []);
+
           // Modo Billetera Maestra: No necesitamos crear transacciones al cargar la página. 🛡️🛰️
           console.log("🦾 Búnker: Modo Billetera Maestra Activo - Interfaz Blindada.");
        }
@@ -82,6 +96,7 @@ function CheckoutProcessingContent() {
   const networkName = "BSC (BEP20)"; // 🛰️ Red Invariable
   const walletAddress = "0xeBea384dF41C9B3f841AD50ADaa4408E4751e3d8"; // 🏦 Billetera Maestra (Case Corrected)
   const qrCodeUrl = "/images/qr-maestro.png"; // 🛡️ Usamos la imagen local cargada por el dueño
+  const videoUrl = tutorialBanners.find(b => b.video_url)?.video_url || "https://youtube.com";
 
   // Hook del Reloj con Auto-Cancelación Estricta
   useEffect(() => {
@@ -108,7 +123,7 @@ function CheckoutProcessingContent() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(walletAddress);
+    navigator.clipboard.writeText(walletAddress || "");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -131,7 +146,11 @@ function CheckoutProcessingContent() {
         </div>
       </header>
 
-      <main className="pt-24 px-6 max-w-lg mx-auto">
+      <main className="pt-24 px-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Left Column: Payment Details */}
+          <div className="lg:col-span-7 w-full max-w-lg mx-auto lg:mx-0">
 
         {/* Main Payment Card (Glassmorphism) */}
         <motion.div 
@@ -263,7 +282,33 @@ function CheckoutProcessingContent() {
             </div>
           </div>
         </motion.div>
+      </div>
 
+        {/* Right Column: Tutorial Slider (PC/Móvil) */}
+          <div className="lg:col-span-5 flex flex-col items-center gap-8 py-4">
+            <div className="text-center lg:text-left mb-2">
+              <h3 className="text-xl font-headline font-black text-[#f7be34] uppercase tracking-tighter mb-2">Guía paso a paso</h3>
+              <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-none">Mira cómo completar tu pago en segundos</p>
+            </div>
+
+            <TutorialSlider 
+              banners={tutorialBanners}
+              language={language}
+            />
+
+            {/* YouTube Link Button (Abre en nueva pestaña) */}
+            <a 
+               href={videoUrl}
+               target="_blank"
+               rel="noopener noreferrer"
+               className="w-full max-w-[320px] py-4 bg-red-600/10 border border-red-600/30 text-red-500 font-black text-[11px] rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest hover:bg-red-600/20 shadow-xl"
+            >
+               <span className="material-symbols-outlined text-[18px]">play_circle</span>
+               Ver tutorial en YouTube
+            </a>
+          </div>
+
+        </div>
       </main>
 
       {/* Bottom Action Footer */}
@@ -291,7 +336,14 @@ function CheckoutProcessingContent() {
                     headers: { 'Content-Type': 'application/json' }
                   });
                   
-                  const result = await res.json();
+                  const text = await res.text();
+                  let result;
+                  
+                  try {
+                    result = JSON.parse(text);
+                  } catch (e) {
+                    throw new Error("El servidor no pudo procesar la solicitud (Respuesta no válida). Por favor, intenta de nuevo en unos minutos.");
+                  }
                   
                   if (!result.success) throw new Error(result.error);
                   

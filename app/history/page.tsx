@@ -9,9 +9,10 @@ import { supabase } from "@/lib/supabase";
 import { decrypt } from "@/lib/crypto";
 import { OrderDetailsView } from "@/components/ui/OrderDetailsView";
 import { AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import React from "react";
 
-const CountdownTimer = ({ createdAt, onExpire }: { createdAt: string, onExpire: () => void }) => {
+const CountdownTimer = ({ createdAt, onExpire, showEye = false, realId = "" }: { createdAt: string, onExpire: () => void, showEye?: boolean, realId?: string }) => {
   const [timeLeft, setTimeLeft] = React.useState<number>(0);
 
   React.useEffect(() => {
@@ -48,9 +49,21 @@ const CountdownTimer = ({ createdAt, onExpire }: { createdAt: string, onExpire: 
   const secs = timeLeft % 60;
 
   return (
-    <div className="flex items-center gap-1.5 text-[9px] font-black text-primary/70 animate-pulse mb-1.5 justify-center tracking-tighter">
-      <span className="material-symbols-outlined text-[10px]">timer</span>
-      <span>{mins}:{secs < 10 ? `0${secs}` : secs}</span>
+    <div className="flex flex-col items-center gap-1">
+      <div className="flex items-center gap-1.5 text-[9px] font-black text-primary/70 animate-pulse justify-center tracking-tighter">
+        <span className="material-symbols-outlined text-[10px]">timer</span>
+        <span>{mins}:{secs < 10 ? `0${secs}` : secs}</span>
+      </div>
+      
+      {showEye && (
+        <Link 
+          href={`/payment/processing?orderId=${realId}`}
+          className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-black transition-all shadow-lg active:scale-90 group"
+          title="Seguir Pedido"
+        >
+          <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">visibility</span>
+        </Link>
+      )}
     </div>
   );
 };
@@ -325,11 +338,13 @@ export default function HistoryPage() {
                       <div className="flex flex-col items-center">
                         <CountdownTimer 
                           createdAt={tx.createdAt} 
+                          realId={tx.realId}
+                          showEye={true}
                           onExpire={async () => {
                             await supabase.from('orders').update({ status: 'cancelled' }).eq('id', tx.realId);
                           }} 
                         />
-                        <div className="flex items-center gap-2 -mt-1">
+                        <div className="flex items-center gap-2 mt-1.5">
                           <div className="w-1.5 h-1.5 rounded-full bg-yellow-500/50 animate-pulse"></div>
                           <span className="text-[9px] uppercase tracking-widest font-black opacity-30">
                             {language === 'es' ? 'PROCESANDO PAGO' : 'PROCESSING PAYMENT'}
@@ -415,18 +430,34 @@ export default function HistoryPage() {
                             <span className="text-[10px] text-primary font-black tracking-widest">VER CÓDIGOS</span>
                           </button>
                         ) : tx.status === 'Cancelado' ? (
-                          <span className="text-[16px] font-mono font-black text-white/10 tracking-widest ml-auto block">00:00</span>
+                          <div className="flex items-center gap-4 justify-end">
+                            <span className="text-[16px] font-mono font-black text-white/10 tracking-widest leading-none">00:00</span>
+                            <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-white/10 cursor-not-allowed">
+                               <span className="material-symbols-outlined text-[20px]">visibility_off</span>
+                            </div>
+                          </div>
                         ) : (
-                          <div className="flex flex-col items-end">
-                             <CountdownTimer 
-                               createdAt={tx.createdAt} 
-                               onExpire={async () => {
-                                 await supabase.from('orders').update({ status: 'cancelled' }).eq('id', tx.realId);
-                               }} 
-                             />
-                             <span className="text-[9px] text-white/20 font-black tracking-widest animate-pulse uppercase -mt-0.5">
-                               {language === 'es' ? 'Procesando...' : 'Processing...'}
-                             </span>
+                          <div className="flex items-center gap-4 justify-end">
+                             <div className="flex flex-col items-end">
+                                <CountdownTimer 
+                                  createdAt={tx.createdAt} 
+                                  realId={tx.realId}
+                                  showEye={false}
+                                  onExpire={async () => {
+                                    await supabase.from('orders').update({ status: 'cancelled' }).eq('id', tx.realId);
+                                  }} 
+                                />
+                                <span className="text-[9px] text-white/20 font-black tracking-widest animate-pulse uppercase -mt-0.5">
+                                  {language === 'es' ? 'Procesando...' : 'Processing...'}
+                                </span>
+                             </div>
+                             
+                             <Link 
+                               href={`/payment/processing?orderId=${tx.realId}`}
+                               className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-black transition-all shadow-lg active:scale-90 group"
+                             >
+                               <span className="material-symbols-outlined text-[20px]">visibility</span>
+                             </Link>
                           </div>
                         )}
                       </td>

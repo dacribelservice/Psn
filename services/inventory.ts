@@ -100,6 +100,7 @@ export const inventoryService = {
       .from('banners')
       .select('*')
       .eq('is_active', true)
+      .eq('type', 'home') // 🏠 Solo banners principales
       .order('display_order', { ascending: true });
     
     if (error) throw error;
