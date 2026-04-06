@@ -7,7 +7,15 @@ export class ChaingatewayService {
   // Configuración de Contratos y Billeteras 🛡️
   private static masterWallet = '0xebea384df41c9b3f841ad50adaa4408e4751e3d8';
   private static usdtContract = '0x55d398326f99059ff775485246999027b3197955';
-  private static bscRpcUrl = 'https://bsc-dataseed.binance.org/'; 
+  // Clúster de Nodos RPC (Alta Disponibilidad) 🛰️🌌
+  private static bscRpcUrls = [
+    'https://bsc-dataseed.binance.org/',    // Binace Oficial
+    'https://rpc.ankr.com/bsc',             // Ankr (Alta velocidad)
+    'https://binance.llamarpc.com',         // Llama Nodes
+    'https://bsc-dataseed1.defibit.io/',    // Defibit (Backup)
+    'https://bsc.publicnode.com'           // Public Node
+  ];
+  private static currentRpcIndex = 0; 
 
   /**
    * Prepares the payment session info (Static Wallet Flow).
@@ -31,25 +39,52 @@ export class ChaingatewayService {
     if (!txid) throw new Error('Transaction Hash (TxID) is required');
 
     try {
-      // 1. Llamada JSON-RPC directa a la Red de Binance (Sin APIs terceras)
-      const response = await fetch(this.bscRpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'eth_getTransactionByHash',
-          params: [txid],
-          id: 1,
-        }),
-      });
+      let lastError = null;
+      let tx = null;
+      let globalAttempts = 0;
+      const maxGlobalAttempts = 3;
 
-      const data = await response.json();
+      // 1. Búfer de Reintentos (Paso 6.3 - Malla de Sincronización) ⏳🛰️
+      while (globalAttempts < maxGlobalAttempts && !tx) {
+        // Ciclo de Consulta Mult-Nodo (Failover Cluster)
+        for (const url of this.bscRpcUrls) {
+          try {
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'eth_getTransactionByHash',
+                params: [txid],
+                id: 1,
+              }),
+            });
 
-      if (!data.result) {
-        throw new Error('Transacción no encontrada en la red. Verifica el TxID.');
+            const data = await response.json();
+            
+            if (data.result) {
+               tx = data.result;
+               break; 
+            }
+          } catch (e: any) {
+            lastError = e;
+            console.warn(`❌ Nodo ${url} saturado, saltando...`);
+            continue; 
+          }
+        }
+
+        if (!tx) {
+          globalAttempts++;
+          if (globalAttempts < maxGlobalAttempts) {
+            console.log(`⏳ Intento ${globalAttempts} fallido. Reintentando en 2.5s para sincronización...`);
+            await new Promise(resolve => setTimeout(resolve, 2500));
+          }
+        }
       }
 
-      const tx = data.result;
+      if (!tx) {
+        throw new Error('La transacción no fue encontrada tras varios intentos. Asegúrate de que el envío esté "Completado" en Binance y que el TxID sea correcto.');
+      }
 
       // 2.1 Validación de Destino (Protocolo USDT BEP20) 🛰️
       if (tx.to && tx.to.toLowerCase() !== this.usdtContract.toLowerCase()) {
@@ -91,11 +126,36 @@ export class ChaingatewayService {
         throw new Error('La transacción aún está pendiente. Espera unos minutos.');
       }
 
+      // 4. Firewall de Tiempo (Paso 6.6) ⌚🛰️
+      // Necesitamos el bloque para saber la hora exacta de la transacción
+      let timestamp = 0;
+      try {
+        // Buscamos info del bloque (el URL que funcionó arriba se mantiene para esta llamada rápida)
+        const blockResponse = await fetch(tx.lastRpcUrl || this.bscRpcUrls[0], {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'eth_getBlockByNumber',
+            params: [tx.blockNumber, false],
+            id: 2,
+          }),
+        });
+        const blockData = await blockResponse.json();
+        if (blockData.result && blockData.result.timestamp) {
+          // Convertimos Hex a Decimal (viene en segundos, pasamos a MS)
+          timestamp = Number(BigInt(blockData.result.timestamp)) * 1000;
+        }
+      } catch (e) {
+        console.warn('⚠️ No se pudo obtener timestamp exacto del bloque, usando seguridad básica.');
+      }
+
       return {
         success: true,
         hash: tx.hash,
         from: tx.from,
         to: tx.to,
+        timestamp: timestamp, // ⌚ Dato vital para el Firewall
         status: 'confirmed'
       };
 

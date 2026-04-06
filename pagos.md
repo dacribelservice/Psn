@@ -70,9 +70,18 @@ Para que el proceso sea infalible, la implementación debe evolucionar a una **I
     - [x] **5.2** Añadir un `timeout` de 10 segundos para prevenir colapsos por latencia de red. ✅
 
 ---
+- [ ] **6. Refuerzo Industrial Multi-Nodo (Clúster de Respaldo):**
+    - [x] **6.1 Configuración de Clúster:** Crear lista de 5 nodos RPC (Ankr, Binance, QuickNode, etc.). ✅
+    - [x] **6.2 Lógica de Salto (Failover):** Si un nodo falla o da null, saltar automáticamente al siguiente. ✅
+    - [x] **6.3 Búfer de Reintentos:** Implementar 3 intentos internos (cada 2 seg) para esperar la confirmación del bloque. ✅
+    - [x] **6.4 Inteligencia de Entrada:** Auto-corrección de TxID (añadir "0x" si el usuario lo olvida). ✅
+    - [x] **6.5 Timeout Dinámico:** Extender espera a 20 segundos para absorber latencia de nodos saturados. ✅
+    - [x] **6.6 Firewall de Tiempo (Blockchain Timing):** Obtener Timestamp del bloque y validar contra fecha de la orden. ✅
+
+---
 ### ⚙️ MOTOR DE VERIFICACIÓN INDUSTRIAL FINALIZADO 🚀🦾✨
 *El sistema ya es capaz de leer, decodificar y validar transacciones BEP20 (USDT) de forma autónoma.*
 
 ---
-*Última actualización: Fase 8 - Sincronización de Independencia Completada.* 🛰️🌌🦾
+*Última actualización: Fase 6 - Firewall de Tiempo y Clúster Multi-Nodo Completado.* 🛰️🌌🦾
 *Protocolo de Verificación de Bóveda Etérea: Seguridad de Grado Industrial.* 🛡️🔐

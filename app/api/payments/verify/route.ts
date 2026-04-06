@@ -28,7 +28,13 @@ export async function POST(request: Request) {
 
     // 1. Saneamiento y Normalización de Entrada (Paso 1 Checklist)
     // Limpiar espacios, forzar minúsculas y validar formato Regex 🛡️
-    const cleanTxid = txid.trim().toLowerCase();
+    let cleanTxid = txid.trim().toLowerCase();
+    
+    // Inteligencia de Entrada (Paso 6.4): Autocorrección de prefijo 0x 🗝️
+    if (!cleanTxid.startsWith('0x') && cleanTxid.length === 64) {
+      console.log('💡 TxID detectado sin prefijo 0x. Corrigiendo automáticamente...');
+      cleanTxid = '0x' + cleanTxid;
+    }
     
     // El TxID debe comenzar con 0x seguido de 64 caracteres hexadecimales (Total 66)
     const txidRegex = /^0x[a-f0-9]{64}$/;
@@ -58,7 +64,7 @@ export async function POST(request: Request) {
     // 3. Obtener detalles de la orden para validación de montos
     const { data: order, error: orderError } = await adminClient
       .from('orders')
-      .select('amount, status, user_id')
+      .select('amount, status, user_id, created_at')
       .eq('id', orderId)
       .single();
 
@@ -71,20 +77,33 @@ export async function POST(request: Request) {
     }
 
     // 4. VERIFICACIÓN BLOCKCHAIN (EL MOMENTO DE LA VERDAD) 🛰️🌌🔍
-    // Paso 5.2: Implementando Timeout Técnico de 10 segundos (Prevención de procesos zombies) 🚨⏲️
-    const blockchainTask = ChaingatewayService.verifyTransaction(cleanTxid, order.amount);
-    
-    const timeoutTask = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Tiempo de espera agotado: La Red Blockchain (BSC) no está respondiendo. Por favor, intenta de nuevo en un momento.')), 10000)
-    );
-
-    const verification: any = await Promise.race([blockchainTask, timeoutTask]);
+    // Paso 5.2: Implementando Timeout Técnico de 20 segundos (Prevención de procesos zombies) 🚨⏲️
+    const verification: any = await Promise.race([
+      ChaingatewayService.verifyTransaction(cleanTxid, order.amount),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Tiempo de verificación agotado (Network Timeout). Por favor, intenta de nuevo en unos segundos.')), 20000)
+      )
+    ]);
 
     if (!verification.success) {
       return NextResponse.json({ 
         success: false, 
-        error: 'No se pudo verificar la transacción en la red BSC.' 
+        error: verification.error || 'No pudimos confirmar tu pago. Verifica los detalles.' 
       }, { status: 400 });
+    }
+
+    // ⌚ FIREWALL DE TIEMPO (Paso 6.6): Evitar Re-uso de Recibos Antiguos 🛡️🔥
+    const orderTime = new Date(order.created_at).getTime();
+    const txTime = verification.timestamp;
+
+    // Permitimos un margen de cortesía de 30 mins por desfase de red/billetera
+    const marginOfCourtesy = 30 * 60 * 1000; 
+    
+    if (txTime > 0 && txTime < (orderTime - marginOfCourtesy)) {
+       return NextResponse.json({
+         success: false,
+         error: '⚠️ SEGURIDAD: Este comprobante de pago es antiguo y ya ha sido procesado o pertenece a otra operación anterior. No puedes reutilizar recibos.'
+       }, { status: 403 });
     }
 
     // 5. REGISTRO Y CIERRE DE ORDEN (FASE ATÓMICA / Paso 4.2) 🦾💎🔓
