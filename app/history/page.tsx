@@ -271,9 +271,9 @@ export default function HistoryPage() {
                       </div>
                       <div>
                         <p className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em] mb-1">#{tx.id}</p>
-                        <div className="flex items-center gap-2">
-                           <h3 className="text-lg font-headline font-black text-white tracking-tight leading-none">{tx.product}</h3>
-                           <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
+                        <div className="flex flex-col gap-2">
+                           <h3 className="text-[15px] md:text-lg font-headline font-black text-white tracking-tight leading-none">{tx.product}</h3>
+                           <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded-lg border border-white/5 w-fit">
                              <img 
                                src={regions.find(r => r.name.toLowerCase() === tx.region.toLowerCase())?.flag_url || "/Logos/dacribel.png"} 
                                alt={tx.region}
