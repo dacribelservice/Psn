@@ -109,9 +109,11 @@ export default function AdminFinancesPage() {
     incomeTrend: "+0.0%",
     profitTrend: "+0.0%",
     dailyTrend: "+0.0%",
+    monthlyTithe: 0,
     monthlyChartData: [] as { month: string, amount: number, profit: number }[]
   });
   const [orders, setOrders] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
@@ -235,10 +237,11 @@ export default function AdminFinancesPage() {
           incomeTrend,
           profitTrend,
           dailyTrend: dailyTrendStr,
+          monthlyTithe: (monthlySummary[currentMonthKey]?.amount || 0) * 0.1,
           monthlyChartData: historyData
         });
         
-        setOrders(formattedOrders);
+        setOrders(formattedOrders.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
       } catch (err) {
         console.error("Error in diagnostics:", err);
       } finally {
@@ -270,9 +273,16 @@ export default function AdminFinancesPage() {
     };
   }, []);
 
-  const totalPages = Math.ceil(orders.length / itemsPerPage);
+  // --- Filtering Logic ---
+  const filteredOrders = orders.filter(o => 
+    o.email.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    o.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    o.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentOrders = orders.slice(startIndex, startIndex + itemsPerPage);
+  const currentOrders = filteredOrders.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="space-y-8 overflow-x-hidden">
@@ -281,7 +291,7 @@ export default function AdminFinancesPage() {
           <StatCard label="INGRESOS TOTALES" value={metrics.totalIncome} trend={metrics.incomeTrend} icon="payments" color="primary" sub="VENTAS BRUTAS" />
           <StatCard label="GANANCIA NETA" value={metrics.totalProfit} trend={metrics.profitTrend} icon="trending_up" color="emerald" sub="MARGEN DE BENEFICIO" />
           <StatCard label="COSTO TOTAL" value={metrics.totalCost} icon="money_off" color="error" sub="INVERSIÓN EN STOCK" />
-          <StatCard label="VENTAS DE HOY" value={metrics.todaySales} trend={metrics.dailyTrend} icon="point_of_sale" color="primary" sub="RENDIMIENTO DIARIO" />
+          <StatCard label="DIEZMOS" value={metrics.monthlyTithe} icon="savings" color="primary" sub="MENSUAL" />
         </section>
 
         {/* Dynamic Line Chart Section (Step 4.2) */}
@@ -355,6 +365,11 @@ export default function AdminFinancesPage() {
                 <div className="relative group flex-1 max-w-sm">
                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors text-[20px]">search</span>
                    <input 
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setCurrentPage(1); // Reset to first page
+                      }}
                       className="w-full bg-[#1e202f] border border-white/5 rounded-2xl py-3 pl-12 pr-6 text-label-sm text-white/90 placeholder:text-white/20 focus:outline-none focus:border-primary/40 transition-all shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)]"
                       placeholder="Buscar por correo o ID..."
                    />
@@ -373,6 +388,7 @@ export default function AdminFinancesPage() {
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Usuario</th>
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Monto</th>
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Fecha / Hora</th>
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Hash / TXID</th>
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Acción</th>
                       </tr>
@@ -405,6 +421,16 @@ export default function AdminFinancesPage() {
                                  'bg-primary/10 text-primary'}`}>
                                   {order.status}
                                </span>
+                            </td>
+                            <td className="px-8 py-6 text-on-surface">
+                               <div className="flex flex-col">
+                                  <span className="font-bold text-white/80">
+                                    {new Date(order.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                  </span>
+                                  <span className="text-[10px] text-white/30 font-black uppercase tracking-widest">
+                                    {new Date(order.createdAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                  </span>
+                               </div>
                             </td>
                             <td className="px-8 py-6 font-mono text-[11px] text-white/40">
                                <span className="bg-black/20 px-3 py-1.5 rounded-xl border border-white/5 text-label-sm">{order.hash}</span>
