@@ -14,6 +14,24 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "DACRIBEL | Ethereal Vault",
   description: "Dacribel - Digital Gift Cards Store",
+  icons: {
+    icon: "/icon.png",
+  },
+  openGraph: {
+    title: "DACRIBEL | Ethereal Vault",
+    description: "Tienda digital de Gift Cards premium.",
+    url: "https://dacribel.shop",
+    siteName: "Dacribel",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "es_CO",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
