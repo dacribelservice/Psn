@@ -26,18 +26,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Order ID y TxID son obligatorios.' }, { status: 400 });
     }
 
-    // 1. Limpieza de TxID (Eliminar posibles espacios)
-    const cleanTxid = txid.trim();
+    // 1. Saneamiento y Normalización de Entrada (Paso 1 Checklist)
+    // Limpiar espacios, forzar minúsculas y validar formato Regex 🛡️
+    const cleanTxid = txid.trim().toLowerCase();
+    
+    // El TxID debe comenzar con 0x seguido de 64 caracteres hexadecimales (Total 66)
+    const txidRegex = /^0x[a-f0-9]{64}$/;
+    
+    if (!txidRegex.test(cleanTxid)) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'El formato del TxID no es válido. Debe ser una cadena hexadecimal de 66 caracteres (incluyendo el 0x).' 
+      }, { status: 400 });
+    }
 
-    /* 
-     * NOTA DE SEGURIDAD: Intentaremos buscar el TxID en el campo metadata o external_txid
-     * para prevenir el reuso de comprobantes.
-     */
-    const { data: duplicateTx } = await adminClient
-      .from('payment_transactions')
+    // 4.1 Consulta de Duplicados (Anti-Fraude / Paso 4 Checklist) 🛡️
+    // Verificamos si este TxID ya ha sido registrado en alguna orden previa.
+    const { data: existingOrder } = await adminClient
+      .from('orders')
       .select('id')
-      .eq('wallet_address', cleanTxid) // Usamos un campo existente temporalmente si external_txid no existe
+      .eq('external_txid', cleanTxid)
       .maybeSingle();
+
+    if (existingOrder) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Este TxID ya ha sido utilizado para validar otra orden. El fraude no está permitido.' 
+      }, { status: 400 });
+    }
 
     // 3. Obtener detalles de la orden para validación de montos
     const { data: order, error: orderError } = await adminClient
@@ -55,7 +71,14 @@ export async function POST(request: Request) {
     }
 
     // 4. VERIFICACIÓN BLOCKCHAIN (EL MOMENTO DE LA VERDAD) 🛰️🌌🔍
-    const verification = await ChaingatewayService.verifyTransaction(cleanTxid, order.amount);
+    // Paso 5.2: Implementando Timeout Técnico de 10 segundos (Prevención de procesos zombies) 🚨⏲️
+    const blockchainTask = ChaingatewayService.verifyTransaction(cleanTxid, order.amount);
+    
+    const timeoutTask = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Tiempo de espera agotado: La Red Blockchain (BSC) no está respondiendo. Por favor, intenta de nuevo en un momento.')), 10000)
+    );
+
+    const verification: any = await Promise.race([blockchainTask, timeoutTask]);
 
     if (!verification.success) {
       return NextResponse.json({ 
@@ -64,15 +87,29 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // 5. REGISTRO Y CIERRE DE ORDEN (FASE ATÓMICA) 🦾💎🔓
-    // Llamar al RPC de completado oficial (Este RPC se encarga de cambiar status y disparar lógica de entrega)
+    // 5. REGISTRO Y CIERRE DE ORDEN (FASE ATÓMICA / Paso 4.2) 🦾💎🔓
+    // Primero, persistimos el TxID usado para que no se pueda reutilizar (Double-Spend Block)
+    const { error: updateError } = await adminClient
+      .from('orders')
+      .update({ external_txid: cleanTxid })
+      .eq('id', orderId);
+
+    if (updateError) {
+      console.error('Error persistiendo TxID:', updateError);
+      return NextResponse.json({ 
+        success: false, 
+        error: 'No pudimos registrar el TxID en tu orden. Intenta de nuevo.' 
+      }, { status: 500 });
+    }
+
+    // Llamar al RPC de completado oficial (SERVICE_ROLE asegura bypass total de RLS)
     const { error: rpcError } = await adminClient.rpc('complete_order', {
       p_order_id: orderId
     });
 
     if (rpcError) {
       console.error('RPC Error:', rpcError);
-      // Fallback manual si el RPC falla pero el dinero llegó
+      // Fallback manual de seguridad si el RPC falla pero el TxID ya está registrado
       await adminClient
         .from('orders')
         .update({ status: 'completed' })
@@ -85,10 +122,20 @@ export async function POST(request: Request) {
     });
 
   } catch (error: any) {
-    console.error('Payment Verification Error:', error);
+    // 5.1 Manejador Supremo de Errores (Caja Negra / Paso 5 Checklist) 🛡️🌑
+    // Garantizamos que NUNCA se devuelva HTML o texto plano, siempre JSON.
+    const errorMessage = error.message || 'Ocurrió un error inesperado en el motor de pagos.';
+    
+    console.error('CRITICAL PAYMENT ENGINE FAILURE:', {
+      timestamp: new Date().toISOString(),
+      error: errorMessage,
+      stack: error.stack
+    });
+
     return NextResponse.json({ 
       success: false, 
-      error: error.message || 'Error interno del servidor en la verificación.' 
+      error: `Error de Verificación: ${errorMessage}`,
+      code: 'VERIFICATION_ENGINE_FAULT'
     }, { status: 500 });
   }
 }

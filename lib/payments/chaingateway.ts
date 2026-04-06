@@ -4,8 +4,9 @@
  * This service ensures independence from 3rd party gateways. 🛡️🛰️
  */
 export class ChaingatewayService {
-  // Configuración de Billetera Maestra (Dacribel Official)
+  // Configuración de Contratos y Billeteras 🛡️
   private static masterWallet = '0xebea384df41c9b3f841ad50adaa4408e4751e3d8';
+  private static usdtContract = '0x55d398326f99059ff775485246999027b3197955';
   private static bscRpcUrl = 'https://bsc-dataseed.binance.org/'; 
 
   /**
@@ -50,12 +51,40 @@ export class ChaingatewayService {
 
       const tx = data.result;
 
-      // 2. Validación de Destino (Seguridad nivel Búnker)
-      if (tx.to && tx.to.toLowerCase() !== this.masterWallet.toLowerCase()) {
-        // Nota: Para transferencias de tokens (USDT), tx.to es la dirección del contrato de USDT.
-        // La dirección final está dentro de 'input'. Por ahora permitiremos la validación básica.
-        console.log('Validación de destino simplificada en curso...');
+      // 2.1 Validación de Destino (Protocolo USDT BEP20) 🛰️
+      if (tx.to && tx.to.toLowerCase() !== this.usdtContract.toLowerCase()) {
+        throw new Error('Esta transacción no está dirigida al contrato de USDT verificado.');
       }
+
+      // 2.2 Extracción de destinatario desde 'input' (BEP20 Parser) 🗝️
+      // El input contiene: [Firma 10c] + [Destinatario 64c] + [Monto 64c]
+      const input = tx.input;
+      if (!input || !input.startsWith('0xa9059cbb')) {
+        throw new Error('La transacción no es una transferencia de tokens válida (Firma incorrecta).');
+      }
+
+      // La dirección está en los caracteres 10 a 74. Los últimos 40 son la dirección real.
+      const recipientHex = '0x' + input.substring(34, 74).toLowerCase(); 
+      
+      // 2.3 Comparación contra Billetera Maestra 🏦
+      if (recipientHex !== this.masterWallet.toLowerCase()) {
+        throw new Error('El pago ha sido enviado a una dirección incorrecta. Operación no válida para Dacribel.');
+      }
+      
+      // 3.1 Conversión de Monto (BEP20 Parser) ⚖️
+      // El monto está en los caracteres 74 a 138 en formato Hex (uint256)
+      const amountHex = input.substring(74, 138);
+      const rawAmount = BigInt('0x' + amountHex);
+      
+      // 3.2 Ajuste de 18 decimales (Protocolo USDT BEP20) 🛰️
+      const finalAmount = Number(rawAmount) / Math.pow(10, 18);
+      
+      // 3.3 Validación de Monto con Tolerancia (±0.05 USDT) ⚖️
+      const diff = Math.abs(finalAmount - expectedAmount);
+      if (diff > 0.05) { // Ampliamos de 0.01 a 0.05 para mayor flexibilidad con exchanges
+        throw new Error(`El monto detectado (${finalAmount} USDT) no coincide con el precio de la orden (${expectedAmount} USDT).`);
+      }
+      console.log('✅ Monto verificado con éxito (Tolerancia aplicada).');
 
       // 3. Confirmaciones de Red (Check de seguridad mínima)
       if (!tx.blockNumber) {
