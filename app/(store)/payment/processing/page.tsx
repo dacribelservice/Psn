@@ -178,7 +178,7 @@ function CheckoutProcessingContent() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white/40 text-[9px] font-black uppercase tracking-wider">Retiro mínimo</span>
-                  <span className="text-white/80 text-[11px] font-black">6.50 USDT</span>
+                  <span className="text-white/80 text-[11px] font-black">10.00 USDT</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-white/40 text-[9px] font-black uppercase tracking-wider">Tiempo de llegada</span>

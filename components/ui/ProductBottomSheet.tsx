@@ -315,7 +315,7 @@ export const ProductBottomSheet = ({
                   onClick={() => {
                     const totalWithCommission = (unitPrice * quantity) + 0.01;
                     
-                    if (totalWithCommission < 6.5) {
+                    if (totalWithCommission < 10.0) {
                       setShowMinAmountAlert(true);
                       return;
                     }
@@ -361,7 +361,7 @@ export const ProductBottomSheet = ({
                   </div>
                   <h3 className="text-white font-black text-xl mb-3 tracking-tight">Monto Insuficiente</h3>
                   <p className="text-white/60 text-sm font-bold leading-relaxed mb-8">
-                    El monto mínimo requerido es de <span className="text-[#f7be34]">6.50 USDT</span>. La red BEP-20 (Binance Smart Chain) no permite procesar pagos inferiores a este valor.
+                    El monto mínimo requerido es de <span className="text-[#f7be34]">10.00 USDT</span>. La red BEP-20 (Binance Smart Chain) no permite procesar pagos inferiores a este valor.
                   </p>
                   <button 
                     onClick={() => setShowMinAmountAlert(false)}
