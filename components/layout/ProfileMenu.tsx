@@ -50,12 +50,6 @@ export const ProfileMenu = ({ isOpen, onClose, onBannersClick, onProfileClick, o
       onClick: () => { onClose(); onTermsClick?.(); },
       show: true 
     },
-    { 
-      label: t("about_us") || "Sobre nosotros", 
-      icon: "info", 
-      onClick: onClose,
-      show: true 
-    },
   ];
 
   if (!isOpen) return null;
