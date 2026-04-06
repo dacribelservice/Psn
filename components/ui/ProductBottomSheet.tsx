@@ -68,11 +68,13 @@ export const ProductBottomSheet = ({
   // 2. Filter products for the selected category AND region that HAVE stock
   const categoryProducts = React.useMemo(() => {
     if (!category || !selectedRegion) return [];
-    return allProducts.filter(p => 
-      p.category_id === category.id && 
-      (p as any).region === selectedRegion &&
-      (p.stock || 0) > 0
-    );
+    return allProducts
+      .filter(p => 
+        p.category_id === category.id && 
+        (p as any).region === selectedRegion &&
+        (p.stock || 0) > 0
+      )
+      .sort((a, b) => (a.sale_price || a.price || 0) - (b.sale_price || b.price || 0));
   }, [category, selectedRegion, allProducts]);
 
   // 3. Auto-select management
