@@ -15,12 +15,13 @@ function CheckoutProcessingContent() {
   
   const [tutorialBanners, setTutorialBanners] = useState<any[]>([]);
   const [orderDetails, setOrderDetails] = useState<any>(null);
-  const [timeLeft, setTimeLeft] = useState(600);
+  const [timeLeft, setTimeLeft] = useState(3600); // 60 minutos generosos para la red ⏳
   const [copied, setCopied] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [validationStatus, setValidationStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [transactionHash, setTransactionHash] = useState(""); // 🗝️ Campo para el TxID
+  const [isGenerating, setIsGenerating] = useState(false);
+
 
   useEffect(() => {
     if (!orderId) return;
@@ -94,21 +95,15 @@ function CheckoutProcessingContent() {
   const amount = orderDetails?.amount || "0.00";
   const method = orderDetails?.payment_method?.toUpperCase() || "CARGANDO...";
   const networkName = "BSC (BEP20)"; // 🛰️ Red Invariable
-  const walletAddress = "0xeBea384dF41C9B3f841AD50ADaa4408E4751e3d8"; // 🏦 Billetera Maestra (Case Corrected)
-  const qrCodeUrl = "/images/qr-maestro.png"; // 🛡️ Usamos la imagen local cargada por el dueño
+  const walletAddress = orderDetails?.wallet_address || "0xeBea384dF41C9B3f841AD50ADaa4408E4751e3d8"; // 🏦 Billetera Maestra (Fallback)
+  const qrCodeUrl = orderDetails?.wallet_address 
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${orderDetails.wallet_address}`
+    : "/images/qr-maestro.png"; 
   const videoUrl = tutorialBanners.find(b => b.video_url)?.video_url || "https://youtube.com";
 
-  // Hook del Reloj con Auto-Cancelación Estricta
+  // Hook del Reloj (Reloj Visual Generoso) ⏳
   useEffect(() => {
-    if (timeLeft <= 0) {
-       if (orderDetails?.status === 'pending' && validationStatus !== 'success') {
-          console.log("⏰ Tiempo agotado - Cancelando orden...");
-          supabase.rpc('cancel_order', { p_order_id: orderId });
-          setValidationStatus("error");
-          setErrorMessage("¡Tiempo agotado! La orden ha sido cancelada.");
-       }
-       return;
-    }
+    if (timeLeft <= 0) return;
     
     const timer = setInterval(() => {
       setTimeLeft((prev) => prev - 1);
@@ -126,6 +121,35 @@ function CheckoutProcessingContent() {
     navigator.clipboard.writeText(walletAddress || "");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCreatePayment = async () => {
+    if (!orderId || isGenerating) return;
+    setIsGenerating(true);
+    try {
+      const res = await fetch('/api/payments/create-nowpayments', {
+        method: 'POST',
+        body: JSON.stringify({ orderId }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error al generar pago');
+      
+      // Recargar detalles de la orden para mostrar la nueva billetera única 💎
+      const { data: updatedOrder } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+      
+      if (updatedOrder) setOrderDetails(updatedOrder);
+      
+    } catch (err: any) {
+      console.error("❌ Error generando pago:", err);
+      alert(err.message || "No pudimos generar tu dirección de pago única. Inténtalo de nuevo.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -247,6 +271,37 @@ function CheckoutProcessingContent() {
               </div>
             </div>
 
+            {/* Botón de Generación de Billetera Única (Paso 10.1.3) 🚀🛰️ */}
+            {!orderDetails?.wallet_address || orderDetails.wallet_address === "0xeBea384dF41C9B3f841AD50ADaa4408E4751e3d8" ? (
+              <div className="w-full mb-8">
+                <button 
+                  onClick={handleCreatePayment}
+                  disabled={isGenerating}
+                  className="w-full py-6 bg-[#f7be34] text-black font-black text-xs rounded-2xl active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-[0.2em] shadow-[0_15px_30px_rgba(247,190,52,0.25)] ring-1 ring-white/10"
+                >
+                  {isGenerating ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
+                      Generando Billetera Única...
+                    </>
+                  ) : (
+                    <>
+                      PAGAR AHORA (BEP20)
+                      <span className="material-symbols-outlined text-lg">bolt</span>
+                    </>
+                  )}
+                </button>
+                <p className="text-[9px] text-[#f7be34]/40 mt-3 text-center uppercase font-bold tracking-widest italic">
+                  Presiona para obtener tu dirección de pago exclusiva
+                </p>
+              </div>
+            ) : (
+                <div className="w-full bg-emerald-500/10 border border-emerald-500/20 rounded-2xl py-3 px-4 mb-8 flex items-center justify-center gap-2">
+                   <span className="material-symbols-outlined text-emerald-400 text-sm">lock</span>
+                   <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Billetera de Pago Única Generada</span>
+                </div>
+            )}
+
             {/* Wallet Address & TxID Input Area */}
             <div className="w-full space-y-6">
               {/* Dirección de Billetera */}
@@ -264,21 +319,7 @@ function CheckoutProcessingContent() {
                 </div>
               </div>
 
-              {/* Input de TxID - El Guardián de la Orden */}
-              <div className="pt-2">
-                <label className="text-[#f7be34] text-[10px] font-black uppercase tracking-[0.2em] mb-2 block text-center">Pega aquí tu TxID de Binance</label>
-                <div className="relative">
-                  <input 
-                    type="text"
-                    placeholder="Ej: 0xa45c269f8c88ebac20b18d8234..."
-                    value={transactionHash}
-                    onChange={(e) => setTransactionHash(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-5 text-xs font-mono text-[#f7be34] focus:outline-none focus:border-[#f7be34]/50 transition-colors placeholder:opacity-30"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-white/20 text-lg">receipt_long</span>
-                </div>
-                <p className="text-[9px] text-on-surface-variant/50 mt-3 text-center italic">Lo encuentras en los "Detalles de Retiro" de tu APP de Binance.</p>
-              </div>
+
             </div>
           </div>
         </motion.div>
@@ -314,49 +355,13 @@ function CheckoutProcessingContent() {
       {/* Bottom Action Footer */}
       <div className="fixed bottom-0 left-0 w-full px-6 pb-10 pt-8 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
         <div className="max-w-lg mx-auto pointer-events-auto">
-          <div className="flex gap-4">
+          <div className="flex justify-center">
             <button 
               onClick={() => router.push('/')}
-              className="flex-1 py-6 bg-red-600/10 border border-red-600/30 text-red-500 font-black text-[11px] rounded-[1.25rem] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest"
+              className="w-full py-6 bg-red-600/10 border border-red-600/30 text-red-500 font-black text-[11px] rounded-[1.25rem] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest hover:bg-red-600/20"
             >
               <span className="material-symbols-outlined text-[16px]">sync</span>
-              Cancelar Orden
-            </button>
-            <button 
-              disabled={!transactionHash}
-              onClick={async () => {
-                if (!orderId || !transactionHash) return;
-                setIsValidating(true);
-                setValidationStatus("loading");
-                
-                try {
-                  const res = await fetch('/api/payments/verify', {
-                    method: 'POST',
-                    body: JSON.stringify({ orderId, txid: transactionHash }),
-                    headers: { 'Content-Type': 'application/json' }
-                  });
-                  
-                  const text = await res.text();
-                  let result;
-                  
-                  try {
-                    result = JSON.parse(text);
-                  } catch (e) {
-                    throw new Error("El servidor no pudo procesar la solicitud (Respuesta no válida). Por favor, intenta de nuevo en unos minutos.");
-                  }
-                  
-                  if (!result.success) throw new Error(result.error);
-                  
-                  setValidationStatus("success");
-                } catch (err: any) {
-                  setValidationStatus("error");
-                  setErrorMessage(err.message || "No pudimos confirmar tu TxID. Verifica que el envío esté 'Completado' en Binance.");
-                }
-              }}
-              className={`flex-1 py-6 ${!transactionHash ? 'bg-white/5 text-white/20 cursor-not-allowed' : 'bg-[#f7be34] text-black'} border border-white/5 font-extrabold text-[11px] rounded-[1.25rem] active:scale-[0.98] transition-all flex items-center justify-center gap-2 uppercase tracking-widest shadow-xl`}
-            >
-              Confirmar Pago
-              <span className="material-symbols-outlined text-[16px]">verified</span>
+              Cancelar y Volver
             </button>
           </div>
         </div>

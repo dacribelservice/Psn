@@ -79,9 +79,30 @@ Para que el proceso sea infalible, la implementación debe evolucionar a una **I
     - [x] **6.6 Firewall de Tiempo (Blockchain Timing):** Obtener Timestamp del bloque y validar contra fecha de la orden. ✅
 
 ---
-### ⚙️ MOTOR DE VERIFICACIÓN INDUSTRIAL FINALIZADO 🚀🦾✨
-*El sistema ya es capaz de leer, decodificar y validar transacciones BEP20 (USDT) de forma autónoma.*
+*Última actualización: Fase 6 - Firewall de Tiempo y Clúster Multi-Nodo Completado.* 🛰️🌌🦾
 
 ---
-*Última actualización: Fase 6 - Firewall de Tiempo y Clúster Multi-Nodo Completado.* 🛰️🌌🦾
+
+# 🚀 FASE 10: DESVINCULACIÓN & MIGRACIÓN PROFESIONAL (NOWPAYMENTS)
+
+Debido a la fragilidad de los nodos públicos y la necesidad de una infraestructura que soporte el crecimiento masivo, se ha completado el retiro del motor manual de Binance para implementar una pasarela de grado industrial.
+
+## 🧹 10.1 LIMPIEZA DE INTERFAZ (UI/UX)
+*   [x] **10.1.1 Retiro de Entrada Manual (TxID):** Eliminar el campo de texto donde se pegaba el hash y el botón antiguo de confirmación. ✅
+*   [x] **🚨 REGLA INVIOLABLE (10.1.2):** **SISTEMA DE TUTORIALES PRESERVADO.** Las imágenes y el carrusel de ayuda se mantienen intactos. ✅
+*   [x] **10.1.3 Nuevo Botón de Pago:** Implementar el disparador que genera la factura dinámica de NOWPayments. ✅
+
+## 🔐 10.2 DESCONEXIÓN DEL BACKEND (LEGAJO)
+*   [x] **10.2.1 Apagado de Motores Antiguos:** Desactivación de llamadas a nodos RPC manuales (`chaingateway.ts`). ✅
+*   [x] **10.2.2 Desactivación de Firewall de Tiempo:** NOWPayments gestiona de forma nativa la expiración de sus facturas. ✅
+*   [x] **10.2.3 Preparación de Webhook (IPN):** Ruta de API `/api/payments/nowpayments-webhook` operativa con seguridad HMAC-SHA512. ✅
+
+## 🏢 10.3 INTEGRACIÓN NOWPAYMENTS
+*   [x] **10.3.1 Configuración de API Keys:** Llaves e IPN Secret configurados en entorno local y producción. ✅
+*   [x] **10.3.2 Lógica de Creación de Factura:** Generación de billetera única por pedido para evitar "Double-Spending" al 100%. ✅
+*   [x] **10.3.3 Validación de Firma IPN:** Verificación de autenticidad de pagos mediante firmas digitales. ✅
+
+---
+*Estado actual: MIGRACIÓN COMPLETADA CON ÉXITO. Sistema de pagos dinamico y automatizado activo.* 🛡️🏢🛰️✨🚀
+*Webhook URL configurado en Dashboard: https://www.dacribel.shop/api/payments/nowpayments-webhook* ✅
 *Protocolo de Verificación de Bóveda Etérea: Seguridad de Grado Industrial.* 🛡️🔐
