@@ -8,6 +8,23 @@
 
 ## [HITOS RECIENTES]
 
+## [07/04/2026] - FASE 11: GUÍA DE USUARIO PREMIUM & REVEAL EFFECT ✅
+
+### Estado: COMPLETADO 🌟
+Hemos elevado la calidad visual y la experiencia de usuario (UX) del proceso de pago a un nivel premium.
+
+#### 1. UX Progresiva (Reveal Effect)
+- **Ocultación Dinámica**: El QR y la dirección de pago ahora están ocultos al cargar la página para simplificar la interfaz ("Zen Mode").
+- **Animaciones Premium**: Implementado efecto de **Fade-in, Slide & Scale** usando `Framer Motion` para revelar los datos de pago tras la interacción.
+- **Botón Inteligente**: El botón "Pagar Ahora" se transforma en un estado de carga y finalmente desaparece para dar paso a la información de pago.
+
+#### 2. Guía Visual
+- **Títulos Educativos**: Se reemplazaron etiquetas técnicas por pasos claros: *"PASO 2: COPIA TU BILLETERA ÚNICA"*.
+- **Indicadores de Estado**: Añadido un distintivo de "Billetera Activa" en tiempo real para dar confianza al cliente.
+- **Timer de Urgencia**: El temporizador visual se ajustó a **10 minutos**, alineándose con los estándares de e-commerce de alta conversión.
+
+---
+
 ## [07/04/2026] - FASE 10: INTEGRACIÓN INDUSTRIAL COMPLETA (NOWPayments) ✅
 
 ### Estado: COMPLETADO 🚀

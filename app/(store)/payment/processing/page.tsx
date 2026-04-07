@@ -15,7 +15,7 @@ function CheckoutProcessingContent() {
   
   const [tutorialBanners, setTutorialBanners] = useState<any[]>([]);
   const [orderDetails, setOrderDetails] = useState<any>(null);
-  const [timeLeft, setTimeLeft] = useState(3600); // 60 minutos generosos para la red ⏳
+  const [timeLeft, setTimeLeft] = useState(600); // 10 minutos (Regreso al estándar industrial de urgencia)
   const [copied, setCopied] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [validationStatus, setValidationStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -95,10 +95,11 @@ function CheckoutProcessingContent() {
   const amount = orderDetails?.amount || "0.00";
   const method = orderDetails?.payment_method?.toUpperCase() || "CARGANDO...";
   const networkName = "BSC (BEP20)"; // 🛰️ Red Invariable
-  const walletAddress = orderDetails?.wallet_address || "0xeBea384dF41C9B3f841AD50ADaa4408E4751e3d8"; // 🏦 Billetera Maestra (Fallback)
-  const qrCodeUrl = orderDetails?.wallet_address 
+  const hasGeneratedWallet = orderDetails?.wallet_address && orderDetails.wallet_address !== "0xeBea384dF41C9B3f841AD50ADaa4408E4751e3d8";
+
+  const qrCodeUrl = hasGeneratedWallet 
     ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${orderDetails.wallet_address}`
-    : "/images/qr-maestro.png"; 
+    : undefined;
   const videoUrl = tutorialBanners.find(b => b.video_url)?.video_url || "https://youtube.com";
 
   // Hook del Reloj (Reloj Visual Generoso) ⏳
@@ -118,7 +119,8 @@ function CheckoutProcessingContent() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(walletAddress || "");
+    if (!orderDetails?.wallet_address) return;
+    navigator.clipboard.writeText(orderDetails.wallet_address);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -242,37 +244,69 @@ function CheckoutProcessingContent() {
               <span className="text-[#f7be34] font-mono font-black text-2xl tracking-widest">{formatTime(timeLeft)}</span>
             </div>
 
-            {/* QR Code Container */}
-            <div className="flex flex-col items-center">
-              <div className="p-4 bg-white rounded-3xl shadow-[0_0_40px_rgba(247,190,52,0.2)] mb-4 transform hover:scale-[1.02] transition-transform duration-500">
-                {qrCodeUrl ? (
-                  <img 
-                    alt="Payment QR Code" 
-                    className="w-44 h-44" 
-                    src={qrCodeUrl} 
-                  />
-                ) : (
-                  <div className="w-44 h-44 flex items-center justify-center text-black font-bold text-[10px] text-center p-4">
-                    Generando código QR...
+            {/* QR Code & Wallet Area (Hidden initially, shown with Premium Animation) */}
+            <AnimatePresence>
+              {hasGeneratedWallet && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
+                  className="w-full flex flex-col items-center"
+                >
+                  {/* QR Code Container */}
+                  <div className="p-4 bg-white rounded-3xl shadow-[0_0_40px_rgba(247,190,52,0.2)] mb-4 transform hover:scale-[1.02] transition-transform duration-500">
+                    <img 
+                      alt="Payment QR Code" 
+                      className="w-44 h-44" 
+                      src={qrCodeUrl} 
+                    />
                   </div>
-                )}
-              </div>
-              
-              {/* Resumen dinámico bajo QR */}
-              <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 w-full flex items-center justify-between mb-8 shadow-inner ring-1 ring-white/5">
-                 <div className="flex flex-col items-center flex-1 border-r border-white/5">
-                    <span className="text-[8px] font-black text-[#c3c4e2]/40 uppercase tracking-widest mb-1">Monto Base</span>
-                    <span className="text-xs font-black text-[#c3c4e2]/60 italic">{(parseFloat(amount) - 0.01).toFixed(2)} USDT</span>
-                 </div>
-                 <div className="flex flex-col items-center flex-1">
-                    <span className="text-[8px] font-black text-primary uppercase tracking-widest mb-1">Enviar Exacto</span>
-                    <span className="text-sm font-black text-primary tracking-tighter animate-pulse">{parseFloat(amount).toFixed(2)} USDT</span>
-                 </div>
-              </div>
-            </div>
+                  
+                  {/* Resumen dinámico bajo QR */}
+                  <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 w-full flex items-center justify-between mb-8 shadow-inner ring-1 ring-white/5">
+                    <div className="flex flex-col items-center flex-1 border-r border-white/5">
+                      <span className="text-[8px] font-black text-[#c3c4e2]/40 uppercase tracking-widest mb-1">Monto Base</span>
+                      <span className="text-xs font-black text-[#c3c4e2]/60 italic">{(parseFloat(amount) - 0.01).toFixed(2)} USDT</span>
+                    </div>
+                    <div className="flex flex-col items-center flex-1">
+                      <span className="text-[8px] font-black text-primary uppercase tracking-widest mb-1">Enviar Exacto</span>
+                      <span className="text-sm font-black text-primary tracking-tighter animate-pulse">{parseFloat(amount).toFixed(2)} USDT</span>
+                    </div>
+                  </div>
 
-            {/* Botón de Generación de Billetera Única (Paso 10.1.3) 🚀🛰️ */}
-            {!orderDetails?.wallet_address || orderDetails.wallet_address === "0xeBea384dF41C9B3f841AD50ADaa4408E4751e3d8" ? (
+                  {/* Wallet Address Area */}
+                  <div className="w-full space-y-6">
+                    <div>
+                      <header className="flex items-center justify-between mb-3">
+                        <label className="text-[10px] font-black uppercase tracking-[0.15em] text-white/50">
+                          PASO 2: COPIA TU BILLETERA ÚNICA
+                        </label>
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+                          <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span className="text-[7px] font-black text-emerald-400 uppercase tracking-tight">Activa</span>
+                        </div>
+                      </header>
+                      <div className="flex items-center justify-between bg-black/40 rounded-2xl p-4 border border-white/5 shadow-xl group hover:border-primary/20 transition-all">
+                        <span className="font-mono text-[10px] text-white truncate pr-4 opacity-90">{orderDetails.wallet_address}</span>
+                        <button 
+                          onClick={handleCopy}
+                          className={`flex items-center gap-2 px-4 py-2 ${copied ? 'bg-green-500/20 text-green-400' : 'bg-[#f7be34] text-black'} font-black text-[10px] rounded-lg active:scale-95 transition-all uppercase tracking-widest shadow-lg`}
+                        >
+                          <span className="material-symbols-outlined text-[14px]">{copied ? 'check' : 'content_copy'}</span>
+                          {copied ? 'LIBRE' : 'COPIAR'}
+                        </button>
+                      </div>
+                      <p className="text-[9px] text-white/30 mt-3 text-center uppercase font-bold tracking-widest italic">
+                        Usa esta billetera única para generar tus códigos de forma automática
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Botón de Generación (Solo se muestra ANTES de generar) */}
+            {!hasGeneratedWallet && (
               <div className="w-full mb-8">
                 <button 
                   onClick={handleCreatePayment}
@@ -282,7 +316,7 @@ function CheckoutProcessingContent() {
                   {isGenerating ? (
                     <>
                       <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
-                      Generando Billetera Única...
+                      GENERANDO...
                     </>
                   ) : (
                     <>
@@ -295,32 +329,8 @@ function CheckoutProcessingContent() {
                   Presiona para obtener tu dirección de pago exclusiva
                 </p>
               </div>
-            ) : (
-                <div className="w-full bg-emerald-500/10 border border-emerald-500/20 rounded-2xl py-3 px-4 mb-8 flex items-center justify-center gap-2">
-                   <span className="material-symbols-outlined text-emerald-400 text-sm">lock</span>
-                   <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Billetera de Pago Única Generada</span>
-                </div>
             )}
 
-            {/* Wallet Address & TxID Input Area */}
-            <div className="w-full space-y-6">
-              {/* Dirección de Billetera */}
-              <div>
-                <label className="text-on-surface-variant text-[10px] font-black uppercase tracking-[0.15em] mb-2 block text-center opacity-70">Dirección de Depósito (BEP20)</label>
-                <div className="flex items-center justify-between bg-black/40 rounded-2xl p-4 border border-white/5 shadow-xl">
-                  <span className="font-mono text-[10px] text-on-surface truncate pr-4 opacity-90">{walletAddress}</span>
-                  <button 
-                    onClick={handleCopy}
-                    className={`flex items-center gap-2 px-4 py-2 ${copied ? 'bg-green-500/20 text-green-400' : 'bg-[#f7be34] text-black'} font-black text-[10px] rounded-lg active:scale-95 transition-all uppercase tracking-widest`}
-                  >
-                    <span className="material-symbols-outlined text-[14px]">{copied ? 'check' : 'content_copy'}</span>
-                    {copied ? 'LIBRE' : 'COPIAR'}
-                  </button>
-                </div>
-              </div>
-
-
-            </div>
           </div>
         </motion.div>
       </div>
@@ -410,6 +420,9 @@ function CheckoutProcessingContent() {
 
               {/* Content Area */}
               <div className="space-y-4">
+                <p className="text-[11px] font-bold text-gray-500 tracking-[0.2em] mb-4 text-center">
+                  PASO 2: COPIA LA DIRECCIÓN PARA GENERAR TU PRODUCTO
+                </p>
                 <h2 className="text-white font-extrabold text-2xl tracking-tight font-headline">
                   {validationStatus === "loading" && "Validando tu pago..."}
                   {validationStatus === "success" && "¡Pago verificado!"}
@@ -420,6 +433,10 @@ function CheckoutProcessingContent() {
                   {validationStatus === "loading" && "Procesando tu solicitud de forma segura. Esto solo tomará unos segundos."}
                   {validationStatus === "success" && "Tu orden ha sido procesada con éxito. Ya puedes ver tu código en el historial."}
                   {validationStatus === "error" && (errorMessage || "No pudimos confirmar tu pago. Por favor intenta de nuevo.")}
+                </p>
+
+                <p className="text-[10px] text-gray-400 font-medium">
+                  Usa esta billetera única para generar tus códigos de forma automática
                 </p>
 
                 <div className="pt-6 space-y-3 w-full">
