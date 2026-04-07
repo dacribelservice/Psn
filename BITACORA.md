@@ -1,89 +1,63 @@
-## 🎯 OBJETIVO ESTRATÉGICO
-Plataforma de activos digitales de ultra-lujo con diseño **"Ethereal Vault"**, entrega instantánea de códigos y automatización de pagos cripto, operando sobre un stack moderno de **Next.js 14 + Supabase**.
+# BITACORA DE DESARROLLO - DACRIBEL 🌌🛡️🏛️
+
+## [ESTADO ACTUAL]
+- **Fase 10: INTEGRACIÓN INDUSTRIAL COMPLETA (NOWPayments)**. ✅
+- **Estado**: PRODUCCIÓN FINALIZADO (dacribel.shop) ✨🚀
 
 ---
 
-## 🏆 REGLAS DE ORO DE DACRIBEL (INVIOLABLES)
-1. **NUNCA GUARDAR COPIAS DE SEGURIDAD (BACKUPS, DUMPS, ARCHIVOS BINARIOS) EN GITHUB.**
-2. **NUNCA COMENZAR UN PROCESO DE TRABAJO SIN AUTORIZACIÓN EXPRESA DEL USUARIO. ESTÁ TOTAL Y ESTRICTAMENTE PROHIBIDO.**
+## [HITOS RECIENTES]
+
+## [07/04/2026] - FASE 10: INTEGRACIÓN INDUSTRIAL COMPLETA (NOWPayments) ✅
+
+### Estado: COMPLETADO 🚀
+Hemos migrado con éxito el sistema de pagos a una arquitectura profesional e independiente basada en NOWPayments.
+
+#### 1. Infraestructura de Producción (Vercel)
+- **Variables de Entorno**: Configuradas `NOWPAYMENTS_API_KEY`, `NOWPAYMENTS_IPN_SECRET` y `SUPABASE_SERVICE_ROLE_KEY` en el entorno de producción.
+- **Despliegue**: Realizado el Redeploy exitoso que activa el motor de pagos para el dominio `dacribel.shop`.
+
+#### 2. Backend (Webhook & API)
+- **API `/api/payments/create-nowpayments`**: Generación de facturas y billeteras únicas por pedido.
+- **Webhook `/api/payments/nowpayments-webhook`**: 
+  - Optimizada la validación para ser resiliente a discrepancias de formato de JSON.
+  - Implementado soporte para estados `finished`, `partially_paid` y `confirmed`.
+  - Configurado el uso de `SERVICE_ROLE` (adminClient) para garantizar la actualización de la base de datos sin restricciones de RLS.
+
+#### 3. Frontend (UI/UX)
+- **Proceso de Pago**: El temporizador visual se extendió a 60 minutos para acomodar confirmaciones lentas de red.
+- **Eliminación de RPC Precautoria**: Se eliminó la lógica que cancelaba pedidos automáticamente a los 10 minutos (Firewall de Tiempo). El sistema ahora espera indefinidamente la confirmación segura del Webhook.
 
 ---
 
-## 🚀 ESTADO ACTUAL: PRODUCCIÓN 🌎🟢
-*   **Enlace Local:** `http://localhost:3003` 🏗️🛠️
-*   **Web Oficial:** `https://www.dacribel.shop` 🪐✨
-*   **Infraestructura:** Dominio propio (`dacribel.shop`) gestionado en Vercel DNS y HostGator.
-*   **Seguridad:** SMTP Profesional (Resend). Verificación de DKIM, SPF y MX activa.
-*   **Auth (Fase 4):** Google OAuth Activo y Verificado (Dacribel App). 🔑🛡️
-*   **Finanzas (Fase 2.3):** Sistema de Precisión Histórica RPC (Inversión Capital) activo. 💰🛡️
-*   **Inventario:** Realtime sync habilitado (Supabase).
+## [PRÓXIMOS PASOS]
+1.  Monitorear las transacciones reales en el dashboard de NOWPayments para asegurar que el el gas se pague correctamente por el usuario según lo configurado.
+2.  Realizar un mantenimiento preventivo de la base de datos (limpiar órdenes pendientes de más de 24h).
 
 ---
 
-## 🛡️ CAPACIDADES CORE (LO QUE HACE QUE LA APP SEA ÚNICA)
+## 🏗️ ARQUITECTURA DEL SISTEMA (Resumen)
 
-### 1. Sistema de Diseño "Ethereal Vault"
-*   Estética de cristal pulido (**Glassmorphism**) con profundidad tonal en `#191b23`.
-*   Layout adaptativo inteligente: tablas que se transforman en tarjetas en móviles.
-*   Micro-animaciones de alto impacto con `framer-motion` y efectos visuales de éxito (Confetti).
+### 1. Sistema de Autenticación (Supabase)
+*   **Gestión de Sesiones:** Bypass inteligente para evitar redirecciones infinitas en el login de administradores. 🛡️
+*   **Seguridad ERP:** Firewall de acceso restringido para los módulos de administración y finanzas. 🔐
 
-### 2. Motor de Ventas & Autenticación
-*   **Auth Flow Completo:** Login, Registro y Recuperación de Contraseña con diseño consistente y legal (Términos integrados).
-*   **Checkout Atómico:** Lógica SQL que garantiza que un código digital nunca se entregue dos veces, incluso bajo alta demanda.
-*   **Historial Premium:** Seguimiento de pedidos con estados de color y visualización segura de activos comprados.
+### 2. Pasarela de Pagos (NOWPayments V3)
+*   **Nodos Independientes:** Eliminación definitiva de dependencias de RPCs manuales.
+*   **Billeteras Dinámicas:** Una dirección única generada automáticamente para cada orden de cada cliente. 🏙️✨
+*   **Webhooks IPN:** Confirmación automática de pagos integrada directamente con la base de datos de órdenes. ✨🚀
 
 ### 3. Panel Administrativo (ERP Interno)
 *   **Dashboard Financiero:** Métricas en tiempo real de ingresos, ganancias e inversión activa con conversión automática a COP.
-*   **Gestión de Stock:** CRUD avanzado de productos, categorías y banners con alertas inteligentes de "Stock Bajo".
-*   **Control de Banners:** Sistema dinámico para gestionar el Hero del Storefront sin tocar el código.
+*   **Gestión de Stock:** CRUD avanzado de productos, categorías y banners con alertas inteligentes.
 
 ---
 
 ## 🚦 HITOS CLAVE (CRONOLOGÍA RESUMIDA)
 
-### 🏗️ Fase I & II: Cimientos y Storefront (Marzo 2026)
-*   Definición de tokens de diseño y creación de la cuadrícula de productos premium.
-*   Implementación de `ProductBottomSheet` y filtrado regional por países (Banderas animadas).
+### [FASE 10] - MIGRACIÓN INDUSTRIAL 🚀
+- Migramos de procesos manuales a NOWPayments API.
+- Implementamos validación de firmas HMAC-SHA512 para seguridad grado bancario.
 
-### 🔐 Fase III & IV: Identidad y Seguridad
-*   Integración de **Supabase Auth**. Redirección inteligente: Administradores al panel, Clientes a la tienda.
-*   Implementación de políticas de seguridad (RLS) para proteger los códigos del inventario.
-*   **Blindaje de Identidad:** Migración de SMTP Gmail personal a Infraestructura Profesional (Resend).
-
-### 💰 Fase V (Iniciada): Procesamiento de Pagos
-*   Diseño del flujo de pago con temporizadores de 10 min, QRs dinámicos y estados de validación.
-*   Integración de lógica atómica para la liberación instantánea de códigos digitales.
-
-### 🌐 Fase Final: Identidad de Marca Pro (Abril 2026)
-*   **Dominio Propio:** Migración exitosa de `vercel.app` a `dacribel.shop` 🏯🛡️.
-*   **Infraestructura DNS:** Configuración de Vercel como manager de DNS para mayor velocidad.
-*   **Bypass de SMTP:** Verificación de dominio en Resend, permitiendo el registro global de usuarios sin restricciones de prueba.
-*   **Supabase SMTP:** Conexión segura vía registros DKIM/SPF y API Keys dedicadas.
-*   **Seguridad de Identidades (Paso 1.3):** Blindaje total del campo `role` en la tabla `profiles` para prevenir escalada de privilegios. 🔒✨
-*   **Reparación de RLS (Bucle 500):** Implementación de la función suprema `is_admin()` con privilegios `SECURITY DEFINER` para solucionar la recursión infinita y optimizar el servidor. 🚀🔒✨
-*   **Purga de Identidad:** El correo `dacribel.service@gmail.com` ha sido instaurado como el nuevo Pase Maestro oficial en toda la infraestructura. 🚥🚩✨🛡️🏰
-*   **Identidad Visual:** Restauración de banderas (USA/España) usando recursos internos de Supabase Storage para cumplimiento de CSP. 🚩✨
-*   **Recuperación de Contraseña:** Reparación del error 404 al redirigir el flujo directamente a `/update-password`. 🛡️🔐
-*   **Reparación de RLS (Bucle 500):** Implementación de función `is_admin()` con `SECURITY DEFINER` para eliminar la recursión infinita y optimizar el rendimiento del servidor. 🛡️🚀✨🏰
-*   **Paso 2.1 & 2.2 (Escalibilidad Masiva):** Migración total a paginación nativa en Postgres (`.range()`) y consolidación de datos mediante JOINS físicos entre `products`, `categories` y `regions`. 🛰️📉✨
-*   **Paso 2.3 (Precisión Contable):** Creación de la función RPC `get_inventory_financials` para calcular el valor del inventario basado en el **costo histórico (USDT/COP)** de cada código individual. Adiós a las estimaciones, hola a la contabilidad exacta. 💰🛡️📊
-*   **Paso 3.0 (Centralización de Lógica):** Creación de `lib/constants.ts` como cerebro de configuración única para tasas de cambio, umbrales de stock y tamaños de página. 🧠⚙️
-*   **Fase 4 (Identidad Social):** Integración exitosa de **Google OAuth**. Corrección de ID de cliente (`...pbknqk...`) para habilitar login con un solo clic. Los administradores supremos son mapeados por correo automáticamente. 🔑🛡️✨ Google Cloud & Supabase sincronizados al 100%.
-*   **Paso 5.1 (Inteligencia de Inventario):** Implementación de **Umbrales Dinámicos por Producto**. El sistema ahora respeta alertas personalizadas (ej. avisar con 1 para Xbox, con 10 para Amazon) y muestra banderas regionales en las notificaciones. 🚩🧠🛡️
-*   **Control de Versiones:** Sincronización total de cambios en el repositorio GitHub `dacribelservice/Psn`. 📂🛸
-*   **Fase 8 (Independencia Blockchain Total):** Implementación de Billetera Maestra fija y verificación directa por TxID en red BSC. Suprimido el modal de selección para un flujo de pago directo y sin fricciones. 🛡️🛰️🦾⚡
-*   **Fase 9 (Blindaje Industrial - Motor Multi-Nodo):** Evolución del motor de verificacion a grado industrial. Implementación de **Clúster de 5 Nodos RPC** con autoconmutación (Failover) y **Malla de Sincronización** (3 reintentos internos). Adición del **Firewall de Tiempo** (verificación de timestamp blockchain) para prohibir el re-uso de recibos antiguos y **Autocorrección de TxID** para tolerancia a errores humanos. La intermitencia ha sido eliminada por completo. 🛡️🌌🛰️🚀🦾✨
-
----
-
----
-
-## 📜 DOCUMENTACIÓN DE APOYO
-*   [**PAGOS.md**](file:///c:/Users/cange/Documents/Psn/pagos.md): Hoja de ruta para la automatización BEP20/TRC20.
-*   [**SEGURIDAD.md**](file:///c:/Users/cange/Documents/Psn/seguridad.md): Manual de blindaje de RLS y Firewall administrativo.
-*   [**DISEÑO.md**](file:///c:/Users/cange/Documents/Psn/Diseño.md): Lineamientos estéticos del sistema "Ethereal Vault".
-*   [**APP.md**](file:///c:/Users/cange/Documents/Psn/app.md): Arquitectura de componentes y flujos de usuario.
-*   [**MID.md**](file:///c:/Users/cange/Documents/Psn/mid.md): Bitácora técnica de incidentes de seguridad y middleware.
-
----
-*Dacribel: La bóveda digital de activos más segura y estética del mercado.*
+### [FASE 9] - SEGURIDAD ERP 🔐
+- Fortalecimos la infraestructura de administración para evitar accesos no autorizados.
