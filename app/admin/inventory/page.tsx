@@ -172,7 +172,7 @@ export default function AdminInventoryPage() {
           region_info:regions(flag_url)
         `, { count: 'exact' });
       
-      // Aplicar filtros de servidor
+      // Aplicar filtros de servidor (ESTRICTOS)
       if (filterPlatform !== "Todos") {
         codesQuery = codesQuery.eq('product.category_id', filterPlatform);
       }
@@ -180,8 +180,8 @@ export default function AdminInventoryPage() {
         codesQuery = codesQuery.eq('region', filterCountry);
       }
       if (filterValue !== "Todos") {
-        // Como face_value es numeric, buscamos coincidencia exacta
-        codesQuery = codesQuery.or(`face_value.eq.${filterValue},product.face_value.eq.${filterValue}`);
+        // Filtro estricto de denominación
+        codesQuery = codesQuery.eq('product.face_value', filterValue);
       }
 
       const { data: realCodes, count, error: codesError } = await codesQuery
@@ -272,19 +272,21 @@ export default function AdminInventoryPage() {
 
   const filteredCodes = codes; // Pre-filtered by server
 
-  // Inteligent Relational Filters Logic
+  // Lógica de Filtros Relacionales Inteligentes (CASCADA)
+  // 1. Países disponibles filtrados SOLO por Plataforma
   const availableCountries = Array.from(new Set(
-    codes
-      .filter(c => filterPlatform === "Todos" || c.product?.category_id === filterPlatform)
-      .map(c => c.region)
+    products
+      .filter(p => filterPlatform === "Todos" || p.category_id === filterPlatform)
+      .map(p => p.region)
       .filter(Boolean)
   )).sort();
 
+  // 2. Valores disponibles filtrados por Plataforma Y País
   const availableValues = Array.from(new Set(
-    codes
-      .filter(c => (filterPlatform === "Todos" || c.product?.category_id === filterPlatform) && 
-                   (filterCountry === "Todos" || c.region === filterCountry))
-      .map(c => (c.product?.face_value || c.product?.price)?.toString())
+    products
+      .filter(p => (filterPlatform === "Todos" || p.category_id === filterPlatform) && 
+                   (filterCountry === "Todos" || p.region === filterCountry))
+      .map(p => (p.face_value || p.price)?.toString())
       .filter(Boolean)
   )).sort((a,b) => Number(a) - Number(b));
 

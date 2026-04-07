@@ -8,6 +8,23 @@
 
 ## [HITOS RECIENTES]
 
+## [07/04/2026] - FASE 12: OPTIMIZACIÓN DEL PANEL ADMINISTRATIVO ✅
+
+### Estado: COMPLETADO 🚀
+Hemos refinado el motor de gestión de la tienda para una operación profesional y fluida.
+
+#### 1. Inventario en Cascada (Precisión Total)
+- **Filtros Inteligentes**: Implementada lógica de filtrado escalonado (**Plataforma -> País -> Valor**).
+- **Consistencia de Datos**: Las opciones de filtro ahora se derivan dinámicamente de todos los productos disponibles, evitando callejones sin salida.
+- **Limpieza Automática**: Al cambiar una categoría superior, los filtros inferiores se resetean para evitar errores de selección.
+
+#### 2. Insights de Ventas (Finanzas)
+- **Columnas Informativas**: Añadidos campos de **Cantidad** y **Detalle (Plataforma + Región)** directamente en la tabla de Órdenes.
+- **Visibilidad Instantánea**: El administrador ahora reconoce qué se compró y en qué mercado sin necesidad de búsquedas adicionales.
+- **Refinamiento UI**: Eliminado botón de filtro inactivo para maximizar el enfoque en el buscador principal.
+
+---
+
 ## [07/04/2026] - FASE 11: GUÍA DE USUARIO PREMIUM & REVEAL EFFECT ✅
 
 ### Estado: COMPLETADO 🌟

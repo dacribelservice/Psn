@@ -121,10 +121,10 @@ export default function AdminFinancesPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // 1. Traer Órdenes
+        // 1. Traer Órdenes con detalles extendidos
         const { data: ordersData, error: ordersError } = await supabase
           .from('orders')
-          .select('*, product:products(name, cost_price, sale_price), profiles(email, full_name)')
+          .select('*, product:products(name, region, cost_price, sale_price), profiles(email, full_name)')
           .order('created_at', { ascending: false });
 
         // 2. Traer Perfiles
@@ -184,6 +184,9 @@ export default function AdminFinancesPage() {
             realId: o.id,
             createdAt: o.created_at,
             hash: o.id.substring(0, 8),
+            quantity: o.quantity || 1,
+            productName: o.product?.name || "N/A",
+            region: o.product?.region || "GLOBAL",
             active: o.status === 'pending' || o.status === 'payment_pending'
           }
         });
@@ -375,9 +378,6 @@ export default function AdminFinancesPage() {
                    />
                 </div>
              </div>
-             <button className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 text-white/40 flex items-center justify-center transition-all ml-auto">
-                <span className="material-symbols-outlined text-[20px]">filter_list</span>
-             </button>
           </div>
 
           <div className="bg-[#191b23] rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.5)]">
@@ -386,6 +386,8 @@ export default function AdminFinancesPage() {
                    <thead>
                       <tr className="bg-white/5">
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Usuario</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Cant.</th>
+                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Detalle</th>
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Monto</th>
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Fecha / Hora</th>
@@ -406,6 +408,15 @@ export default function AdminFinancesPage() {
                                      <span className="text-[10px] text-white/30 lowercase">{order.email}</span>
                                      <span className="text-[9px] font-black text-primary/40 uppercase tracking-tighter mt-0.5">{order.id}</span>
                                   </div>
+                               </div>
+                            </td>
+                            <td className="px-8 py-6 text-center">
+                               <span className="font-black text-primary bg-primary/10 px-2.5 py-1 rounded-lg text-xs">{order.quantity}</span>
+                            </td>
+                            <td className="px-8 py-6">
+                               <div className="flex flex-col">
+                                  <span className="text-[11px] font-black text-white/80 uppercase truncate max-w-[150px]">{order.productName}</span>
+                                  <span className="text-[9px] font-bold text-white/20 uppercase tracking-widest">{order.region}</span>
                                </div>
                             </td>
                             <td className="px-8 py-6 text-on-surface">
