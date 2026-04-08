@@ -240,7 +240,7 @@ export default function AdminFinancesPage() {
           incomeTrend,
           profitTrend,
           dailyTrend: dailyTrendStr,
-          monthlyTithe: (monthlySummary[currentMonthKey]?.amount || 0) * 0.1,
+          monthlyTithe: (monthlySummary[currentMonthKey]?.profit || 0) * 0.1,
           monthlyChartData: historyData
         });
         
@@ -392,7 +392,7 @@ export default function AdminFinancesPage() {
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Estado</th>
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Fecha / Hora</th>
                          <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Hash / TXID</th>
-                         <th className="px-8 py-6 text-label-sm text-white/20 uppercase text-left">Acción</th>
+
                       </tr>
                    </thead>
                    <tbody className="divide-y divide-white/5 text-sm">
@@ -445,15 +445,6 @@ export default function AdminFinancesPage() {
                             </td>
                             <td className="px-8 py-6 font-mono text-[11px] text-white/40">
                                <span className="bg-black/20 px-3 py-1.5 rounded-xl border border-white/5 text-label-sm">{order.hash}</span>
-                            </td>
-                            <td className="px-8 py-6 text-on-surface">
-                               {order.active ? (
-                                  <button className="bg-primary text-black px-5 py-2.5 rounded-xl text-label-sm font-black uppercase hover:brightness-110 transition-all active:scale-95 shadow-lg">
-                                     Aprobar Hash
-                                  </button>
-                               ) : (
-                                  <span className="text-label-sm text-green-400 uppercase opacity-50">Validado</span>
-                               )}
                             </td>
                          </tr>
                       ))}

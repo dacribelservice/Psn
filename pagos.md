@@ -103,6 +103,33 @@ Debido a la fragilidad de los nodos públicos y la necesidad de una infraestruct
 *   [x] **10.3.3 Validación de Firma IPN:** Verificación de autenticidad de pagos mediante firmas digitales. ✅
 
 ---
-*Estado actual: MIGRACIÓN COMPLETADA CON ÉXITO. Sistema de pagos dinamico y automatizado activo.* 🛡️🏢🛰️✨🚀
-*Webhook URL configurado en Dashboard: https://www.dacribel.shop/api/payments/nowpayments-webhook* ✅
-*Protocolo de Verificación de Bóveda Etérea: Seguridad de Grado Industrial.* 🛡️🔐
+
+# 🏁 FASE 11 & 12: DESPLIEGUE INDUSTRIAL & EXPERIENCIA PREMIUM
+
+Esta es la configuración final que garantiza que **dacribel.shop** sea una máquina de ventas automatizada y segura.
+
+## 🚀 11.1 CONFIGURACIÓN MAESTRA EN VERCEL
+Para que el sistema funcione en producción, se configuraron las siguientes variables de entorno en el panel de Vercel:
+
+*   `NOWPAYMENTS_API_KEY`: Tu llave privada para generar cobros. ✅
+*   `NOWPAYMENTS_IPN_SECRET`: La contraseña secreta que usa NOWPayments para avisarnos que el dinero llegó (Seguridad HMAC-SHA512). ✅
+*   `SUPABASE_SERVICE_ROLE_KEY`: La llave maestra que permite al sistema entregar productos incluso si hay bloqueos de seguridad internos. ✅
+
+## 🪄 12.1 FUNCIONAMIENTO ACTUAL (EXPERIENCIA PREMIUM)
+El sistema ha evolucionado de un formulario simple a una **Bóveda Inteligente**:
+
+1.  **Zen Checkout**: El cliente entra y solo ve el monto a pagar y un botón dorado. Los datos técnicos (QR y Billetera) están ocultos para no abrumar al usuario.
+2.  **Reveal Effect**: Al pulsar "PAGAR AHORA", el sistema genera la orden en tiempo real y revela la información de pago con una animación de escala y desvanecimiento progresivo. 🪄✨
+3.  **Confirmación Automática (Webhook)**: 
+    *   Una vez que el cliente envía los criptoactivos (BEP20), **NOWPayments** envía un "golpe" (IPN) a nuestro servidor en Vercel.
+    *   Nuestro servidor valida la **firma digital** para asegurar que el aviso es real.
+    *   Si el pago es correcto, el servidor marca la orden como **`finished`** y entrega los códigos al cliente al instante. ✅🚀
+
+## 🛡️ MECANISMO DE RESILIENCIA (FALLBACK)
+Si por alguna razón la confirmación automática falla, el sistema cuenta con un **Protocolo Administrativo**:
+- El administrador puede ver el TxID y la billetera en el historial de órdenes.
+- El sistema acepta estados de `partially_paid` o `confirmed` para asegurar que el cliente reciba su producto si hubo variaciones en las comisiones de red.
+
+---
+*Estado del Sistema: 100% OPERATIVO EN PRODUCCIÓN.* 🥂🏙️✨🚀🛰️💨
+*Manual actualizado el 07/04/2026.* ✅
