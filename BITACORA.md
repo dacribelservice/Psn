@@ -8,7 +8,23 @@
 
 ## [HITOS RECIENTES]
 
+## [07/04/2026] - AUDITORÍA DE SEGURIDAD Y INTEGRIDAD DE PAGOS ✅
+
+### Estado: COMPLETADO 🛡️
+Hemos realizado un análisis profundo del flujo de compra para detectar fallas críticas en escenarios de alta concurrencia.
+
+#### 1. Auditoría de Stock (Race Condition)
+- **Hallazgo**: Identificada una falencia en el motor de checkout que permite la sobreventa de productos si dos clientes compran simultáneamente el último stock disponible.
+- **Protocolo de Protección**: Se ha documentado la vulnerabilidad en `pagos.md` y se ha diseñado un plan de blindaje mediante **Reserva Atómica** y validación estricta de salida en el RPC `complete_order`.
+
+#### 2. Refactorización de Documentación Técnica
+- **Limpieza de Pagos**: El archivo `pagos.md` ha sido depurado, eliminando sistemas obsoletos (verificación manual de hashes) y consolidando la información de **NOWPayments** como el estándar industrial actual.
+- **Historial de Legado**: Los procesos descartados se archivaron en una nueva sección de historial para mantener la bitácora técnica limpia y enfocada en la escalabilidad.
+
+---
+
 ## [07/04/2026] - FASE 12: OPTIMIZACIÓN DEL PANEL ADMINISTRATIVO ✅
+
 
 ### Estado: COMPLETADO 🚀
 Hemos refinado el motor de gestión de la tienda para una operación profesional y fluida.
