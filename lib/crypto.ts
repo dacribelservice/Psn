@@ -6,9 +6,10 @@ import crypto from 'crypto';
  */
 
 // ESTRATEGIA: PRIORIDAD INTERNA (BÚNKER)
-const ENCRYPTION_KEY = process.env.INTERNAL_ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+// Usamos "as string" para asegurar a TypeScript que la validación if(!ENCRYPTION_KEY) ya garantiza que existe.
+const ENCRYPTION_KEY = (process.env.INTERNAL_ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY) as string;
 
-if (!ENCRYPTION_KEY) {
+if (!process.env.INTERNAL_ENCRYPTION_KEY && !process.env.NEXT_PUBLIC_ENCRYPTION_KEY) {
   throw new Error('CRITICAL SECURITY ERROR: Master Encryption Key is missing from Environment Variables.');
 }
 const IV_LENGTH = 16; // Para AES, siempre 16 bytes
