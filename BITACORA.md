@@ -111,3 +111,12 @@ Hemos migrado con éxito el sistema de pagos a una arquitectura profesional e in
 
 ### [FASE 9] - SEGURIDAD ERP 🔐
 - Fortalecimos la infraestructura de administración para evitar accesos no autorizados.
+
+---
+### 📅 11/04/2026 - IMPLEMENTACIÓN DE RESERVA ATÓMICA
+**Objetivo:** Eliminar condiciones de carrera (Race Condition) en el inventario.
+*   **Logro:** Implementación de sistema de reserva temporal (10 min) en `process_checkout` y `complete_order`.
+*   **Automatización:** Tarea CRON `limpieza_reservas_dacribel` configurada para reciclar stock cada 5 minutos.
+*   **Seguridad:** Uso de `FOR UPDATE SKIP LOCKED` para garantizar integridad en compras concurrentes.
+*   **Finanzas:** Limpieza del campo `amount` para excluir comisiones de red del reporte contable.
+*   **Estado:** BÚNKER DE PAGOS BLINDADO. ✅💪🏛️

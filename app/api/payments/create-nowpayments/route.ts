@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        price_amount: order.amount,
+        price_amount: Number((Number(order.amount) + 0.01).toFixed(2)),
         price_currency: 'usd', // Moneda de la tienda
         pay_currency: 'usdtbsc', // USDT en red BEP20 (Binance Smart Chain)
         order_id: order.id,

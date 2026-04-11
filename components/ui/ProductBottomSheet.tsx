@@ -325,8 +325,7 @@ export const ProductBottomSheet = ({
                       onClose();
                       return;
                     }
-                    if ((selectedProduct?.stock || 0) <= 0) return;
-                    onProceed?.(totalWithCommission, selectedProduct?.id || '', quantity);
+                    onProceed?.((unitPrice * quantity), selectedProduct?.id || '', quantity);
                   }}
                   disabled={(selectedProduct?.stock || 0) <= 0}
                   className={`font-black py-4 px-8 rounded-xl transition-all uppercase tracking-[0.05em] text-[11px] ${

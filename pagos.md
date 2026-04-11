@@ -23,20 +23,30 @@ Dacribel ha migrado a una pasarela de grado industrial para garantizar la escala
 
 ---
 
-## 🛡️ 2. MEJORAS DEL SISTEMA DE PAGOS (AUDITORÍA DE INTEGRIDAD)
+## 🛡️ 2. BLINDAJE DE INTEGRIDAD: RESERVA ATÓMICA (IMPLEMENTADO)
 
-Tras una auditoría realizada el **07/04/2026**, se ha detectado una falencia crítica en la lógica de asignación de inventario que debe ser blindada:
+El sistema de inventario ha sido blindado contra condiciones de carrera (Race Condition) y duplicidad de ventas para garantizar una experiencia industrial.
 
-### ⚠️ Falencia Detectada: Condición de Carrera (Race Condition)
-*   **Problema**: El sistema permite crear múltiples órdenes `PENDING` si hay stock disponible en el momento del "Checkout", pero no reserva ni aparta esos códigos de forma exclusiva. 
-*   **Escenario de Riesgo**: Si dos clientes compran al mismo tiempo una cantidad que, sumada, supera el stock disponible (ej: Stock 20, Cliente A pide 15, Cliente B pide 10), ambos podrán pagar.
-*   **Consecuencia**: El segundo cliente en pagar recibirá una **entrega incompleta** (solo los códigos restantes) a pesar de haber pagado el total, ya que el sistema no valida el cumplimiento total al momento del webhook.
+### 🪄 2.1 Motor de Reserva Atómica
+*   **Bloqueo de Hardware (`FOR UPDATE SKIP LOCKED`)**: El sistema bloquea físicamente las filas de la base de datos durante el checkout, impidiendo que dos clientes tomen el mismo código simultáneamente.
+*   **Asignación de Vínculo**: Cada código seleccionado es vinculado de forma exclusiva al `order_id` antes de que el cliente realice el pago.
+*   **Time-to-Live (10 Minutos)**: Se establece un cronómetro de 10 minutos por reserva. Si el pago no se completa, los códigos se liberan automáticamente.
+*   **Entrega Blindada**: El proceso de entrega (`complete_order`) solo procesa los códigos previamente reservados, eliminando errores de stock insuficiente al confirmar el pago.
 
-### 🚀 Plan de Blindaje Sugerido
-1.  **Reserva Atómica**: Implementar un bloqueo temporal de códigos en la base de datos durante los primeros 15-30 minutos de la orden.
-2.  **Validación de Salida**: Modificar el RPC `complete_order` para que lance un error si no puede asignar la cantidad exacta pagada, permitiendo al administrador gestionar el reembolso o la carga manual de stock faltante.
+### 🔄 2.2 Automatización y Reciclaje (Self-Healing)
+El sistema cuenta con un motor de mantenimiento autónomo:
+*   **Job Scheduler (`pg_cron`)**: Ejecuta la función `release_expired_reservations()` cada 5 minutos.
+*   **Protocolo de Liberación**: Identifica reservas expiradas y las devuelve al stock disponible (`status: available`), limpiando historiales de carritos abandonados.
+*   **Vista de Stock Dinámica**: La tienda muestra stock disponible sumando tanto los códigos libres como los de reservas que acaban de expirar, optimizando la visibilidad de inventario.
+
+### 📊 2.3 Precisión Financiera (Desacoplamiento)
+Se ha implementado una capa de abstracción para las comisiones de red:
+*   **Libro Contable Limpio**: La tabla `orders.amount` registra únicamente el ingreso neto del negocio.
+*   **Pasarela Inteligente**: NOWPayments calcula y cobra la comisión de red (0.01 USDT) al cliente final por encima del precio del producto, asegurando que el negocio no asuma costos de red indebidos.
 
 ---
+
+
 
 ## 📜 3. HISTORIAL DE EVOLUCIÓN (SISTEMAS LEGADOS)
 
