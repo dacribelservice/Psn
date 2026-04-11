@@ -6,10 +6,11 @@ import crypto from 'crypto';
  */
 
 // ESTRATEGIA: PRIORIDAD INTERNA (BÚNKER)
-// Buscamos primero la llave segura (Servidor). Si no existe, usamos la pública (Legacy).
-const ENCRYPTION_KEY = process.env.INTERNAL_ENCRYPTION_KEY || 
-                       process.env.NEXT_PUBLIC_ENCRYPTION_KEY || 
-                       'dacribel_vault_master_key_32bytes_!!'; 
+const ENCRYPTION_KEY = process.env.INTERNAL_ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY;
+
+if (!ENCRYPTION_KEY) {
+  throw new Error('CRITICAL SECURITY ERROR: Master Encryption Key is missing from Environment Variables.');
+}
 const IV_LENGTH = 16; // Para AES, siempre 16 bytes
 
 export function encrypt(text: string): string {

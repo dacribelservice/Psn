@@ -40,9 +40,9 @@ Este documento es el único mapa de ruta oficial para la implementación de segu
 *   [ ] **Paso 9.4: Inmunización contra Ataques de Tiempo.**
     *   **Acción:** Implementar `crypto.timingSafeEqual` real en el webhook de Chaingateway.
     *   **Riesgo:** **NULO**. Es un cambio de lógica lógica interna que no afecta el comportamiento visual ni funcional.
-*   [ ] **Paso 9.5: Purga de Secretos Hardcoded.**
+*   [x] **Paso 9.5: Purga de Secretos Hardcoded.** ✅
     *   **Acción:** Eliminar cualquier llave "quemada" (fallback) en `crypto.ts` y forzar error si `process.env` está vacío.
-    *   **Riesgo:** **BAJO**. Previene fugas de seguridad en el repositorio de GitHub.
+    *   **Estatus:** COMPLETADO (11/04/2026). El sistema ahora exige llaves de entorno.
 
 ---
 
