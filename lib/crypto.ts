@@ -5,8 +5,11 @@ import crypto from 'crypto';
  * Estrategia: Cifrar datos sensibles antes de que toquen la base de datos de Supabase.
  */
 
-// NOTA: En producción, esta llave DEBE estar en .env.local
-const ENCRYPTION_KEY = process.env.NEXT_PUBLIC_ENCRYPTION_KEY || 'dacribel_vault_master_key_32bytes_!!'; // Debe ser de 32 bytes
+// ESTRATEGIA: PRIORIDAD INTERNA (BÚNKER)
+// Buscamos primero la llave segura (Servidor). Si no existe, usamos la pública (Legacy).
+const ENCRYPTION_KEY = process.env.INTERNAL_ENCRYPTION_KEY || 
+                       process.env.NEXT_PUBLIC_ENCRYPTION_KEY || 
+                       'dacribel_vault_master_key_32bytes_!!'; 
 const IV_LENGTH = 16; // Para AES, siempre 16 bytes
 
 export function encrypt(text: string): string {
