@@ -6,10 +6,11 @@ import crypto from 'crypto';
  */
 
 // ESTRATEGIA: PRIORIDAD INTERNA (BÚNKER)
-// Usamos "as string" para asegurar a TypeScript que la validación if(!ENCRYPTION_KEY) ya garantiza que existe.
 const ENCRYPTION_KEY = (process.env.INTERNAL_ENCRYPTION_KEY || process.env.NEXT_PUBLIC_ENCRYPTION_KEY) as string;
 
-if (!process.env.INTERNAL_ENCRYPTION_KEY && !process.env.NEXT_PUBLIC_ENCRYPTION_KEY) {
+// Solo lanzamos el error crítico si estamos en el SERVIDOR.
+// En el cliente (navegador), simplemente no habrá llave disponible por seguridad.
+if (typeof window === 'undefined' && !ENCRYPTION_KEY) {
   throw new Error('CRITICAL SECURITY ERROR: Master Encryption Key is missing from Environment Variables.');
 }
 const IV_LENGTH = 16; // Para AES, siempre 16 bytes
