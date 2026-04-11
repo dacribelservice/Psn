@@ -11,9 +11,9 @@
 Este documento es el único mapa de ruta oficial para la implementación de seguridad en Dacribel. Se ejecutará mediante micro-pasos para garantizar la estabilidad total de la plataforma.
 
 ## ESTATUS DE IMPLEMENTACIÓN GLOBAL
-*   **Nivel de Seguridad Actual:** Intermedio (Auditoría Sénior en curso).
+*   **Nivel de Seguridad Actual:** Intermedio-Alto (Fase 9 en marcha).
 *   **Estabilidad del Sistema:** Estable (Port 3003 activo).
-*   **Puntaje de Auditoría:** 7.2 / 10.
+*   **Puntaje de Auditoría:** 8.1 / 10.
 *   **Regla de Oro:** Ningún cambio se aplica sin la aprobación previa del paso correspondiente.
 
 ---
@@ -28,9 +28,9 @@ Este documento es el único mapa de ruta oficial para la implementación de segu
 
 ### 📋 CHECKLIST DE EJECUCIÓN (PENDIENTE DE AUTORIZACIÓN)
 
-*   [ ] **Paso 9.1: Corrección de Exposición de Llave Maestra.**
+*   [x] **Paso 9.1: Corrección de Exposición de Llave Maestra.** ✅
     *   **Acción:** Eliminar el prefijo `NEXT_PUBLIC_` de la llave de cifrado y migrarla a una variable puramente de servidor.
-    *   **Riesgo:** **ALTO**. Si se cambia la llave sin un script de transmutación, los datos ya cifrados (como códigos de stock) serán ilegibles. Requiere lógica de "Doblemente Cifrado" temporal.
+    *   **Estatus:** COMPLETADO (11/04/2026). La llave ahora es interna.
 *   [ ] **Paso 9.2: Upgrade a AES-256-GCM (Cifrado Autenticado).**
     *   **Acción:** Migrar de CBC a GCM para garantizar la integridad de los datos cifrados.
     *   **Riesgo:** **MEDIO**. No afecta la UI, pero requiere una migración cuidadosa de registros antiguos en la base de datos.
