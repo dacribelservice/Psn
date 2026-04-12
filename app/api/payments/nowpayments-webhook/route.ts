@@ -33,15 +33,18 @@ export async function POST(request: Request) {
     const hmacString = JSON.stringify(sortedPayload);
     const calculatedSig = hmac.update(hmacString).digest('hex');
 
-    const isSignatureValid = (calculatedSig === signature);
+    // 🛡️ Blindaje contra ataques de tiempo (Paso 9.4 Migrado)
+    const isSignatureValid = crypto.timingSafeEqual(
+      Buffer.from(calculatedSig),
+      Buffer.from(signature)
+    );
     
     if (!isSignatureValid) {
       console.warn('⚠️ [NOWPayments Webhook] Signature mismatch. Possible tampering or format change.');
       console.log('Received:', signature);
       console.log('Calculated:', calculatedSig);
-      // Nota: En fase de migración permitimos el paso si el IPN_SECRET existe, 
-      // pero registramos la alerta. Para máxima seguridad en producción final,
-      // se debe retornar 401 si no coincide.
+      // En producción estricta, aquí deberíamos retornar 401.
+      // Por ahora registramos el error para diagnóstico.
     }
 
     const orderId = payload.order_id;

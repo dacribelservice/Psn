@@ -24,8 +24,14 @@ export async function POST(request: Request) {
     const hmac = crypto.createHmac('sha256', secret);
     const expectedSignature = hmac.update(rawBody).digest('hex');
 
-    // Usamos timingSafeEqual para evitar ataques de tiempo
-    const isValid = signature.toLowerCase() === expectedSignature.toLowerCase();
+    // 1.1 Inmunización Real: Usamos timingSafeEqual (Fase 9.4)
+    // Convertimos a Buffer para comparación binaria segura
+    const signatureBuffer = Buffer.from(signature, 'hex');
+    const expectedBuffer = Buffer.from(expectedSignature, 'hex');
+
+    // timingSafeEqual requiere que los buffers tengan la misma longitud
+    const isValid = signatureBuffer.length === expectedBuffer.length && 
+                    crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
 
     if (!isValid) {
       console.error('❌ Firma de Webhook Inválida');

@@ -229,9 +229,9 @@ function CheckoutProcessingContent() {
               
               <div className="flex flex-col items-center">
                  <h2 className="text-5xl md:text-6xl font-black text-[#f2b92f] tracking-tighter drop-shadow-[0_10px_30px_rgba(242,185,47,0.3)]">
-                    {parseFloat(amount).toFixed(2)} <span className="text-xl font-black opacity-40 ml-0.5">USDT</span>
+                    {(parseFloat(amount) + 0.01).toFixed(2)} <span className="text-xl font-black opacity-40 ml-0.5">USDT</span>
                  </h2>
-                 <span className="text-[11px] font-bold text-white/30 tracking-widest mt-2 block italic uppercase">Subtotal base: {(parseFloat(amount) - 0.01).toFixed(2)} USDT</span>
+                 <span className="text-[11px] font-bold text-white/30 tracking-widest mt-2 block italic uppercase">Subtotal base: {parseFloat(amount).toFixed(2)} USDT</span>
                  <div className="bg-blue-500/10 px-4 py-1.5 rounded-full mt-4 border border-blue-500/20 shadow-inner">
                     <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">+ 0.01 Comisión BEP20 integrada</span>
                  </div>
@@ -266,11 +266,11 @@ function CheckoutProcessingContent() {
                   <div className="bg-black/40 backdrop-blur-xl border border-white/5 rounded-2xl p-4 w-full flex items-center justify-between mb-8 shadow-inner ring-1 ring-white/5">
                     <div className="flex flex-col items-center flex-1 border-r border-white/5">
                       <span className="text-[8px] font-black text-[#c3c4e2]/40 uppercase tracking-widest mb-1">Monto Base</span>
-                      <span className="text-xs font-black text-[#c3c4e2]/60 italic">{(parseFloat(amount) - 0.01).toFixed(2)} USDT</span>
+                      <span className="text-xs font-black text-[#c3c4e2]/60 italic">{parseFloat(amount).toFixed(2)} USDT</span>
                     </div>
                     <div className="flex flex-col items-center flex-1">
                       <span className="text-[8px] font-black text-primary uppercase tracking-widest mb-1">Enviar Exacto</span>
-                      <span className="text-sm font-black text-primary tracking-tighter animate-pulse">{parseFloat(amount).toFixed(2)} USDT</span>
+                      <span className="text-sm font-black text-primary tracking-tighter animate-pulse">{(parseFloat(amount) + 0.01).toFixed(2)} USDT</span>
                     </div>
                   </div>
 
