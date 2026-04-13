@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { Footer } from "@/components/layout/Footer";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { ProductBottomSheet } from "@/components/ui/ProductBottomSheet";
 import { PaymentBottomSheet } from "@/components/ui/PaymentBottomSheet";
@@ -419,6 +420,7 @@ export default function StorePage() {
         </section>
       </main>
 
+      <Footer />
       <BottomNav />
 
       <ProductBottomSheet 

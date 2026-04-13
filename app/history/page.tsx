@@ -3,6 +3,7 @@
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { Footer } from "@/components/layout/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -470,6 +471,7 @@ export default function HistoryPage() {
         </div>
       </main>
 
+      <Footer />
       <BottomNav />
 
       <AnimatePresence>
