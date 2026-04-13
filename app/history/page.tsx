@@ -167,7 +167,7 @@ export default function HistoryPage() {
       <Sidebar />
       <Header />
 
-      <main className="pt-24 pb-32 md:pb-12 px-4 md:ml-64 lg:px-12 transition-all">
+      <main className="pt-24 px-4 md:ml-64 lg:px-12 transition-all">
         <div className="max-w-6xl mx-auto">
           {/* Header Section */}
           <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -469,9 +469,9 @@ export default function HistoryPage() {
             </table>
           </div>
         </div>
+        <Footer />
       </main>
 
-      <Footer />
       <BottomNav />
 
       <AnimatePresence>

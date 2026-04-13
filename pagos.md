@@ -1,3 +1,8 @@
+# 💸 PROTOCOLO DE PAGOS E INVENTARIO (DACRIBEL)
+
+> [!IMPORTANT]
+> **REGLA DE ORO**: NUNCA CREAR COPIAS DE SEGURIDAD EN GITHUB DE FORMA AUTOMÁTICA. LAS COPIAS DE SEGURIDAD LAS ACTUALIZA ÚNICAMENTE **CRISTIAN (CEO DEL PROYECTO)**.
+
 # 🏦 BÚNKER DE PAGOS DACRIBEL - INFRAESTRUCTURA INDUSTRIAL
 
 Este documento detalla el motor de transacciones de Dacribel, su arquitectura actual basada en NOWPayments y los planes de mejora para garantizar la integridad total de los activos digitales.

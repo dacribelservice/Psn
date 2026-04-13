@@ -1,5 +1,8 @@
 # 🧩 ARQUITECTURA DE MÓDULOS ENCHUFABLES (DACRIBEL EXTENSIONS)
 
+> [!IMPORTANT]
+> **REGLA DE ORO**: NUNCA CREAR COPIAS DE SEGURIDAD EN GITHUB DE FORMA AUTOMÁTICA. LAS COPIAS DE SEGURIDAD LAS ACTUALIZA ÚNICAMENTE **CRISTIAN (CEO DEL PROYECTO)**.
+
 Este documento define la estrategia para escalar la plataforma Dacribel mediante un sistema de extensiones desacopladas. El objetivo es permitir la adición de nuevas funcionalidades sin comprometer la estabilidad, seguridad o rendimiento del núcleo (Core) ya establecido.
 
 ---

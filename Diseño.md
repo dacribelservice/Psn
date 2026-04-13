@@ -1,3 +1,8 @@
+# 🎨 SISTEMA DE DISEÑO: ETHEREAL VAULT (DACRIBEL)
+
+> [!IMPORTANT]
+> **REGLA DE ORO**: NUNCA CREAR COPIAS DE SEGURIDAD EN GITHUB DE FORMA AUTOMÁTICA. LAS COPIAS DE SEGURIDAD LAS ACTUALIZA ÚNICAMENTE **CRISTIAN (CEO DEL PROYECTO)**.
+
 # Documento del Sistema de Diseño
 
 ## 1. Visión General y Estrella del Norte Creativa
@@ -28,6 +33,7 @@ Nuestra paleta está arraigada en una base profunda y nocturna, acentuada por "O
 ---
 
 ## 3. Tipografía
+
 Usamos **Inter** para todo el sistema por su claridad premium y moderna, adaptando sus estilos según su función:
 
 *   **Display (Display-lg, 3.5rem):** Se usa para encabezados hero y balances criptográficos significativos.

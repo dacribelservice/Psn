@@ -1,5 +1,8 @@
 # 🏛️ DACRIBEL: ARQUITECTURA MAESTRA DE E-COMMERCE PREMIUM
 
+> [!IMPORTANT]
+> **REGLA DE ORO**: NUNCA CREAR COPIAS DE SEGURIDAD EN GITHUB DE FORMA AUTOMÁTICA. LAS COPIAS DE SEGURIDAD LAS ACTUALIZA ÚNICAMENTE **CRISTIAN (CEO DEL PROYECTO)**.
+
 Dacribel es un ecosistema digital de alta ingeniería diseñado para la comercialización segura, escalable y automatizada de activos digitales de alto valor. Este documento resume la infraestructura técnica, los protocolos de seguridad y la arquitectura modular que sustenta la plataforma.
 
 ---

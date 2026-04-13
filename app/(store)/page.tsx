@@ -221,7 +221,7 @@ export default function StorePage() {
       <Sidebar />
       <Header />
 
-      <main className="pt-24 px-4 md:px-6 max-w-7xl mx-auto lg:ml-64 lg:px-12 pb-32">
+      <main className="pt-24 px-4 md:px-6 max-w-7xl mx-auto lg:ml-64 lg:px-12">
         {/* Premium Manual Banner Carousel */}
         <section className="relative group rounded-[2rem] md:rounded-[3rem] overflow-hidden aspect-[16/10] md:aspect-[21/9] mb-12 shadow-[0_40px_80px_rgba(0,0,0,0.6)] border border-white/5 bg-black/40">
           <AnimatePresence initial={false} custom={direction}>
@@ -418,9 +418,9 @@ export default function StorePage() {
             ))}
           </div>
         </section>
+        <Footer />
       </main>
 
-      <Footer />
       <BottomNav />
 
       <ProductBottomSheet 
