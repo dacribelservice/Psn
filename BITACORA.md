@@ -1,12 +1,28 @@
 # BITACORA DE DESARROLLO - DACRIBEL 🌌🛡️🏛️
 
 ## [ESTADO ACTUAL]
-- **Fase 10: INTEGRACIÓN INDUSTRIAL COMPLETA (NOWPayments)**. ✅
-- **Estado**: PRODUCCIÓN FINALIZADO (dacribel.shop) ✨🚀
+- **Fase 13: ARQUITECTURA ENCHUFABLE (SANDBOX)**. ✅
+- **Estado**: ESCALABILIDAD INDUSTRIAL (dacribel.shop) 🧩🛡️🚀
 
 ---
 
 ## [HITOS RECIENTES]
+
+## [12/04/2026] - FASE 13: ARQUITECTURA ENCHUFABLE (SANDBOX) ✅
+
+### Estado: COMPLETADO 🧩🛡️
+Hemos transformado a Dacribel en una plataforma modular para permitir el crecimiento infinito sin riesgos.
+
+#### 1. Encapsulamiento de Funcionalidades (Sandboxing)
+- **Implementación de Route Groups**: Creación de la zona `(extensions)` para separar experimentos del Core de la tienda.
+- **Registro Maestro**: Creación de `config/extensions.ts` como interruptor central (Kill Switch) para módulos.
+- **Escudo Térmico (Error Boundary)**: Despliegue de un sistema de protección que captura fallos en módulos y evita colapsos de la App.
+
+#### 2. Metodología de Contexto (IA-First)
+- **Consolidación de Memoria**: Creación del documento maestro `modulos.md` para guiar a la IA en futuras expansiones.
+- **Aislamiento por Subdominio Lógico**: Diseño de un protocolo de alta disponibilidad que encapsula módulos experimentales sin afectar el dominio principal.
+
+---
 
 ## [07/04/2026] - AUDITORÍA DE SEGURIDAD Y INTEGRIDAD DE PAGOS ✅
 
