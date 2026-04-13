@@ -14,6 +14,19 @@ Este documento define la estrategia para escalar la plataforma Dacribel mediante
 
 ---
 
+## 🏛️ FILOSOFÍA DE CONSTRUCCIÓN: EL CENTRO COMERCIAL
+
+Para mantener la coherencia a largo plazo, Dacribel se construye bajo la analogía de un **Centro Comercial de Alta Gama**:
+
+1.  **La Nave Nodriza (El Centro Comercial / Puerto 3003)**:
+    - Es la infraestructura principal. Provee seguridad (Auth), energía (Base de Datos) y servicios básicos (Pagos). No necesitamos construir un edificio nuevo para cada idea.
+2.  **Los Locales (Los Módulos / Carpeta `/extensions`)**:
+    - Son espacios especializados. Cada local tiene su propia decoración y productos (`psn`, `xbox`, etc.), pero todos usan la misma zona de cajas (Checkout maestro) y la misma entrada principal.
+3.  **Aislamiento Lógico (Subdominios de Ruta)**:
+    - No usamos subdominios reales de servidor (como `psn.dacribel.shop`) para evitar duplicar costos y complejidad. Usamos **Subdominios Lógicos** (`/extensions/psn`). Es la forma más eficiente: misma casa, diferentes habitaciones.
+
+---
+
 ## 🏛️ ESTRUCTURA VISUAL (EL ESQUEMA)
 
 ```mermaid
