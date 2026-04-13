@@ -113,5 +113,19 @@ c:\Users\cange\Documents\Psn\
 ```
 
 ---
+
+## ⚠️ LECCIONES APRENDIDAS Y PROTOCOLO DE ERRORES
+
+### 1. El "Punto Crítico" (config/extensions.ts)
+- **Problema detectado**: Al ser el único archivo compartido por todos los módulos, cualquier error de sintaxis (una coma faltante, un comentario mal cerrado) provoca un "Build Error" total que pone la web en rojo.
+- **Protocolo de Prevención**: 
+    - **NUNCA** hacer ediciones parciales (parches) si la estructura del array es compleja.
+    - **SIEMPRE** preferir el reemplazo total del contenido del archivo para asegurar la integridad de los brackets `[]` y llaves `{}`.
+    - Se recomienda verificar la salud del "Enchufe Central" inmediatamente después de registrar un módulo nuevo.
+
+### 2. Aislamiento de Layouts
+- Los errores dentro de la carpeta `app/extensions/NOMBRE_MODULO` son capturados por el `error.tsx` local, pero los errores en la *configuración* (fuera del módulo) no. Es vital diferenciar entre un fallo del "Local" y un fallo del "Tablero Eléctrico".
+
+---
 *Dacribel: Bóveda Digital Inexpugnable & Escalable.*
 *Última Actualización: 12/04/2026 por Antigravity AI.*

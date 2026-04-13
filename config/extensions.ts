@@ -18,18 +18,15 @@ export interface ExtensionModule {
 
 // Lista de extensiones configuradas
 export const REGISTERED_EXTENSIONS: ExtensionModule[] = [
-  /* 
-  Ejemplo de configuración:
   {
-    id: 'psn-promos',
-    name: 'PlayStation Promos',
-    description: 'Catálogo de ofertas exclusivas de PSN Store',
+    id: 'psn',
+    name: 'PSN Tracker',
+    description: 'Monitor de ofertas y precios globales de PlayStation Store.',
     icon: 'Gamepad2',
-    route: '/extensions/psn-promos',
-    enabled: false, // Desactivado por defecto hasta que exista el código
+    route: '/extensions/psn',
+    enabled: true,
     status: 'beta'
   }
-  */
 ];
 
 /**
