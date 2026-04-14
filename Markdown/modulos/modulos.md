@@ -120,9 +120,8 @@ c:\Users\cange\Documents\Psn\
 │       └── [ext_id]/     <-- Espacio para nuevos módulos
 ├── config/
 │   └── extensions.ts     <-- EL INTERRUPTOR MAESTRO (Implementado)
-└── supabase/
-    └── migrations/
-        └── extensions/   <-- SQLs aislados (Esquemas propios)
+└── Markdown/
+    └── database.md       <-- DOCUMENTACIÓN MAESTRA DE SQL (Dashboard Web)
 ```
 
 ---
@@ -141,4 +140,4 @@ c:\Users\cange\Documents\Psn\
 
 ---
 *Dacribel: Bóveda Digital Inexpugnable & Escalable.*
-*Última Actualización: 12/04/2026 por Antigravity AI.*
+*Última Actualización: 13/04/2026 por Antigravity AI.*

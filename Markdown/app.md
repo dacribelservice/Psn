@@ -1,4 +1,5 @@
-# 🗺️ MAPA ARQUITECTÓNICO DE DACRIBEL (v1.14.1)
+# 🗺️ MAPA ARQUITECTÓNICO DE DACRIBEL
+**Versión Actual**: `1.14.1` 🚀
 
 > [!IMPORTANT]
 > **REGLA DE ORO**: NUNCA CREAR COPIAS DE SEGURIDAD EN GITHUB DE FORMA AUTOMÁTICA. LAS COPIAS DE SEGURIDAD LAS ACTUALIZA ÚNICAMENTE **CRISTIAN (CEO DEL PROYECTO)**.
@@ -48,11 +49,31 @@ app/
 
 Para que la carpeta `app/` funcione, se apoya en estos pilares:
 
-1.  **`/components`**: Piezas de LEGO reutilizables (Botones, Footer, Navbars).
-2.  **`/lib`**: La "lógica pesada" (Cálculos de precios, conexión a base de datos, encriptación).
-3.  **`/config`**: El centro de mando (Interruptores de módulos, variables globales).
-4.  **`/Markdown`**: Esta biblioteca de manuales tácticos.
-5.  **`/services`**: Conexiones con servicios externos (Binance API, Blockchain, etc).
+1.  **`/components`**: Piezas de LEGO reutilizables.
+    *   `/ui`: Componentes base del sistema de diseño (Botones, Inputs, Cards).
+    *   `/layout`: Estructuras maestras (Sidebar, Navbar, Footer).
+    *   `/admin`: Componentes exclusivos del panel de gestión.
+2.  **`/lib`**: La "lógica pesada" y utilidades nucleares.
+    *   `/schemas`: Validaciones de datos y seguridad (Zod).
+    *   `/crypto.ts`: Motor de encriptación para el búnker de llaves.
+    *   `supabase.ts`, `supabase_admin.ts`, `supabase_server.ts`: Los tres pilares de acceso a DB.
+3.  **`/context`**: El cerebro del estado global. Inyección de `LanguageContext` (Multi-idioma) y Auth.
+4.  **`/services`**: Conexiones con servicios externos (Binance API, Blockchain, etc).
+5.  **`/config`**: El centro de mando. Gestión del registro de extensiones (`extensions.ts`).
+6.  **`/Logos` & `/public`**: Almacén de branding y activos estáticos del proyecto.
+7.  **`/Markdown`**: Esta biblioteca de manuales tácticos y bitácoras.
+
+---
+
+## ⚙️ ESQUELETO Y CONFIGURACIÓN RAÍZ
+
+Archivos que controlan el comportamiento global:
+
+*   **`middleware.ts`**: El "Portero" de la app. Gestiona sesiones, seguridad y redirecciones.
+*   **`.env.local`**: El Búnker de Secretos. Contiene llaves API y variables de entorno críticas.
+*   **`next.config.mjs`**: Configuración del motor de Next.js (dominios de imágenes, optimizaciones).
+*   **`tailwind.config.ts`**: Definición de los tokens de diseño (Colores Oro Líquido, fuentes Inter).
+*   **`package.json`**: El inventario de dependencias y el control de versiones (actualmente v1.14.x).
 
 ---
 
@@ -64,4 +85,4 @@ Para que la carpeta `app/` funcione, se apoya en estos pilares:
 
 ---
 *Dacribel: Estructura de Alta Ingeniería para un Negocio Infinito.*
-*Última Actualización: 12/04/2026 por Antigravity AI.*
+*Última Actualización: 13/04/2026 por Antigravity AI (Versión 1.14.1)*
