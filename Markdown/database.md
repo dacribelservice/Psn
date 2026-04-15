@@ -73,6 +73,20 @@ Detalles técnicos de la pasarela de pagos.
 
 ---
 
+## 🕹️ MÓDULO: PSN TRACKER (Esquema `psn`)
+Este módulo opera de forma autónoma en su propio búnker de datos para garantizar la independencia total del Core.
+
+### 🎮 `psn.games`
+Catálogo de juegos con comparativa regional automática.
+- `id`: UUID (Primary Key).
+- `game_title`: Text (Nombre oficial).
+- `slug`: Text (Único, para SEO).
+- **`region_prices`**: JSONB. Almacena el mapa de precios (ej: `{"USA": 59.99, "ES": 69.99, "TR": 1500}`).
+- `promo_end`: Timestamptz (Fecha fin de oferta).
+- `is_visible`: Boolean (Default: true).
+
+---
+
 ## 🔄 VISTAS Y LOGICA SQL
 ### `product_stock_view`
 Vista que calcula el stock disponible en tiempo real, descontando los códigos vendidos y los reservados que aún no han expirado.
