@@ -176,12 +176,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       signOut, 
       deleteAccount: async () => {
         setLoading(true);
-        const { data: { user: currentUser } } = await supabase.auth.getUser();
-        if (currentUser) {
-          await supabase.from('profiles').delete().eq('id', currentUser.id);
-          await signOut();
+        try {
+          const response = await fetch('/api/user/delete-account', { method: 'POST' });
+          if (response.ok) {
+            await signOut();
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error al eliminar la cuenta');
+          }
+        } catch (err) {
+          console.error("Delete Account Error:", err);
+          alert("Error al eliminar la cuenta");
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
       },
       resetPassword: async (email: string) => {
         setLoading(true);

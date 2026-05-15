@@ -132,17 +132,18 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
         video_url: finalVideoUrl || null,
       };
 
-      if (editingId) {
-        const { error } = await supabase
-          .from('banners')
-          .update(bannerData)
-          .eq('id', editingId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('banners')
-          .insert([bannerData]);
-        if (error) throw error;
+      const response = await fetch('/api/admin/banners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingId,
+          ...bannerData
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al guardar el banner');
       }
 
       // Reset
@@ -184,9 +185,24 @@ export const BannersModal = ({ isOpen, onClose }: BannersModalProps) => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de eliminar este banner?")) return;
-    const { error } = await supabase.from('banners').delete().eq('id', id);
-    if (!error) fetchBanners();
-    else alert("Error al eliminar");
+    
+    try {
+      const response = await fetch('/api/admin/banners', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar el banner');
+      }
+
+      fetchBanners();
+    } catch (err: any) {
+      console.error("Delete Error:", err);
+      alert(`Error: ${err.message}`);
+    }
   };
 
   return (

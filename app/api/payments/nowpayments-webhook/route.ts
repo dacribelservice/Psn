@@ -70,15 +70,9 @@ export async function POST(request: Request) {
       });
 
       if (rpcError) {
-        console.error('❌ [NOWPayments Webhook] RPC Error falling back to manual update:', rpcError);
-        // Fallback: Actualización directa por si el RPC falla por lógica de negocio
-        await adminClient
-          .from('orders')
-          .update({ 
-            status: 'completed',
-            external_txid: paymentId?.toString() || 'nowpayments_auto'
-          })
-          .eq('id', orderId);
+        console.error('❌ [NOWPayments Webhook] Critical RPC Error assigning code:', rpcError);
+        // 🛡️ Eliminamos el fallback inseguro que marcaba como completado sin asignar código.
+        // La orden debe revisarse manualmente si falló la asignación (falta de stock, etc.)
       }
     } else if (paymentStatus === 'failed' || paymentStatus === 'expired') {
       console.warn(`📉 [NOWPayments Webhook] Payment ${paymentStatus} for order ${orderId}. Marking as cancelled.`);

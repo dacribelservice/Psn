@@ -112,19 +112,20 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
 
       setStatusMessage("GUARDANDO EN DB...");
 
-      if (editingId) {
-        const { error } = await supabase
-          .from('categories')
-          .update({ name: cleanName, slug, image_url: finalImageUrl })
-          .eq('id', editingId)
-          .select();
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('categories')
-          .insert([{ name: cleanName, slug, image_url: finalImageUrl }])
-          .select();
-        if (error) throw error;
+      const response = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingId,
+          name: cleanName,
+          slug,
+          image_url: finalImageUrl
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al guardar la categoría');
       }
 
       setStatusMessage("SINCRONIZANDO...");
@@ -155,8 +156,17 @@ export const CategoryBottomSheet = ({ isOpen, onClose, onSuccess }: CategoryBott
     setLoading(true);
     setStatusMessage("ELIMINANDO...");
     try {
-      const { error } = await supabase.from('categories').delete().eq('id', itemToDelete.id);
-      if (error) throw error;
+      const response = await fetch('/api/admin/categories', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: itemToDelete.id })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar la categoría');
+      }
+
       await loadCategories();
       onSuccess?.();
       setDeleteModalOpen(false);

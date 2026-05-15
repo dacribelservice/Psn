@@ -85,17 +85,19 @@ export const RegionsBottomSheet = ({ isOpen, onClose, onSuccess }: RegionsBottom
 
       setStatusMessage("GUARDANDO...");
 
-      if (editingId) {
-        const { error } = await supabase
-          .from('regions')
-          .update({ name: name.toUpperCase(), flag_url: finalFlagUrl })
-          .eq('id', editingId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('regions')
-          .insert([{ name: name.toUpperCase(), flag_url: finalFlagUrl }]);
-        if (error) throw error;
+      const response = await fetch('/api/admin/regions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editingId,
+          name: name.toUpperCase(),
+          flag_url: finalFlagUrl
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al guardar la región');
       }
 
       onSuccess?.();
@@ -122,8 +124,17 @@ export const RegionsBottomSheet = ({ isOpen, onClose, onSuccess }: RegionsBottom
     if (!confirm("¿Eliminar este país?")) return;
     setLoading(true);
     try {
-      const { error } = await supabase.from('regions').delete().eq('id', id);
-      if (error) throw error;
+      const response = await fetch('/api/admin/regions', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar la región');
+      }
+
       await loadRegions();
       onSuccess?.();
     } catch (err: any) {

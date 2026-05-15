@@ -229,8 +229,14 @@ export default function AdminInventoryPage() {
   const confirmDelete = async () => {
     if (!codeToDelete) return;
     try {
-      const { error } = await supabase.from('inventory_codes').delete().eq('id', codeToDelete);
-      if (error) throw error;
+      const response = await fetch('/api/admin/inventory/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'code', id: codeToDelete })
+      });
+      
+      if (!response.ok) throw new Error('Failed to delete code');
+      
       fetchData();
       setCodeToDelete(null);
     } catch (err) {
@@ -248,13 +254,22 @@ export default function AdminInventoryPage() {
   const confirmDeleteProduct = async () => {
     if (!productToDelete) return;
     try {
-      const { error } = await supabase.from('products').delete().eq('id', productToDelete.id);
-      if (error) throw error;
+      const response = await fetch('/api/admin/inventory/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'product', id: productToDelete.id })
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete product');
+      }
+
       fetchData();
       setProductToDelete(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error deleting product:", err);
-      alert("Error al eliminar el producto");
+      alert(err.message || "Error al eliminar el producto");
     }
   };
 

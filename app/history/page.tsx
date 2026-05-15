@@ -7,7 +7,6 @@ import { Footer } from "@/components/layout/Footer";
 import { useLanguage } from "@/context/LanguageContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { decrypt } from "@/lib/crypto";
 import { OrderDetailsView } from "@/components/ui/OrderDetailsView";
 import { AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -85,30 +84,18 @@ export default function HistoryPage() {
   };
 
   const fetchOrders = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-    
-    const { data, error } = await supabase
-      .from('orders')
-      .select(`
-        id,
-        amount,
-        payment_method,
-        created_at,
-        status,
-        quantity,
-        products(name, image_url, region),
-        inventory_codes!order_id(id, code)
-      `)
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+    try {
+      const response = await fetch('/api/user/orders');
+      if (!response.ok) {
+        if (response.status === 401) {
+          setLoading(false);
+          return;
+        }
+        throw new Error('Failed to fetch');
+      }
+      
+      const data = await response.json();
 
-    if (error) {
-      console.error("DEBUG - Error completo de Supabase:", error);
-    } else if (data) {
       const formatted = data.map((o: any) => ({
         id: o.id.slice(0, 8),
         product: o.products?.name || "Producto Digital",
@@ -121,15 +108,18 @@ export default function HistoryPage() {
         realId: o.id,
         createdAt: o.created_at,
         product_image: o.products?.image_url,
-        codesCount: o.quantity || (Array.isArray(o.inventory_codes) ? o.inventory_codes.length : 0),
-        code: Array.isArray(o.inventory_codes) && o.inventory_codes.length > 0
-          ? o.inventory_codes.map((c: any) => decrypt(c.code)).join('\n')
+        codesCount: o.quantity || (Array.isArray(o.decryptedCodes) ? o.decryptedCodes.length : 0),
+        code: Array.isArray(o.decryptedCodes) && o.decryptedCodes.length > 0
+          ? o.decryptedCodes.join('\n')
           : "PENDIENTE",
         region: o.products?.region || "Global",
       }));
       setTransactions(formatted);
+    } catch (error) {
+      console.error("DEBUG - Error al cargar historial:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -342,7 +332,15 @@ export default function HistoryPage() {
                           realId={tx.realId}
                           showEye={true}
                           onExpire={async () => {
-                            await supabase.from('orders').update({ status: 'cancelled' }).eq('id', tx.realId);
+                            // Migrado a API segura para evitar mutaciones directas desde el cliente
+                            const response = await fetch(`/api/orders/${tx.realId}/cancel`, {
+                              method: 'POST',
+                            });
+
+                            if (!response.ok) {
+                              const errorData = await response.json();
+                              throw new Error(errorData.error || 'Failed to cancel order');
+                            }
                           }} 
                         />
                         <div className="flex items-center gap-2 mt-1.5">
@@ -445,7 +443,8 @@ export default function HistoryPage() {
                                   realId={tx.realId}
                                   showEye={false}
                                   onExpire={async () => {
-                                    await supabase.from('orders').update({ status: 'cancelled' }).eq('id', tx.realId);
+                                    // Migrado a API segura
+                                    await fetch(`/api/orders/${tx.realId}/cancel`, { method: 'POST' });
                                   }} 
                                 />
                                 <span className="text-[9px] text-white/20 font-black tracking-widest animate-pulse uppercase -mt-0.5">

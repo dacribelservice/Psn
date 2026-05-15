@@ -72,67 +72,29 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
     
     setLoading(true);
     try {
-      const productName = `${selectedCategory.name} $${value}`;
-      
-      // 1. Get or Create Product
-      let { data: product, error: pError } = await supabase
-        .from('products')
-        .select('*')
-        .eq('name', productName)
-        .eq('category_id', selectedCategory.id)
-        .eq('region', selectedRegion)
-        .maybeSingle();
-
-      const productDescription = sanitizeHTML(description) || `Tarjeta digital original para ${selectedCategory.name} ${selectedRegion}. Entrega inmediata y segura.`;
-
-      if (!product) {
-        const { data: newProd, error: iError } = await supabase
-          .from('products')
-          .insert([{ 
-            name: productName, 
-            price: value, // Backward compatibility
-            face_value: value,
-            cost_price: costPrice,
-            sale_price: salePrice,
-            category_id: selectedCategory.id,
-            region: selectedRegion,
-            description: productDescription,
-            stock_alert_threshold: lowStockAlert
-          }])
-          .select()
-          .single();
-        if (iError) throw iError;
-        product = newProd;
-      } else if (pError) {
-        throw pError;
-      } else {
-        // Update prices if they changed
-        await supabase
-          .from('products')
-          .update({ 
-            face_value: value,
-            cost_price: costPrice,
-            sale_price: salePrice,
-            description: sanitizeHTML(description), 
-            stock_alert_threshold: lowStockAlert 
-          })
-          .eq('id', product.id);
-      }
-
-      // 2. Insert Codes
       const codes = codesText.split("\n").filter(c => c.trim() !== "");
-      const { error: cError } = await supabase
-        .from('inventory_codes')
-        .insert(codes.map(code => ({
-          product_id: product?.id,
-          code: code.trim(),
-          status: 'available',
-          face_value: value,
-          usd_rate: exchangeRate,
-          region: selectedRegion
-        })));
+      
+      const response = await fetch('/api/admin/inventory/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          categoryId: selectedCategory.id,
+          value,
+          costPrice,
+          salePrice,
+          description,
+          codes,
+          region: selectedRegion,
+          exchangeRate,
+          lowStockAlert
+        })
+      });
 
-      if (cError) throw cError;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al cargar el inventario');
+      }
 
       onSuccess?.();
       onClose();
@@ -141,9 +103,9 @@ export const GiftCardBottomSheet = ({ isOpen, onClose, onSuccess }: GiftCardBott
       setDescription("");
       setCodesText("");
       setSelectedCategory(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error creating gift card codes:", err);
-      alert("Error al cargar los códigos");
+      alert(err.message || "Error al cargar los códigos");
     } finally {
       setLoading(false);
     }
