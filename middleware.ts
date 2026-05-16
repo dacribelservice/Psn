@@ -8,6 +8,11 @@ const LIMIT = 15; // 15 peticiones
 const WINDOW = 60 * 1000; // 1 minuto
 
 export async function middleware(request: NextRequest) {
+  // --- BYPASS TOTAL PARA DIAGNÓSTICO ---
+  // Deshabilitamos el middleware temporalmente para descartar interferencia con la sesión
+  return NextResponse.next()
+
+  /*
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -92,6 +97,7 @@ export async function middleware(request: NextRequest) {
   }
 
   return response
+  */
 }
 
 export const config = {
