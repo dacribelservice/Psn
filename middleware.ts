@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // ESTRATEGIA: SESSION REFRESHER PASIVO (Sin consulta a base de datos de perfiles)
+  // ESTRATEGIA: SESSION REFRESHER PASIVO
   try {
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -52,38 +52,32 @@ export async function middleware(request: NextRequest) {
             return request.cookies.get(name)?.value
           },
           set(name: string, value: string, options: CookieOptions) {
-            request.cookies.set({
-              name,
-              value,
-              ...options,
-            })
+            // 1. Actualizar el request para que la API vea la nueva cookie inmediatamente
+            request.cookies.set({ name, value, ...options })
+            
+            // 2. Crear una nueva respuesta con los headers actualizados del request
             response = NextResponse.next({
               request: {
                 headers: request.headers,
               },
             })
-            response.cookies.set({
-              name,
-              value,
-              ...options,
-            })
+
+            // 3. IMPORTANTE: Re-aplicar TODAS las cookies acumuladas a la nueva respuesta
+            // Esto evita que al crear una respuesta nueva se pierdan las cookies anteriores.
+            request.cookies.getAll().forEach((cookie) => {
+              response.cookies.set(cookie.name, cookie.value, options);
+            });
           },
           remove(name: string, options: CookieOptions) {
-            request.cookies.set({
-              name,
-              value: '',
-              ...options,
-            })
+            request.cookies.set({ name, value: '', ...options })
             response = NextResponse.next({
               request: {
                 headers: request.headers,
               },
             })
-            response.cookies.set({
-              name,
-              value: '',
-              ...options,
-            })
+            request.cookies.getAll().forEach((cookie) => {
+              response.cookies.set(cookie.name, cookie.value, options);
+            });
           },
         },
       }
@@ -93,9 +87,8 @@ export async function middleware(request: NextRequest) {
     await supabase.auth.getUser()
     
   } catch (error) {
-    // FAIL-SAFE: En caso de error de red, dejamos pasar el tráfico para evitar "Hangs"
+    // FAIL-SAFE: En caso de error, mantenemos la respuesta actual con las cookies que tenga
     console.warn("Middleware Sync Warning:", error)
-    return NextResponse.next()
   }
 
   return response
